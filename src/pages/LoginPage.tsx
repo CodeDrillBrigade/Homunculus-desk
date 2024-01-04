@@ -51,7 +51,7 @@ export const LoginPage = () => {
             localStorage.setItem(localStorageRefreshJwtKey, data.refreshJwt)
             navigate("/")
         }
-    },[data, dispatch,navigate])
+    },[data, dispatch, navigate])
 
     return <>
         <VStack padding={"0 25vw"}>
