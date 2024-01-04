@@ -27,7 +27,7 @@ startAuthListening({
 
         if(!!refreshJwt && !isJwtInvalidOrExpired(refreshJwt)) {
             await axios.post(
-                `${process.env.REACT_APP_API_URL}/auth/refresh`,
+                `${process.env.REACT_APP_APIURL}/auth/refresh`,
                 null,
                 { headers: { "Authentication": `Bearer ${refreshJwt}` } }
             ).then(

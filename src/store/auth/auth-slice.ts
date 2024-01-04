@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {RootState} from "../index";
 
 export interface AuthState {
     refreshJwt: string | null;
@@ -31,3 +32,4 @@ export const {
 } = authSlice.actions;
 
 export const authReducer = authSlice.reducer;
+export const jwtSelector = (state: RootState) => state.auth.jwt;
