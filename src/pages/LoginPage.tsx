@@ -1,10 +1,11 @@
-import {Button, Input, VStack} from "@chakra-ui/react";
+import {Button, Heading, Input, Spinner, VStack} from "@chakra-ui/react";
 import {useEffect, useState} from "react";
 import {useLoginMutation} from "../services/auth";
-import {setAuthenticationState} from "../store/auth/auth-slice";
-import {useAppDispatch} from "../hooks/redux";
+import {jwtSelector, setAuthenticationState} from "../store/auth/auth-slice";
+import {useAppDispatch, useAppSelector} from "../hooks/redux";
 import {useNavigate} from "react-router-dom";
-import {localStorageJwtKey, localStorageRefreshJwtKey} from "../store/auth/auth-thunk";
+import {getToken, localStorageJwtKey, localStorageRefreshJwtKey} from "../store/auth/auth-thunk";
+import {QueryStatus} from "@reduxjs/toolkit/query";
 
 
 export const LoginPage = () => {
@@ -13,6 +14,8 @@ export const LoginPage = () => {
     const [login, {status,error,data}] = useLoginMutation()
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
+    dispatch(getToken())
+    const jwt = useAppSelector(jwtSelector);
 
     const onChangeUsername = (event:React.FormEvent<HTMLInputElement>) =>
     {
@@ -33,6 +36,12 @@ export const LoginPage = () => {
         }
     }
 
+    useEffect(() => {
+        if(!!jwt) {
+            navigate("/")
+        }
+    }, [jwt, navigate]);
+
     useEffect(()=>
     {
         if (!!data)
@@ -46,13 +55,14 @@ export const LoginPage = () => {
 
     return <>
         <VStack padding={"0 25vw"}>
-            <h1>Login</h1>
-            <p>STATUS: {JSON.stringify(status)}</p>
-            <p>ERROR: {JSON.stringify(error)}</p>
-            <p>DATA: {JSON.stringify(data)}</p>
+            <Heading size="lg">Login</Heading>
             <Input placeholder="Username" onChange={onChangeUsername}/>
             <Input type="password" placeholder="Password" onChange={onChangePassword}/>
-            <Button onClick={onSubmit}>Login</Button>
+            <Button
+                onClick={onSubmit}
+                isLoading={status === QueryStatus.pending}
+                loadingText='Login'
+            >Login</Button>
         </VStack>
     </>
 }
