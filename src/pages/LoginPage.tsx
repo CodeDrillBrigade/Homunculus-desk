@@ -1,5 +1,5 @@
 import {Button, Heading, Input, Spinner, VStack} from "@chakra-ui/react";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useLoginMutation} from "../services/auth";
 import {jwtSelector, setAuthenticationState} from "../store/auth/auth-slice";
 import {useAppDispatch, useAppSelector} from "../hooks/redux";
@@ -19,8 +19,8 @@ export const LoginPage = () => {
 
     const onChangeUsername = (event:React.FormEvent<HTMLInputElement>) =>
     {
+        console.log(event.currentTarget.value)
         setUsername(event.currentTarget.value)
-        // console.log(event.currentTarget.value)
     }
     const onChangePassword = (event:React.FormEvent<HTMLInputElement>) =>
     {
@@ -29,6 +29,7 @@ export const LoginPage = () => {
 
     const onSubmit = () =>
     {
+        console.log(username, password)
         if (!!username && !!password)
         {
             const data = {username, password}
@@ -62,7 +63,8 @@ export const LoginPage = () => {
                 onClick={onSubmit}
                 isLoading={status === QueryStatus.pending}
                 loadingText='Login'
-            >Login</Button>
+                >Login
+            </Button>
         </VStack>
     </>
 }
