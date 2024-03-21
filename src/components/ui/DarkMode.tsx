@@ -6,16 +6,6 @@ import {useEffect} from "react";
 export const DarkMode = () =>
 {
 	const {colorMode, toggleColorMode} = useColorMode()
-	useEffect(()=> {
-		if (colorMode === "dark")
-		{
-			document.body.style.backgroundColor = "#282828"
-		}else
-		{
-			document.body.style.backgroundColor = "#ffffff"
-		}
-	}, [colorMode])
-
 
 	const click = () => {
 		toggleColorMode()
