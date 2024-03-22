@@ -2,6 +2,7 @@ import {Center, Grid, GridItem} from "@chakra-ui/react";
 import {useNavigate} from "react-router-dom";
 import "./home.css"
 import Header from "../../components/ui/Header";
+import Search from "../Search";
 
 export const HomePage = () =>
 {
@@ -28,12 +29,8 @@ export const HomePage = () =>
                 </p>
               </Center>
             </GridItem>
-            <GridItem w={w} h={h} bg='blue.500' onClick={() => {goto(pages[2])}} borderRadius={"md"}>
-              <Center>
-                <p>
-                  {pages[2].substring(0,1).toUpperCase().concat(pages[2].substring(1))}
-                </p>
-              </Center>
+            <GridItem w={w} h={h} bg='blue.500' borderRadius={"md"}>
+              <Search />
             </GridItem>
         </Grid>
     </>

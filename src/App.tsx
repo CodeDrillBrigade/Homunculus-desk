@@ -18,8 +18,6 @@ const router = createBrowserRouter([
       { path: "/material", element: <Material /> },
       { index: true, element: <HomePage /> },
       { path: "/storage", element: <Storage /> },
-      { index: true, element: <HomePage /> },
-      { path: "/search", element: <Search /> },
 
     ]
   }
