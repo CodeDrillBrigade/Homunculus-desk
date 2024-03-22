@@ -1,7 +1,6 @@
 
 import {Center, HStack, Switch, useColorMode} from "@chakra-ui/react";
 import {SunIcon, MoonIcon} from "@chakra-ui/icons"
-import {useEffect} from "react";
 
 export const DarkMode = () =>
 {

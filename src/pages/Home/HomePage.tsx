@@ -1,7 +1,7 @@
 import {Center, Grid, GridItem} from "@chakra-ui/react";
 import {useNavigate} from "react-router-dom";
 import "./home.css"
-import {DarkMode} from "../../components/ui/DarkMode";
+import NavBar from "../../components/ui/NavBar";
 
 export const HomePage = () =>
 {
@@ -12,6 +12,7 @@ export const HomePage = () =>
     const h = 20
     const w= "100%"
     return <>
+      <NavBar />
         <Grid templateColumns='repeat(3, 1fr)' gap={6} p={2}>
             <GridItem w={w} h={h} bg='blue.500' onClick={() => {goto(pages[0])}} borderRadius={"md"}>
                 <Center>
@@ -35,6 +36,5 @@ export const HomePage = () =>
               </Center>
             </GridItem>
         </Grid>
-        <DarkMode/>
     </>
 }
