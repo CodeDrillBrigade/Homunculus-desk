@@ -1,4 +1,4 @@
-import {FormControl, FormHelperText, FormLabel, HStack, Img, Input, Spacer} from "@chakra-ui/react";
+import {FormControl, HStack, Input, Spacer} from "@chakra-ui/react";
 import {useState} from "react";
 import {Search2Icon} from "@chakra-ui/icons";
 
@@ -8,7 +8,7 @@ export const Search = () =>
 
 	function submit()
 	{
-
+		// todo: fare qualcosa con il text
 	}
 
 	function onChange(t:string)
