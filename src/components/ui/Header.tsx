@@ -2,7 +2,7 @@ import {Avatar, Button, Flex, HStack, Image, Spacer, Text} from "@chakra-ui/reac
 import {DarkMode} from "./DarkMode";
 
 
-export const NavBar = () =>
+export const Header = () =>
 {
 	const names =
 		["Aurora","Bailey","Cabanela","Damiano","Esker","Feldspar","Gabbro","Hornfels","Irina",
@@ -23,14 +23,18 @@ export const NavBar = () =>
 			</HStack>
 
 			<Spacer/>
+			<DarkMode />
+			<Spacer/>
+
 			<HStack spacing={"20px"}>
-				<DarkMode />
+				<Spacer />
 				<Button colorScheme={"orange"} onClick={logout}>Logout
 					<Image src={"https://img.icons8.com/sf-regular/48/exit.png"} width={"30px"}/>
 				</Button>
 			</HStack>
+
 		</Flex>
 	</>
 }
 
-export default NavBar
+export default Header
