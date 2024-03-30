@@ -1,4 +1,4 @@
-import {Center, Grid, GridItem} from "@chakra-ui/react";
+import {Center, Grid, GridItem, Spacer, VStack} from "@chakra-ui/react";
 import {useNavigate} from "react-router-dom";
 import "./home.css"
 import Header from "../../components/ui/Header";
@@ -12,25 +12,30 @@ export const HomePage = () =>
     const pages = ["material", "storage", "search"]
     const h = 20
     const w= "100%"
+    const br = "lg";
     return <>
       <Header />
         <Grid templateColumns='repeat(3, 1fr)' gap={6} p={2}>
-            <GridItem w={w} h={h} bg='blue.500' onClick={() => {goto(pages[0])}} borderRadius={"md"}>
-                <Center>
+            <GridItem ml={2} w={w} h={h} bg='blue.500' onClick={() => {goto(pages[0])}} borderRadius={br}>
+                <Center h={h}>
                 <p>
                   {pages[0].substring(0,1).toUpperCase().concat(pages[0].substring(1))}
                 </p>
               </Center>
             </GridItem>
-            <GridItem w={w} h={h} bg='blue.500' onClick={() => {goto(pages[1])}} borderRadius={"md"}>
-              <Center>
+
+            <GridItem w={w} h={h} bg='blue.500' onClick={() => {goto(pages[1])}} borderRadius={br}>
+              <Center h={h}>
                 <p>
                   {pages[1].substring(0, 1).toUpperCase().concat(pages[1].substring(1))}
                 </p>
               </Center>
             </GridItem>
-            <GridItem w={w} h={h} bg='blue.500' borderRadius={"md"}>
-              <Search />
+
+            <GridItem mr={2} w={w} h={h} bg='blue.500' borderRadius={br}>
+              <Center h={h}>
+                <Search />
+              </Center>
             </GridItem>
         </Grid>
     </>

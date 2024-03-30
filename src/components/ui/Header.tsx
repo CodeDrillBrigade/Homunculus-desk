@@ -7,15 +7,11 @@ import {localStorageJwtKey} from "../../store/auth/auth-thunk";
 export const Header = () =>
 {
 	const names =
-		["Aurora","Bailey","Cabanela","Damiano","Esker","Feldspar","Gabbro","Hornfels","Irina",
-			"Jowd","Kurisu","Lynne","Miguel","Naem","Omero","Pasquale","Quasimodo","Riebeck","Solanum","Tullio",
+		["Aurora","Bailey","Cabanela","Daru","Esker","Feldspar","Gabbro","Hornfels","Irina",
+			"Jowd","Kurisu","Lynne","Miguel","Naem","Okabe","Pasquale","Quasimodo","Riebeck","Solanum","Tullio",
 			"Umbra","Vicky","Wallace","Xenia","Yomiel","Zenigata"]
 	const numero = Math.floor(Math.random()*names.length)
 	const nameSelected = names[numero]
-
-	const logout = () => {
-
-	}
 
 	return <>
 		<Flex as={"nav"} p={"10px"} alignItems={"center"}>
@@ -24,16 +20,9 @@ export const Header = () =>
 				<Text>{nameSelected}</Text>
 			</HStack>
 
-			<Spacer/>
+			<Spacer />
 			<DarkMode />
-			<Spacer/>
-
-			<HStack spacing={"20px"}>
-				<Spacer />
-				<Button colorScheme={"orange"} onClick={logout}>Logout
-					<Image src={"https://img.icons8.com/sf-regular/48/exit.png"} width={"30px"}/>
-				</Button>
-			</HStack>
+			{ /* <Spacer /> */ }
 
 		</Flex>
 	</>
