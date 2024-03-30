@@ -8,16 +8,12 @@ export const authAPI = createApi({
 		baseUrl:`${process.env.REACT_APP_APIURL}`,
 		prepareHeaders: (headers)=>
 		{
-			headers.set("access-control-allow-origin", "*")
 			headers.set("content-type", "application/json")
 		}
 	}),
-	endpoints: (builder) =>
-	({
-		login: builder.mutation<JwtResponse, LoginData>(
-		{
-			query: (data) =>
-			({
+	endpoints: (builder) => ({
+		login: builder.mutation<JwtResponse, LoginData>({
+			query: (data) => ({
 				url: "/auth/login",
 				method: "POST",
 				body: JSON.stringify(data)
@@ -26,4 +22,6 @@ export const authAPI = createApi({
 	})
 })
 
-export const {useLoginMutation} = authAPI
+export const {
+	useLoginMutation
+} = authAPI

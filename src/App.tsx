@@ -2,7 +2,7 @@ import React from 'react';
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import {HomePage} from "./pages/Home/HomePage";
 import {LoginPage} from "./pages/LoginPage";
-import {Storage} from "./pages/Storage";
+import {ManageStoragePage} from "./pages/storage/ManageStoragePage";
 import {AuthenticatedLayout} from "./pages/layout/AuthenticatedLayout";
 import Material from "./pages/Material";
 
@@ -12,12 +12,9 @@ const router = createBrowserRouter([
     element: <AuthenticatedLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "/login", element: <LoginPage /> },
-      { index: true, element: <HomePage /> },
-      { path: "/material", element: <Material /> },
-      { index: true, element: <HomePage /> },
-      { path: "/storage", element: <Storage /> },
-
+      { path: "login", element: <LoginPage /> },
+      { path: "material", element: <Material /> },
+      { path: "storage", element: <ManageStoragePage /> },
     ]
   }
 ])

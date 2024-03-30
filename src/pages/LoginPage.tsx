@@ -11,7 +11,7 @@ import {QueryStatus} from "@reduxjs/toolkit/query";
 export const LoginPage = () => {
     const [username, setUsername] = useState<string|null>(null)
     const [password, setPassword] = useState<string|null>(null)
-    const [login, {status,error,data}] = useLoginMutation()
+    const [login, {status, error, data}] = useLoginMutation()
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
     dispatch(getToken())

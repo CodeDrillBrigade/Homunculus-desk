@@ -12,7 +12,10 @@ export const appTheme = extendTheme({
             body: {
                 bg: props.colorMode === 'dark' ? 'gray.800' : 'gray.50',
                 color: props.colorMode === 'dark' ? 'white' : 'gray.800',
-            },
+            }
         }),
     },
 });
+
+export const borderDark = 'gray.700'
+export const borderLight = 'gray.400'

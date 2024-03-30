@@ -8,7 +8,7 @@ export const getToken = createAsyncThunk(
     'auth/token',
     async (_param: void, { getState, dispatch } ) => {
         const {
-            auth: { jwt }
+            auth: { jwt}
         } = getState() as { auth: AuthState }
 
         if(!jwt) {
