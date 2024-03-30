@@ -1,5 +1,7 @@
 import {Avatar, Button, Flex, HStack, Image, Spacer, Text} from "@chakra-ui/react";
 import {DarkMode} from "./DarkMode";
+import {jwtSelector} from "../../store/auth/auth-slice";
+import {localStorageJwtKey} from "../../store/auth/auth-thunk";
 
 
 export const Header = () =>

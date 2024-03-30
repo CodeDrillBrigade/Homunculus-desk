@@ -83,15 +83,15 @@ export const TextWithDescriptionModal = ({
                 <ModalBody>
                     {!!error && <ErrorAlert info={error} />}
                     <TextInput
-                        label="Room Name"
-                        placeholder="Room name (max. 50 characters)"
+                        label="Name"
+                        placeholder="Name (max. 50 characters)"
                         validator={input => !!input && input.trim().length <= 50}
                         valueConsumer={value => {dispatchFormState({type: FormUpdateAction.SET_NAME, payload: value})}}
                     />
                     <TextArea
                         marginTop="2em"
                         label="Description"
-                        placeholder="Room description (optional, max. 300 characters)"
+                        placeholder="Description (optional, max. 300 characters)"
                         validator={input => !input || input.trim().length <= 300}
                         valueConsumer={value => {dispatchFormState({type: FormUpdateAction.SET_DESCRIPTION, payload: value})}}
                     />

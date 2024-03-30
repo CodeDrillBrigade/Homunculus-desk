@@ -2,6 +2,8 @@ import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import {StorageRoom} from "../models/StorageRoom";
 import {AllStorageRoomsTag, StorageRoomTagType} from "./tags/storageRoom";
 import {AuthState} from "../store/auth/auth-slice";
+import {Cabinet} from "../models/embed/storage/Cabinet";
+import {Shelf} from "../models/embed/storage/Shelf";
 
 export const storageRoomApi = createApi({
 	reducerPath:"storageRoom",
@@ -29,11 +31,29 @@ export const storageRoomApi = createApi({
 				body: JSON.stringify(data)
 			}),
 			invalidatesTags: [AllStorageRoomsTag]
+		}),
+		addCabinet: builder.mutation<StorageRoom, {storageRoomId: string, cabinet: Cabinet}>({
+			query: (data) => ({
+				url: `/${data.storageRoomId}/cabinet`,
+				method: "POST",
+				body: JSON.stringify(data.cabinet)
+			}),
+			invalidatesTags: [AllStorageRoomsTag]
+		}),
+		addShelf: builder.mutation<StorageRoom, {storageRoomId: string, cabinetId: string, shelf: Shelf}>({
+			query: (data) => ({
+				url: `/${data.storageRoomId}/cabinet/${data.cabinetId}/shelf`,
+				method: "POST",
+				body: JSON.stringify(data.shelf)
+			}),
+			invalidatesTags: [AllStorageRoomsTag]
 		})
 	})
 })
 
 export const {
+	useAddCabinetMutation,
+	useAddShelfMutation,
 	useCreateStorageRoomMutation,
 	useGetStorageRoomsQuery
 } = storageRoomApi
