@@ -22,7 +22,8 @@ export const Header = () =>
 
 			<Spacer />
 			<DarkMode />
-			{ /* <Spacer /> */ }
+			<Spacer />
+			<Button colorScheme={"orange"}>Logout <Image src={"https://img.icons8.com/sf-regular/48/exit.png"} width={"30px"}/></Button>
 
 		</Flex>
 	</>
