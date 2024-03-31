@@ -23,3 +23,12 @@ export const getToken = createAsyncThunk(
 
     }
 )
+
+export const resetToken = createAsyncThunk(
+  "auth/resetToken",
+  async (_param: void) => {
+    localStorage.removeItem(localStorageJwtKey)
+    localStorage.removeItem(localStorageRefreshJwtKey)
+    // TODO reset redux state
+  }
+)

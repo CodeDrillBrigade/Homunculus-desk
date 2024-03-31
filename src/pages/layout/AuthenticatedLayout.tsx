@@ -23,6 +23,5 @@ export const AuthenticatedLayout = () => {
           <DarkMode/>
         </Box>
         <Outlet />
-
     </>
 }

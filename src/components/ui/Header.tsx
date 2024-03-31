@@ -1,7 +1,8 @@
 import {Avatar, Button, Flex, HStack, Image, Spacer, Text} from "@chakra-ui/react";
 import {DarkMode} from "./DarkMode";
-import {jwtSelector} from "../../store/auth/auth-slice";
-import {localStorageJwtKey} from "../../store/auth/auth-thunk";
+import {resetToken} from "../../store/auth/auth-thunk";
+import {useAppDispatch} from "../../hooks/redux";
+import {log} from "node:util";
 
 
 export const Header = () =>
@@ -12,6 +13,13 @@ export const Header = () =>
 			"Umbra","Vicky","Wallace","Xenia","Yomiel","Zenigata"]
 	const numero = Math.floor(Math.random()*names.length)
 	const nameSelected = names[numero]
+	const dispatch = useAppDispatch()
+
+	function logout()
+	{
+		console.log("clickity click")
+		dispatch(resetToken)
+	}
 
 	return <>
 		<Flex as={"nav"} p={"10px"} alignItems={"center"}>
@@ -23,7 +31,10 @@ export const Header = () =>
 			<Spacer />
 			<DarkMode />
 			<Spacer />
-			<Button colorScheme={"orange"}>Logout <Image src={"https://img.icons8.com/sf-regular/48/exit.png"} width={"30px"}/></Button>
+			<Button colorScheme={"orange"} onClick={logout}
+				>Logout
+				<Image src={"https://img.icons8.com/sf-regular/48/exit.png"} width={"30px"}/>
+			</Button>
 
 		</Flex>
 	</>
