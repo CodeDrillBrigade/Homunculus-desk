@@ -1,4 +1,4 @@
-import {Button, Heading, Input, VStack} from "@chakra-ui/react";
+import {Button, Center, Heading, Input, VStack} from "@chakra-ui/react";
 import React, {useEffect, useState} from "react";
 import {useLoginMutation} from "../services/auth";
 import {jwtSelector, setAuthenticationState} from "../store/auth/auth-slice";
@@ -6,6 +6,7 @@ import {useAppDispatch, useAppSelector} from "../hooks/redux";
 import {useNavigate} from "react-router-dom";
 import {getToken, localStorageJwtKey, localStorageRefreshJwtKey} from "../store/auth/auth-thunk";
 import {QueryStatus} from "@reduxjs/toolkit/query";
+import {DarkMode} from "../components/ui/DarkMode";
 
 
 export const LoginPage = () => {
@@ -53,6 +54,9 @@ export const LoginPage = () => {
     },[data, dispatch, navigate])
 
     return <>
+        <Center>
+            <DarkMode/>
+        </Center>
         <VStack padding={"0 25vw"}>
             <Heading size="lg">Login</Heading>
             <Input placeholder="Username" onChange={onChangeUsername}/>

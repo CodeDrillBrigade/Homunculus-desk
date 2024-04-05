@@ -12,11 +12,12 @@ const router = createBrowserRouter([
     element: <AuthenticatedLayout/>,
     children: [
       { index: true, element: <HomePage/> },
-      { path: "login", element: <LoginPage/> },
       { path: "material", element: <Material/> },
       { path: "storage", element: <ManageStoragePage/> },
     ]
   }
+  ,
+  { path: "login", element: <LoginPage/> },
 ])
 
 function App() {

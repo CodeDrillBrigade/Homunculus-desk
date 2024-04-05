@@ -5,7 +5,7 @@ import {useAppDispatch} from "../../hooks/redux";
 import {log} from "node:util";
 
 
-export const Header = () =>
+export const TopMenu = () =>
 {
 	const names =
 		["Aurora","Bailey","Cabanela","Daru","Esker","Feldspar","Gabbro","Hornfels","Irina",
@@ -17,8 +17,7 @@ export const Header = () =>
 
 	function logout()
 	{
-		console.log("clickity click")
-		dispatch(resetToken)
+		dispatch(resetToken())
 	}
 
 	return <>
@@ -27,7 +26,6 @@ export const Header = () =>
 				<Avatar name={nameSelected} />
 				<Text>{nameSelected}</Text>
 			</HStack>
-
 			<Spacer />
 			<DarkMode />
 			<Spacer />
@@ -40,4 +38,4 @@ export const Header = () =>
 	</>
 }
 
-export default Header
+export default TopMenu
