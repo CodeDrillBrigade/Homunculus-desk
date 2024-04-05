@@ -1,4 +1,4 @@
-import {Center, Grid, GridItem, Spacer, VStack} from "@chakra-ui/react";
+import {Center, Grid, GridItem} from "@chakra-ui/react";
 import {useNavigate} from "react-router-dom";
 import "./home.css"
 import Search from "../Search";

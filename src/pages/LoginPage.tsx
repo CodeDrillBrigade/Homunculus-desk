@@ -1,4 +1,4 @@
-import {Button, Center, Heading, Input, VStack} from "@chakra-ui/react";
+import {Box, Button, Center, Heading, Input, VStack} from "@chakra-ui/react";
 import React, {useEffect, useState} from "react";
 import {useLoginMutation} from "../services/auth";
 import {jwtSelector, setAuthenticationState} from "../store/auth/auth-slice";
@@ -55,7 +55,9 @@ export const LoginPage = () => {
 
     return <>
         <Center>
-            <DarkMode/>
+            <Box marginTop={5} marginBottom={10}>
+                <DarkMode />
+            </Box>
         </Center>
         <VStack padding={"0 25vw"}>
             <Heading size="lg">Login</Heading>

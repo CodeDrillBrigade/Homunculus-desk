@@ -2,7 +2,6 @@ import {Avatar, Button, Flex, HStack, Image, Spacer, Text} from "@chakra-ui/reac
 import {DarkMode} from "./DarkMode";
 import {resetToken} from "../../store/auth/auth-thunk";
 import {useAppDispatch} from "../../hooks/redux";
-import {log} from "node:util";
 
 
 export const TopMenu = () =>
