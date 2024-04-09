@@ -1,18 +1,16 @@
-import {Avatar, Button, Flex, HStack, Image, Spacer, Text} from "@chakra-ui/react";
+import {Avatar, Button, Flex, HStack, Image, SkeletonCircle, Spacer, Text} from "@chakra-ui/react";
 import {DarkMode} from "./DarkMode";
 import {resetToken} from "../../store/auth/auth-thunk";
 import {useAppDispatch} from "../../hooks/redux";
-
+import {useGetCurrentUserQuery, useGetPermissionsQuery} from "../../services/user";
+import {Back} from "./Back";
 
 export const TopMenu = () =>
 {
-	const names =
-		["Aurora","Bailey","Cabanela","Daru","Esker","Feldspar","Gabbro","Hornfels","Irina",
-			"Jowd","Kurisu","Lynne","Miguel","Naem","Okabe","Pasquale","Quasimodo","Riebeck","Solanum","Tullio",
-			"Umbra","Vicky","Wallace","Xenia","Yomiel","Zenigata"]
-	const numero = Math.floor(Math.random()*names.length)
-	const nameSelected = names[numero]
+	const { data, error, status} = useGetCurrentUserQuery()
+	const { data:permissions } = useGetPermissionsQuery()
 	const dispatch = useAppDispatch()
+	// console.log(permissions)
 
 	function logout()
 	{
@@ -21,9 +19,12 @@ export const TopMenu = () =>
 
 	return <>
 		<Flex as={"nav"} p={"10px"} alignItems={"center"}>
+			<Back />
 			<HStack>
-				<Avatar name={nameSelected} />
-				<Text>{nameSelected}</Text>
+				{ !!data && !!permissions && <Avatar name={data.name} /> }
+				{ !! data && <Text>{data.name}</Text> }
+
+				{ !data && <SkeletonCircle /> }
 			</HStack>
 			<Spacer />
 			<DarkMode />

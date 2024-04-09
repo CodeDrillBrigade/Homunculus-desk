@@ -14,7 +14,6 @@ import {QueryStatus} from "@reduxjs/toolkit/query";
 import {generateSkeletons} from "../../components/ui/StackedSkeleton";
 import {StorageRoomCard} from "../../components/storage-rooms/StorageRoomCard";
 import {ErrorAlert} from "../../components/errors/ErrorAlert";
-import {Back} from "../../components/ui/Back";
 
 export const ManageStoragePage = () => {
 	const { data, error, isFetching} = useGetStorageRoomsQuery()
@@ -44,7 +43,6 @@ const AddStorageButton = () => {
 	}
 
 	return (<>
-		<Back />
 
 		<TextWithDescriptionModal
 			title="Add a Storage Room"

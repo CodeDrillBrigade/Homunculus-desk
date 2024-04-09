@@ -8,7 +8,6 @@ import {getToken, localStorageJwtKey, localStorageRefreshJwtKey} from "../store/
 import {QueryStatus} from "@reduxjs/toolkit/query";
 import {DarkMode} from "../components/ui/DarkMode";
 
-
 export const LoginPage = () => {
     const [username, setUsername] = useState<string|null>(null)
     const [password, setPassword] = useState<string|null>(null)
