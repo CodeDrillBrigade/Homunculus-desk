@@ -1,49 +1,46 @@
-import { FormControl, FormLabel, Input, Text } from "@chakra-ui/react";
+import {FormControl, FormLabel, Input, LayoutProps, SpaceProps, Text} from "@chakra-ui/react";
 import { FormValue } from "../../../models/form/FormValue";
-import React, { useState } from "react";
+import React from "react";
+import {FormControls, useFormControl} from "../../../hooks/form";
 
-type TextInputProps = {
-    label: string;
-    placeholder: string;
-    validator?: (input?: string) => boolean;
-    valueConsumer?: (value: FormValue<string>) => void;
-    invalidLabel?: string;
-};
+interface TextInputProps extends LayoutProps, SpaceProps {
+	label: string;
+	placeholder: string;
+	validator?: (input?: string) => boolean;
+	valueConsumer?: (value: FormValue<string>) => void;
+	invalidLabel?: string;
+	controls?: FormControls<string>
+}
 
 export const TextInput = ({
-    label,
-    placeholder,
-    validator,
-    valueConsumer,
-    invalidLabel
+	label,
+	placeholder,
+	validator,
+	valueConsumer,
+	invalidLabel,
+	controls,
+	...style
 }: TextInputProps) => {
-    const [value, setValue] = useState<FormValue<string>>({
-        value: undefined,
-        isValid: true,
-    });
+	const { value, setValue} = useFormControl<string>({validator, valueConsumer})
+	const innerValue = controls?.value ?? value
+	const innerSetValue = controls?.setValue ?? setValue
 
-    const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
-        const input = event.currentTarget.value.trim();
-        const newValue = {
-            value: input,
-            isValid: !validator || validator(input),
-        };
-        setValue(newValue);
-        if (!!valueConsumer) {
-            valueConsumer(newValue);
-        }
-    };
+	const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
+		const input = event.currentTarget.value;
+		innerSetValue(input)
+	};
 
-    return (
-        <FormControl>
-            <FormLabel color={value.isValid ? "" : "crimson"}>{label}</FormLabel>
-            <Input
-                placeholder={placeholder}
-                borderColor={value.isValid ? "" : "crimson"}
-                borderWidth={value.isValid ? "" : "2px"}
-                onChange={handleChange}
-            />
-            {!value.isValid && !!invalidLabel && <Text fontSize='sm' color="crimson">{invalidLabel}</Text>}
-        </FormControl>
-    );
+	return (
+		<FormControl {...style}>
+			<FormLabel color={innerValue.isValid ? "" : "crimson"}>{label}</FormLabel>
+			<Input
+				placeholder={placeholder}
+				borderColor={innerValue.isValid ? "" : "crimson"}
+				borderWidth={innerValue.isValid ? "" : "2px"}
+				value={innerValue.value ?? ""}
+				onChange={handleChange}
+			/>
+			{!innerValue.isValid && !!invalidLabel && <Text fontSize='sm' color="crimson">{invalidLabel}</Text>}
+		</FormControl>
+	);
 };
