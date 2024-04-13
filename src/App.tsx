@@ -9,14 +9,15 @@ import {MaterialPage} from "./pages/material/MaterialPage";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <AuthenticatedLayout />,
+    element: <AuthenticatedLayout/>,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: "login", element: <LoginPage /> },
-      { path: "material", element: <MaterialPage /> },
-      { path: "storage", element: <ManageStoragePage /> },
+      { index: true, element: <HomePage/> },
+      { path: "material", element: <MaterialPage/> },
+      { path: "storage", element: <ManageStoragePage/> },
     ]
   }
+  ,
+  { path: "login", element: <LoginPage/> },
 ])
 
 function App() {

@@ -3,8 +3,7 @@ import {useAppDispatch, useAppSelector} from "../../hooks/redux";
 import {useEffect} from "react";
 import {jwtSelector} from "../../store/auth/auth-slice";
 import {getToken} from "../../store/auth/auth-thunk";
-import {DarkMode} from "../../components/ui/DarkMode";
-import {Box} from "@chakra-ui/react";
+import TopMenu from "../../components/ui/TopMenu";
 
 export const AuthenticatedLayout = () => {
     const dispatch = useAppDispatch()
@@ -19,9 +18,7 @@ export const AuthenticatedLayout = () => {
         }
     }, [jwt, navigate, pathname]);
     return <>
-        <Box marginTop={2} marginBottom={10}>
-          <DarkMode/>
-        </Box>
+        <TopMenu />
         <Outlet />
     </>
 }

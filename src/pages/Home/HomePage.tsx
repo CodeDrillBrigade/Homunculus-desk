@@ -1,7 +1,6 @@
 import {Center, Grid, GridItem, Spacer, VStack} from "@chakra-ui/react";
 import {useNavigate} from "react-router-dom";
 import "./home.css"
-import Header from "../../components/ui/Header";
 import Search from "../Search";
 
 export const HomePage = () =>
@@ -14,7 +13,7 @@ export const HomePage = () =>
     const w= "100%"
     const br = "lg";
     return <>
-      <Header />
+
         <Grid templateColumns='repeat(3, 1fr)' gap={6} p={2}>
             <GridItem ml={2} w={w} h={h} bg='blue.500' onClick={() => {goto(pages[0])}} borderRadius={br}>
                 <Center h={h}>
