@@ -2,7 +2,7 @@ import {FormControl, FormLabel, SpaceProps, Text, Textarea} from "@chakra-ui/rea
 import { FormValue } from "../../../models/form/FormValue";
 import React, { useState } from "react";
 
-interface TextAreaProps extends SpaceProps{
+interface TextAreaProps extends SpaceProps {
 	label: string;
 	placeholder: string;
 	validator?: (input?: string) => boolean;
