@@ -78,7 +78,7 @@ export const BoxDefinitionBuilder = ({ valueConsumer }: { valueConsumer: (value:
 	const presetOptions = useMemo(() => {
 		return !!boxDefinitions
 			? ([{value: null, name: "New preset", id: "new"}] as SelectOption<BoxDefinition | null>[]).concat(boxDefinitions.map(it => {
-				return {value: it, name: `${it.name}${!!it?.description ? it.description : ""}`, id: it._id}}
+				return {value: it, name: `${it.name}${!!it?.description ? " - " + it.description : ""}`, id: it._id}}
 			))
 			: undefined
 	}, [boxDefinitions])

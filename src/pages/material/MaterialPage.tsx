@@ -47,7 +47,7 @@ const ListMaterials = () => {
 						{!!it.tags && it.tags.length > 0 && <CardFooter paddingTop="0px">
 							<Flex>
 								{it.tags.map(id =>
-									<ElementTag tagId={id} marginRight="0.4em" compact={!!it.tags && it.tags.length >= 5}/>)
+									<ElementTag key={id} tagId={id} marginRight="0.4em" compact={!!it.tags && it.tags.length >= 5}/>)
 								}
 							</Flex>
 						</CardFooter>}
