@@ -1,3 +1,3 @@
 export const BoxPage = () => {
-	return <h1>page</h1>
+	return <h1>page aaaaaa</h1>
 }
