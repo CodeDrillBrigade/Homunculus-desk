@@ -1,3 +1,5 @@
+import { AddBoxForm } from '../../components/box/AddBoxForm'
+
 export const BoxPage = () => {
-	return <h1>page aaaaaa</h1>
+	return <AddBoxForm marginLeft="1em" marginRight="1em" />
 }

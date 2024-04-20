@@ -16,119 +16,123 @@ import {
 	ModalOverlay,
 	ModalContent,
 	ModalHeader,
-	ModalCloseButton, ModalBody, ModalFooter, Button, Flex, PopoverFooter, useBreakpointValue
-} from "@chakra-ui/react";
-import {FormValue} from "../../../models/form/FormValue";
-import {Tag} from "../../../models/embed/Tag";
-import {generateSkeletons} from "../../ui/StackedSkeleton";
-import {useCreateTagMutation, useGetTagsQuery} from "../../../services/tag";
-import React, {useEffect, useReducer, useState} from "react";
-import {ErrorAlert} from "../../errors/ErrorAlert";
-import {TextInput} from "./TextInput";
-import {QueryStatus} from "@reduxjs/toolkit/query";
-import {ColorPicker} from "./ColorPicker";
-import {tagColors} from "../../../styles/colors";
-import {getRandomDarkHexColor, makeDarker} from "../../../utils/style-utils";
-import {chunkArray} from "../../../utils/array-utils";
+	ModalCloseButton,
+	ModalBody,
+	ModalFooter,
+	Button,
+	Flex,
+	PopoverFooter,
+	useBreakpointValue,
+} from '@chakra-ui/react'
+import { FormValue } from '../../../models/form/FormValue'
+import { Tag } from '../../../models/embed/Tag'
+import { generateSkeletons } from '../../ui/StackedSkeleton'
+import { useCreateTagMutation, useGetTagsQuery } from '../../../services/tag'
+import React, { useEffect, useReducer, useState } from 'react'
+import { ErrorAlert } from '../../errors/ErrorAlert'
+import { TextInput } from './TextInput'
+import { QueryStatus } from '@reduxjs/toolkit/query'
+import { ColorPicker } from './ColorPicker'
+import { tagColors } from '../../../styles/colors'
+import { getRandomDarkHexColor, makeDarker } from '../../../utils/style-utils'
+import { chunkArray } from '../../../utils/array-utils'
 
 interface LabelInputProps extends SpaceProps {
-	label: string,
-	placeholder: string,
-	validator?: (input?: Tag[]) => boolean;
-	valueConsumer?: (value: FormValue<Tag[]>) => void;
-	invalidLabel?: string;
+	label: string
+	placeholder: string
+	validator?: (input?: Tag[]) => boolean
+	valueConsumer?: (value: FormValue<Tag[]>) => void
+	invalidLabel?: string
 }
 
 export const TagInput = ({ label, placeholder, validator, valueConsumer, invalidLabel }: LabelInputProps) => {
-	const size = useBreakpointValue<{tags: number}>({
-		xl: { tags: 10 },
-		lg: { tags: 8 },
-		md: { tags: 6 },
-		sm: { tags: 3 },
-		base: { tags: 3 }
-	}, {
-		fallback: "md"
-	})
-	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure();
-	const { isOpen: modalIsOpen, onOpen: modalOpen, onClose: modalClose } = useDisclosure();
-	const { data: tags, error, isFetching} = useGetTagsQuery()
-	const [selectedTags, setSelectedTags] = useState<FormValue<Tag[]>>({value: [], isValid: true});
-	const [filteredTags, setFilteredTags] = useState<Tag[]>([]);
-	const [inputValue, setInputValue] = useState<string>("");
-	const [darkColors, setDarkColors] = useState<{[key: string]: string}>({})
+	const size = useBreakpointValue<{ tags: number }>(
+		{
+			xl: { tags: 10 },
+			lg: { tags: 8 },
+			md: { tags: 6 },
+			sm: { tags: 3 },
+			base: { tags: 3 },
+		},
+		{
+			fallback: 'md',
+		}
+	)
+	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
+	const { isOpen: modalIsOpen, onOpen: modalOpen, onClose: modalClose } = useDisclosure()
+	const { data: tags, error, isFetching } = useGetTagsQuery()
+	const [selectedTags, setSelectedTags] = useState<FormValue<Tag[]>>({ value: [], isValid: true })
+	const [filteredTags, setFilteredTags] = useState<Tag[]>([])
+	const [inputValue, setInputValue] = useState<string>('')
+	const [darkColors, setDarkColors] = useState<{ [key: string]: string }>({})
 
 	useEffect(() => {
-		if(!!tags) {
+		if (!!tags) {
 			setFilteredTags(tags)
-			setInputValue("")
-			setDarkColors(Object.fromEntries(tags.map( it => [it.color, makeDarker(it.color)])))
+			setInputValue('')
+			setDarkColors(Object.fromEntries(tags.map(it => [it.color, makeDarker(it.color)])))
 		}
-	}, [tags]);
+	}, [tags])
 
 	const filterEntities = (value: string) => {
-		const query = value.toLowerCase().trim();
-		const queryResult =
-			query.length > 0
-				? tags?.filter((t) => t.name.toLowerCase().startsWith(query))
-				: tags;
-		setInputValue(value);
-		setFilteredTags(queryResult ?? []);
-	};
+		const query = value.toLowerCase().trim()
+		const queryResult = query.length > 0 ? tags?.filter(t => t.name.toLowerCase().startsWith(query)) : tags
+		setInputValue(value)
+		setFilteredTags(queryResult ?? [])
+	}
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		popoverOpen();
-		filterEntities(event.target.value);
-	};
+		popoverOpen()
+		filterEntities(event.target.value)
+	}
 
 	const handleSelection = (tagId: string | undefined) => {
-		popoverClose();
-		const tag = tags?.find((it) => it._id === tagId);
+		popoverClose()
+		const tag = tags?.find(it => it._id === tagId)
 		if (!!tag) {
-			setSelectedTags((currentTags) => {
+			setSelectedTags(currentTags => {
 				if (currentTags.value?.includes(tag) === true) {
-					return currentTags;
+					return currentTags
 				} else {
-					const newLabels = [...(currentTags.value ?? []), tag];
+					const newLabels = [...(currentTags.value ?? []), tag]
 					const selectedLabels = {
 						value: newLabels,
 						isValid: !validator || validator(newLabels),
-					};
-					if(!!valueConsumer) {
+					}
+					if (!!valueConsumer) {
 						valueConsumer(selectedLabels)
 					}
-					return(selectedLabels)
+					return selectedLabels
 				}
-			});
+			})
 		}
-		setInputValue("");
-		setFilteredTags(tags ?? []);
-	};
+		setInputValue('')
+		setFilteredTags(tags ?? [])
+	}
 
 	const handleTagRemoval = (tagId: string | undefined) => {
-		if(!!tagId) {
-			setSelectedTags((currentTags) => {
-				const newTags = (currentTags.value ?? []).filter(
-					(it) => it._id !== tagId
-				);
+		if (!!tagId) {
+			setSelectedTags(currentTags => {
+				const newTags = (currentTags.value ?? []).filter(it => it._id !== tagId)
 				const selectedTags = {
 					value: newTags,
 					isValid: !validator || validator(newTags),
-				};
-				if(!!valueConsumer) {
+				}
+				if (!!valueConsumer) {
 					valueConsumer(selectedTags)
 				}
-				return(selectedTags)
-			});
+				return selectedTags
+			})
 		}
-	};
+	}
 
-	const chunkedTags = !!tags ? chunkArray(filteredTags, size?.tags ?? 5 ) : undefined
+	const chunkedTags = !!tags ? chunkArray(filteredTags, size?.tags ?? 5) : undefined
 	const chunkSelected = chunkArray(selectedTags?.value ?? [], size?.tags ?? 5)
 
 	return (
 		<FormControl>
 			<AddTagModal isOpen={modalIsOpen} onClose={modalClose} />
-			<FormLabel color={selectedTags.isValid ? "" : "crimson"}>{label}</FormLabel>
+			<FormLabel color={selectedTags.isValid ? '' : 'crimson'}>{label}</FormLabel>
 			<Popover
 				closeOnBlur={false}
 				closeOnEsc={true}
@@ -143,40 +147,45 @@ export const TagInput = ({ label, placeholder, validator, valueConsumer, invalid
 						value={inputValue}
 						onChange={handleChange}
 						onBlur={popoverClose}
-						borderColor={selectedTags.isValid ? "" : "crimson"}
-						borderWidth={selectedTags.isValid ? "" : "2px"}
+						borderColor={selectedTags.isValid ? '' : 'crimson'}
+						borderWidth={selectedTags.isValid ? '' : '2px'}
 					/>
 				</PopoverTrigger>
-				{!selectedTags.isValid && !!invalidLabel && (<Text fontSize="sm" color="crimson">{invalidLabel}</Text>)}
+				{!selectedTags.isValid && !!invalidLabel && (
+					<Text fontSize="sm" color="crimson">
+						{invalidLabel}
+					</Text>
+				)}
 				<PopoverContent width="100%">
 					<PopoverBody>
-						{!!chunkedTags && chunkedTags.map((chunk, idx) =>
-							<Flex key={`tag-flex-${idx}`} marginBottom="0.6em">
-								{chunk.map((it) => (
-									<TagComponent
-										key={it._id}
-										borderRadius="full"
-										bg={it.color}
-										_hover={{ bg: darkColors[it.color], cursor: "pointer" }}
-										onClick={() => {handleSelection(it._id)}}
-										marginLeft="0.6em"
-									>
-										<TagLabel>{it.name}</TagLabel>
-									</TagComponent>
-								))}
-							</Flex>
-						)}
-						{isFetching && generateSkeletons({ quantity: 5, height: "1.5ex"})}
-						{!!error && <ErrorAlert info={{label: "Cannot load labels", reason: error}} />}
+						{!!chunkedTags &&
+							chunkedTags.map((chunk, idx) => (
+								<Flex key={`tag-flex-${idx}`} marginBottom="0.6em">
+									{chunk.map(it => (
+										<TagComponent
+											key={it._id}
+											borderRadius="full"
+											bg={it.color}
+											_hover={{ bg: darkColors[it.color], cursor: 'pointer' }}
+											onClick={() => {
+												handleSelection(it._id)
+											}}
+											marginLeft="0.6em"
+										>
+											<TagLabel>{it.name}</TagLabel>
+										</TagComponent>
+									))}
+								</Flex>
+							))}
+						{isFetching && generateSkeletons({ quantity: 5, height: '1.5ex' })}
+						{!!error && <ErrorAlert info={{ label: 'Cannot load labels', reason: error }} />}
 					</PopoverBody>
-					<PopoverFooter>
-						{!!tags && <Button onClick={modalOpen}>Add Tag</Button>}
-					</PopoverFooter>
+					<PopoverFooter>{!!tags && <Button onClick={modalOpen}>Add Tag</Button>}</PopoverFooter>
 				</PopoverContent>
 				<Flex padding="0.6em" margin="0px">
-					{chunkSelected.map( (chunk, idx) =>
+					{chunkSelected.map((chunk, idx) => (
 						<Flex key={`tag-selected-flex-${idx}`} marginBottom="0.6em">
-							{chunk.map((it) => (
+							{chunk.map(it => (
 								<TagComponent
 									size="md"
 									key={it._id}
@@ -186,81 +195,80 @@ export const TagInput = ({ label, placeholder, validator, valueConsumer, invalid
 									marginLeft="0.6em"
 								>
 									<TagLabel>{it.name}</TagLabel>
-									<TagCloseButton
-										onClick={() => handleTagRemoval(it._id)}
-									/>
+									<TagCloseButton onClick={() => handleTagRemoval(it._id)} />
 								</TagComponent>
 							))}
 						</Flex>
-					)}
+					))}
 				</Flex>
 			</Popover>
 		</FormControl>
-	);
+	)
 }
 
 interface AddTagModalProps {
-	isOpen: boolean;
-	onClose: () => void;
+	isOpen: boolean
+	onClose: () => void
 }
 
 interface AddTagFormData {
-	name: FormValue<string>;
-	color: FormValue<string>;
+	name: FormValue<string>
+	color: FormValue<string>
 }
 
 const initialState: AddTagFormData = {
 	name: { value: undefined, isValid: false },
-	color: { value: getRandomDarkHexColor(), isValid: true }
+	color: { value: getRandomDarkHexColor(), isValid: true },
 }
 
-enum FormUpdateAction { SET_NAME, SET_COLOR, RESET_STATE }
+enum FormUpdateAction {
+	SET_NAME,
+	SET_COLOR,
+	RESET_STATE,
+}
 
 function formStateReducer(
 	state: AddTagFormData,
-	action: {type: FormUpdateAction, payload?: FormValue<string>}
+	action: { type: FormUpdateAction; payload?: FormValue<string> }
 ): AddTagFormData {
 	switch (action.type) {
 		case FormUpdateAction.SET_NAME:
 			return {
 				...state,
-				name: action.payload!
-			};
+				name: action.payload!,
+			}
 		case FormUpdateAction.SET_COLOR:
 			return {
 				...state,
-				color: action.payload!
+				color: action.payload!,
 			}
 		case FormUpdateAction.RESET_STATE:
-			return initialState;
+			return initialState
 	}
 }
 
-const AddTagModal = ({
-	isOpen,
-	onClose
-}: AddTagModalProps) => {
+const AddTagModal = ({ isOpen, onClose }: AddTagModalProps) => {
 	const [createTag, { status, error }] = useCreateTagMutation()
 	const [formState, dispatchFormState] = useReducer(formStateReducer, initialState)
 	const isFormInvalid = Object.values(formState).some(it => !it.isValid)
 
 	useEffect(() => {
-		if(status === QueryStatus.fulfilled && !error) {
-			onClose();
+		if (status === QueryStatus.fulfilled && !error) {
+			onClose()
 		}
-	}, [onClose, status, error]);
+	}, [onClose, status, error])
 
 	const onSubmit = (formData: AddTagFormData) => {
 		const name = formData.name.value
 		const color = formData.color.value
-		if(!name) {
-			throw Error("Cabinet name is not valid");
+		if (!name) {
+			throw Error('Cabinet name is not valid')
 		}
-		if(!color) {
-			throw Error("Color is not valid");
+		if (!color) {
+			throw Error('Color is not valid')
 		}
 		createTag({ name, color })
-		dispatchFormState({type: FormUpdateAction.RESET_STATE})
+		dispatchFormState({ type: FormUpdateAction.RESET_STATE })
 	}
 
 	return (
@@ -271,31 +279,41 @@ const AddTagModal = ({
 				<ModalCloseButton />
 
 				<ModalBody>
-					{!!error && <ErrorAlert info={{label: "Cannot create the Tag", reason: error}} />}
+					{!!error && <ErrorAlert info={{ label: 'Cannot create the Tag', reason: error }} />}
 					<TextInput
 						label="Name"
 						placeholder="Name (max. 50 characters)"
 						validator={input => !!input && input.trim().length <= 50}
-						valueConsumer={value => {dispatchFormState({type: FormUpdateAction.SET_NAME, payload: value})}}
+						valueConsumer={value => {
+							dispatchFormState({ type: FormUpdateAction.SET_NAME, payload: value })
+						}}
 					/>
 					<ColorPicker
 						marginTop="2em"
 						initialColor={initialState.color.value}
 						colors={tagColors}
 						label="Tag color"
-						valueConsumer={value => {dispatchFormState({type: FormUpdateAction.SET_COLOR, payload: value})}}
+						valueConsumer={value => {
+							dispatchFormState({ type: FormUpdateAction.SET_COLOR, payload: value })
+						}}
 					/>
 				</ModalBody>
 
 				<ModalFooter>
 					<Button
-						colorScheme='blue'
+						colorScheme="blue"
 						mr={3}
 						isDisabled={isFormInvalid}
 						isLoading={status === QueryStatus.pending}
-						onClick={() => { onSubmit(formState) }}
-					>Create</Button>
-					<Button variant='ghost' onClick={onClose}>Close</Button>
+						onClick={() => {
+							onSubmit(formState)
+						}}
+					>
+						Create
+					</Button>
+					<Button variant="ghost" onClick={onClose}>
+						Close
+					</Button>
 				</ModalFooter>
 			</ModalContent>
 		</Modal>
