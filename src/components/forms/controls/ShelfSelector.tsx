@@ -21,7 +21,7 @@ import { useGetStorageRoomsQuery } from '../../../services/storageRoom'
 import { generateSkeletons } from '../../ui/StackedSkeleton'
 import { ErrorAlert } from '../../errors/ErrorAlert'
 import React, { useCallback, useState } from 'react'
-import { useFormControl } from '../../../hooks/form'
+import { useFormControl } from '../../../hooks/form-control'
 
 interface ShelfSelectorProps extends SpaceProps, LayoutProps {
 	label: string

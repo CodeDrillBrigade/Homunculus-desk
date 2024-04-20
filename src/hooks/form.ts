@@ -1,39 +1,43 @@
-import {FormValue} from "../models/form/FormValue";
-import {useState} from "react";
+import { FormValue } from '../models/form/FormValue'
+import { useCallback, useMemo, useReducer } from 'react'
 
-export interface FormControls<T> {
-	value: FormValue<T>,
-	setValue: (value: T | undefined) => void;
-	validator?: (value: T | undefined) => boolean;
-	valueConsumer?: (value: FormValue<T>) => void
+export type FormValues = { [key: string]: FormValue<any> }
+
+interface UseFormProps<T extends FormValues> {
+	initialState: T
 }
 
-interface FormControlParams<T> {
-	defaultValue?: T;
-	validator?: (value: T | undefined) => boolean;
-	valueConsumer?: (value: FormValue<T>) => void
+interface Form<T extends FormValues> {
+	formState: T
+	dispatchState: (property: keyof T, payload: FormValue<any> | undefined) => void
+	isInvalid: boolean
 }
 
-export function useFormControl<T>({
-	defaultValue,
-	validator,
-	valueConsumer
-}: FormControlParams<T>): FormControls<T> {
-	const [formValue, setFormValue] = useState<FormValue<T>>({
-		value: defaultValue,
-		isValid: true,
-	});
+export function useForm<T extends FormValues>({ initialState }: UseFormProps<T>): Form<T> {
+	const formReducer = useCallback(
+		(state: T, action: { type: keyof T | 'reset'; payload: FormValue<any> | undefined }) => {
+			if (action.type === 'reset') {
+				return initialState
+			} else if (!!action.payload) {
+				return {
+					...state,
+					[action.type]: action.payload,
+				} as T
+			} else {
+				throw new Error('Invalid option')
+			}
+		},
+		[initialState]
+	)
+	const [formState, dispatchFormState] = useReducer(formReducer, initialState)
 
-	const setValue = (value: T | undefined) => {
-		const newValue = {
-			value: value,
-			isValid: !validator || validator(value),
-		};
-		setFormValue(newValue);
-		if (!!valueConsumer) {
-			valueConsumer(newValue);
-		}
-	}
+	const dispatchState = useCallback((property: keyof T, payload: FormValue<any> | undefined) => {
+		dispatchFormState({ type: property, payload })
+	}, [])
 
-	return {value: formValue, setValue, validator, valueConsumer }
+	const isInvalid = useMemo(() => {
+		return Object.values(formState).some(it => !it.isValid)
+	}, [formState])
+
+	return { formState, dispatchState, isInvalid }
 }
