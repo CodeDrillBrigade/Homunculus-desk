@@ -5,7 +5,6 @@ import {
 	FormControl,
 	FormLabel,
 	Heading,
-	Icon,
 	Skeleton,
 	Step,
 	StepIndicator,
@@ -19,50 +18,19 @@ import { NumberInput } from './NumberInput'
 import { SelectInput, SelectOption } from './SelectInput'
 import { Metric } from '../../../models/embed/Metric'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { PiFlask } from 'react-icons/pi'
-import { BsBoxSeam } from 'react-icons/bs'
-import { LuPipette } from 'react-icons/lu'
 import { useGetBoxDefinitionsQuery } from '../../../services/boxDefinition'
 import { ErrorAlert } from '../../errors/ErrorAlert'
 import { BoxDefinition } from '../../../models/embed/BoxDefinition'
 import { useFormControl } from '../../../hooks/form-control'
 import { FormValue } from '../../../models/form/FormValue'
-import { BoxUnit } from '../../../models/embed/BoxUnit'
-
-interface UnitStep {
-	qty: number
-	type: Metric
-	description: string
-	icon: React.JSX.Element
-}
-
-const icons: { [key in Metric]: React.JSX.Element } = {
-	[Metric.ML]: <Icon as={PiFlask} />,
-	[Metric.COMPLEX]: <Icon as={BsBoxSeam} />,
-	[Metric.PIECE]: <Icon as={LuPipette} />,
-}
-
-const generateDescription = (qty: number, type: Metric) => {
-	switch (type) {
-		case Metric.COMPLEX:
-			if (qty === 1) return '1 Container'
-			else return `${qty} Containers`
-		case Metric.ML:
-			return `Flask of ${qty} ml`
-		case Metric.PIECE:
-			if (qty === 1) return '1 Unit'
-			else return `${qty} Units`
-		default:
-			return '??'
-	}
-}
-
-const defaultStep: UnitStep = {
-	qty: 0,
-	type: Metric.ML,
-	description: generateDescription(0, Metric.ML),
-	icon: icons[Metric.ML],
-}
+import {
+	defaultStep,
+	generateDescription,
+	stepsListToUnit,
+	unitIcons,
+	UnitStep,
+	unitToStepsList,
+} from '../../../models/embed/UnitStep'
 
 const measures: SelectOption<Metric>[] = [
 	{ value: Metric.ML, name: 'ml' },
@@ -145,7 +113,7 @@ export const BoxDefinitionBuilder = ({
 					slicedSteps[idx] = {
 						...currentStep,
 						type: type,
-						icon: icons[type],
+						icon: unitIcons[type],
 						description: generateDescription(currentStep.qty, type),
 					}
 					const newSteps = type === Metric.COMPLEX ? slicedSteps.concat(defaultStep) : [...slicedSteps]
@@ -209,7 +177,7 @@ export const BoxDefinitionBuilder = ({
 		(definition: BoxDefinition | null) => {
 			nameControls.setValue(definition?.name)
 			descriptionControls.setValue(definition?.description)
-			setSteps(UnitToStepsList(definition?.boxUnit))
+			setSteps(unitToStepsList(definition?.boxUnit))
 			setFormValue({
 				value: definition ?? undefined,
 				isValid: !!definition && !!definition._id,
@@ -308,32 +276,4 @@ export const BoxDefinitionBuilder = ({
 			</Stepper>
 		</FormControl>
 	)
-}
-
-function UnitToStepsList(unit: BoxUnit | undefined, steps: UnitStep[] = []): UnitStep[] {
-	if (!unit && steps.length === 0) {
-		return [defaultStep]
-	} else if (!unit) {
-		return steps
-	} else {
-		const step: UnitStep = {
-			qty: unit.quantity,
-			type: unit.metric ?? Metric.COMPLEX,
-			description: generateDescription(unit.quantity, unit.metric ?? Metric.COMPLEX),
-			icon: icons[unit.metric ?? Metric.COMPLEX],
-		}
-		return UnitToStepsList(unit.boxUnit, steps.concat(step))
-	}
-}
-
-function stepsListToUnit(steps: UnitStep[]): BoxUnit | undefined {
-	if (steps.length === 0) {
-		return undefined
-	}
-
-	return {
-		quantity: steps[0].qty,
-		metric: steps[0].type !== Metric.COMPLEX ? steps[0].type : undefined,
-		boxUnit: steps[0].type === Metric.COMPLEX ? stepsListToUnit(steps.slice(1, steps.length)) : undefined,
-	}
 }

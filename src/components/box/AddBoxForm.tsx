@@ -3,19 +3,17 @@ import { MaterialSelector } from '../forms/controls/MaterialSelector'
 import { ShelfSelector } from '../forms/controls/ShelfSelector'
 import { FormValue } from '../../models/form/FormValue'
 import { Material } from '../../models/Material'
+import { FormValues, useForm } from '../../hooks/form'
+import { useEffect } from 'react'
+import { useGetBoxDefinitionQuery } from '../../services/boxDefinition'
 
 interface AddBoxFormProps extends SpaceProps {
 	something?: string
 }
 
-interface BoxFormValue {
+interface BoxFormValue extends FormValues {
 	material: FormValue<Material>
 	shelf: FormValue<string>
-}
-
-enum BoxFormValueAction {
-	SET_MATERIAL,
-	SET_SHELF,
 }
 
 const initialState: BoxFormValue = {
@@ -24,6 +22,12 @@ const initialState: BoxFormValue = {
 }
 
 export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
+	const { formState, dispatchState, isInvalid } = useForm({ initialState })
+	const currentBoxDefinitionId = formState.material.value?.boxDefinition
+	const { data: boxDefinition } = useGetBoxDefinitionQuery(currentBoxDefinitionId ?? '', {
+		skip: !currentBoxDefinitionId || currentBoxDefinitionId.length <= 0,
+	})
+
 	return (
 		<Card margin="2em" {...style}>
 			<CardHeader>
@@ -37,11 +41,13 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 						label="Material"
 						placeholder="Choose a material"
 						validator={input => !!input}
+						valueConsumer={value => dispatchState('material', value)}
 						invalidLabel="You must select a valid material"
 					/>
 					<ShelfSelector
 						label="Shelf"
 						validator={input => !!input}
+						valueConsumer={value => dispatchState('shelf', value)}
 						invalidLabel="You must select a shelf"
 						marginTop="1.5em"
 					/>
