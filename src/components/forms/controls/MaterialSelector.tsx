@@ -18,7 +18,7 @@ import {
 	VStack,
 } from '@chakra-ui/react'
 import { FormValue } from '../../../models/form/FormValue'
-import { useFormControl } from '../../../hooks/form-control'
+import { FormControls, useFormControl } from '../../../hooks/form-control'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Material } from '../../../models/Material'
 import { useFindMaterialsByFuzzyNameQuery } from '../../../services/material'
@@ -31,6 +31,7 @@ interface MaterialSelectorProps extends SpaceProps, LayoutProps {
 	validator?: (input?: Material) => boolean
 	valueConsumer?: (value: FormValue<Material>) => void
 	invalidLabel?: string
+	controls?: FormControls<Material>
 }
 
 export function MaterialSelector({
@@ -39,9 +40,12 @@ export function MaterialSelector({
 	validator,
 	valueConsumer,
 	invalidLabel,
+	controls,
 	...style
 }: MaterialSelectorProps) {
 	const { value, setValue } = useFormControl<Material>({ validator, valueConsumer })
+	const innerValue = controls?.value ?? value
+	const innerSetValue = controls?.setValue ?? setValue
 	const [isTyping, setIsTyping] = useState(false)
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
 	const [inputValue, setInputValue] = useState('')
@@ -69,12 +73,12 @@ export function MaterialSelector({
 	const handleSelection = useCallback(
 		(id: string | undefined) => {
 			const material = data?.find(it => it._id === id)
-			setValue(material)
+			innerSetValue(material)
 			if (!!material) {
 				setInputValue(material.name)
 			}
 		},
-		[data, setValue]
+		[data, innerSetValue]
 	)
 
 	const onInputBlur = useCallback(() => {
@@ -108,7 +112,7 @@ export function MaterialSelector({
 
 	return (
 		<FormControl {...style}>
-			<FormLabel color={value.isValid ? '' : 'crimson'}>{label}</FormLabel>
+			<FormLabel color={innerValue.isValid ? '' : 'crimson'}>{label}</FormLabel>
 			<Popover
 				closeOnBlur={false}
 				closeOnEsc={true}
@@ -121,8 +125,8 @@ export function MaterialSelector({
 					<InputGroup>
 						<Input
 							placeholder={placeholder}
-							borderColor={value.isValid ? '' : 'crimson'}
-							borderWidth={value.isValid ? '' : '2px'}
+							borderColor={innerValue.isValid ? '' : 'crimson'}
+							borderWidth={innerValue.isValid ? '' : '2px'}
 							value={inputValue}
 							onChange={handleChange}
 							onBlur={onInputBlur}
@@ -160,7 +164,7 @@ export function MaterialSelector({
 					</PopoverBody>
 				</PopoverContent>
 			</Popover>
-			{!value.isValid && !!invalidLabel && (
+			{!innerValue.isValid && !!invalidLabel && (
 				<Text fontSize="sm" color="crimson">
 					{invalidLabel}
 				</Text>

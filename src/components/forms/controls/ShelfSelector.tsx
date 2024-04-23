@@ -20,35 +20,43 @@ import { FormValue } from '../../../models/form/FormValue'
 import { useGetStorageRoomsQuery } from '../../../services/storageRoom'
 import { generateSkeletons } from '../../ui/StackedSkeleton'
 import { ErrorAlert } from '../../errors/ErrorAlert'
-import React, { useCallback, useState } from 'react'
-import { useFormControl } from '../../../hooks/form-control'
+import React, { useCallback } from 'react'
+import { FormControls, useFormControl } from '../../../hooks/form-control'
 
 interface ShelfSelectorProps extends SpaceProps, LayoutProps {
 	label: string
 	validator?: (input?: string) => boolean
 	valueConsumer?: (value: FormValue<string>) => void
 	invalidLabel?: string
+	controls?: FormControls<string>
 }
 
-export const ShelfSelector = ({ label, validator, valueConsumer, invalidLabel, ...style }: ShelfSelectorProps) => {
+export const ShelfSelector = ({
+	label,
+	validator,
+	valueConsumer,
+	invalidLabel,
+	controls,
+	...style
+}: ShelfSelectorProps) => {
 	const { value, setValue } = useFormControl<string>({ validator, valueConsumer })
-	const [radioValue, setRadioValue] = useState('')
 	const { data, error, isFetching } = useGetStorageRoomsQuery()
+	const innerValue = controls?.value ?? value
+	const innerSetValue = controls?.setValue ?? setValue
 
 	const onRadioChange = useCallback(
 		(selectedId: string) => {
-			setValue(selectedId)
-			setRadioValue(selectedId)
+			innerSetValue(selectedId)
 		},
-		[setValue]
+		[innerSetValue]
 	)
 
 	return (
 		<FormControl {...style}>
-			<FormLabel color={value.isValid ? '' : 'crimson'}>{label}</FormLabel>
+			<FormLabel color={innerValue.isValid ? '' : 'crimson'}>{label}</FormLabel>
 			<VStack>
 				{!!data && (
-					<RadioGroup width="100%" value={radioValue} onChange={onRadioChange}>
+					<RadioGroup width="100%" value={innerValue.value ?? ''} onChange={onRadioChange}>
 						{' '}
 						<Accordion allowToggle>
 							{data.map(room => (
@@ -104,7 +112,7 @@ export const ShelfSelector = ({ label, validator, valueConsumer, invalidLabel, .
 				)}
 				{isFetching && generateSkeletons({ quantity: 5, height: '1.5ex' })}
 				{!!error && <ErrorAlert info={{ label: 'Cannot load rooms', reason: error }} />}
-				{!value.isValid && !!invalidLabel && (
+				{!innerValue.isValid && !!invalidLabel && (
 					<Text fontSize="sm" color="crimson">
 						{invalidLabel}
 					</Text>

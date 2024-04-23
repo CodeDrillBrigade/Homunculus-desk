@@ -34,6 +34,19 @@ export const generateDescription = (qty: number, type: Metric) => {
 	}
 }
 
+export const generateLabel = (type: Metric) => {
+	switch (type) {
+		case Metric.COMPLEX:
+			return 'Box'
+		case Metric.ML:
+			return 'Flask'
+		case Metric.PIECE:
+			return 'Unit'
+		default:
+			return '??'
+	}
+}
+
 export const defaultStep: UnitStep = {
 	qty: 0,
 	type: Metric.ML,

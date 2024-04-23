@@ -9,7 +9,7 @@ interface UseFormProps<T extends FormValues> {
 
 interface Form<T extends FormValues> {
 	formState: T
-	dispatchState: (property: keyof T, payload: FormValue<any> | undefined) => void
+	dispatchState: (property: keyof T, payload?: FormValue<any> | undefined) => void
 	isInvalid: boolean
 }
 

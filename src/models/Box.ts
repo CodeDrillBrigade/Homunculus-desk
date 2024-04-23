@@ -1,5 +1,5 @@
-import { BoxUnit } from './embed/BoxUnit'
 import { UsageLog } from './embed/UsageLog'
+import { BoxUnit } from './embed/BoxUnit'
 
 export interface Box {
 	_id?: string
@@ -7,6 +7,7 @@ export interface Box {
 	quantity: BoxUnit
 	position: string
 	expirationDate?: number
+	deleted?: number
 	description?: string
 	usageLogs: UsageLog[]
 }

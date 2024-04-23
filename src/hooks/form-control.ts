@@ -1,11 +1,12 @@
 import { FormValue } from '../models/form/FormValue'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 export interface FormControls<T> {
 	value: FormValue<T>
 	setValue: (value: T | undefined) => void
 	validator?: (value: T | undefined) => boolean
 	valueConsumer?: (value: FormValue<T>) => void
+	resetValue: () => void
 }
 
 interface FormControlParams<T> {
@@ -20,16 +21,30 @@ export function useFormControl<T>({ defaultValue, validator, valueConsumer }: Fo
 		isValid: true,
 	})
 
-	const setValue = (value: T | undefined) => {
+	const setValue = useCallback(
+		(value: T | undefined) => {
+			const newValue = {
+				value: value,
+				isValid: !validator || validator(value),
+			}
+			setFormValue(newValue)
+			if (!!valueConsumer) {
+				valueConsumer(newValue)
+			}
+		},
+		[validator, valueConsumer]
+	)
+
+	const resetValue = useCallback(() => {
 		const newValue = {
-			value: value,
-			isValid: !validator || validator(value),
+			value: defaultValue,
+			isValid: true,
 		}
 		setFormValue(newValue)
 		if (!!valueConsumer) {
 			valueConsumer(newValue)
 		}
-	}
+	}, [defaultValue, valueConsumer])
 
-	return { value: formValue, setValue, validator, valueConsumer }
+	return { value: formValue, setValue, validator, valueConsumer, resetValue }
 }
