@@ -5,23 +5,24 @@ import {LoginPage} from "./pages/LoginPage";
 import {ManageStoragePage} from "./pages/storage/ManageStoragePage";
 import {AuthenticatedLayout} from "./pages/layout/AuthenticatedLayout";
 import {MaterialPage} from "./pages/material/MaterialPage";
+import {BoxPage} from "./pages/box/BoxPage";
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <AuthenticatedLayout/>,
-    children: [
-      { index: true, element: <HomePage/> },
-      { path: "material", element: <MaterialPage/> },
-      { path: "storage", element: <ManageStoragePage/> },
-    ]
-  }
-  ,
-  { path: "login", element: <LoginPage/> },
+	{
+		path: "/",
+		element: <AuthenticatedLayout/>,
+		children: [
+			{ index: true, element: <HomePage/> },
+			{ path: "box", element: <BoxPage /> },
+			{ path: "material", element: <MaterialPage/> },
+			{ path: "storage", element: <ManageStoragePage/> },
+		]
+	},
+	{ path: "login", element: <LoginPage/> },
 ])
 
 function App() {
-  return <RouterProvider router={router} />;
+	return <RouterProvider router={router} />;
 }
 
 export default App;
