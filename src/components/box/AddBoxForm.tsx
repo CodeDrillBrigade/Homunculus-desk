@@ -33,6 +33,7 @@ interface AddBoxFormProps extends SpaceProps {
 
 interface BoxFormValue extends FormValues {
 	material: FormValue<Material>
+	expirationDate: FormValue<Date>
 	shelf: FormValue<string>
 	description: FormValue<string>
 	quantity: FormValue<BoxUnit>
@@ -41,6 +42,7 @@ interface BoxFormValue extends FormValues {
 const initialState: BoxFormValue = {
 	material: { value: undefined, isValid: false },
 	shelf: { value: undefined, isValid: false },
+	expirationDate: { value: undefined, isValid: true },
 	quantity: { value: undefined, isValid: false },
 	description: { value: undefined, isValid: true },
 }
@@ -53,6 +55,10 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 	const shelfControls = useFormControl<string>({
 		validator: input => !!input,
 		valueConsumer: value => dispatchState('shelf', value),
+	})
+	const dateControls = useFormControl<Date>({
+		valueConsumer: value => dispatchState('expirationDate', value),
+		defaultValue: new Date(),
 	})
 	const materialControls = useFormControl<Material>({
 		validator: input => !!input,
@@ -80,6 +86,7 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 			createBox({
 				description: formState.description.value,
 				material: formState.material.value._id!,
+				expirationDate: formState.expirationDate.value?.getTime(),
 				position: formState.shelf.value,
 				quantity: formState.quantity.value,
 				usageLogs: [],
@@ -102,9 +109,10 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 			descriptionControls.resetValue()
 			shelfControls.resetValue()
 			materialControls.resetValue()
+			dateControls.resetValue()
 			dispatchState('reset')
 		}
-	}, [descriptionControls, dispatchState, isSuccess, materialControls, shelfControls])
+	}, [dateControls, descriptionControls, dispatchState, isSuccess, materialControls, shelfControls])
 
 	return (
 		<Card margin="2em" {...style}>
@@ -120,7 +128,7 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 						placeholder="Description (optional)"
 						controls={descriptionControls}
 					/>
-					<DatePicker label="Expiration date" marginTop="1.5em" />
+					<DatePicker label="Expiration date" marginTop="1.5em" controls={dateControls} />
 					<ShelfSelector
 						label="Shelf"
 						controls={shelfControls}

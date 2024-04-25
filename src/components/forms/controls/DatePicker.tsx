@@ -1,40 +1,36 @@
-import { FormControl, FormLabel, Input, LayoutProps, SpaceProps, Text } from '@chakra-ui/react'
+import { FormControl, FormLabel, LayoutProps, SpaceProps, Text } from '@chakra-ui/react'
 import { FormValue } from '../../../models/form/FormValue'
-import { useFormControl } from '../../../hooks/form-control'
+import { FormControls, useFormControl } from '../../../hooks/form-control'
+import { SingleDatepicker } from 'chakra-dayzed-datepicker'
 import React from 'react'
 
 interface DatePickerProps extends LayoutProps, SpaceProps {
 	label: string
-	initialDate?: Date
+	defaultValue?: Date
 	validator?: (input?: Date) => boolean
 	valueConsumer?: (value: FormValue<Date>) => void
 	invalidLabel?: string
+	controls?: FormControls<Date>
 }
 
 export const DatePicker = ({
 	label,
-	initialDate,
 	validator,
+	defaultValue,
 	valueConsumer,
 	invalidLabel,
+	controls,
 	...style
 }: DatePickerProps) => {
-	const { value, setValue } = useFormControl<Date>({ validator, valueConsumer })
-
-	const handleDateChange = () => {
-		console.log('here')
-	}
+	const { value, setValue } = useFormControl<Date>({ validator, valueConsumer, defaultValue })
+	const innerValue = controls?.value ?? value
+	const innerSetValue = controls?.setValue ?? setValue
 
 	return (
 		<FormControl {...style}>
 			<FormLabel color={value.isValid ? '' : 'crimson'}>{label}</FormLabel>
-			<Input
-				placeholder="Select Date and Time"
-				size="md"
-				type="datetime-local"
-				onChange={e => console.log('Date changed:', e.target.value)}
-			/>
-			{!value.isValid && !!invalidLabel && (
+			<SingleDatepicker name="date-input" date={innerValue.value} onDateChange={innerSetValue} />
+			{!innerValue.isValid && !!invalidLabel && (
 				<Text fontSize="sm" color="crimson">
 					{invalidLabel}
 				</Text>
