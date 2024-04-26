@@ -4,7 +4,7 @@ import {
 	CardBody,
 	CardHeader, Center, Flex,
 	Heading,
-	HStack, Icon,
+	Icon,
 	LayoutProps, ResponsiveValue, SimpleGrid,
 	SpaceProps,
 	Text,
