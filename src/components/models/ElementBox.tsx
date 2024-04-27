@@ -11,14 +11,17 @@ import {
 	SpaceProps,
 	Box,
 	Text,
+	CardFooter,
 } from '@chakra-ui/react'
 import { Box as BoxModel } from '../../models/Box'
-import { useGetMaterialQuery } from '../../services/material'
+import { materialApi, useGetMaterialQuery } from '../../services/material'
 import { ErrorAlert } from '../errors/ErrorAlert'
 import { FaRegCalendarTimes } from 'react-icons/fa'
 import { FaBoxOpen } from 'react-icons/fa'
 import { daysToToday, toDayMonthYear } from '../../utils/date-utils'
 import { IconType } from 'react-icons'
+import { useGetBoxDefinitionQuery } from '../../services/boxDefinition'
+import { QuantityCounter } from './QuantityCounter'
 
 interface ElementBoxProps extends SpaceProps, LayoutProps {
 	box: BoxModel
@@ -26,6 +29,11 @@ interface ElementBoxProps extends SpaceProps, LayoutProps {
 
 export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 	const { data, error, isLoading } = useGetMaterialQuery(box.material)
+	const {
+		data: boxDefinition,
+		error: boxDefinitionError,
+		isLoading: definitionLoading,
+	} = useGetBoxDefinitionQuery(data?.boxDefinition ?? '', { skip: !data?.boxDefinition })
 
 	const daysToExpiration = !!box.expirationDate ? daysToToday(box.expirationDate) : undefined
 	return (
@@ -47,7 +55,7 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 							<WarningIcon
 								icon={FaRegCalendarTimes}
 								text={toDayMonthYear(box.expirationDate)}
-								color="yellow"
+								color="yellow.500"
 							/>
 						)}
 						{!!daysToExpiration && daysToExpiration <= 0 && (
@@ -60,7 +68,11 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 					</Flex>
 				</Flex>
 			</CardHeader>
-			<CardBody></CardBody>
+			<CardBody paddingTop="0px">
+				{!!box.description && <Text fontSize="lg">{box.description}</Text>}
+				{!!boxDefinition && <QuantityCounter quantity={box.quantity.quantity} boxDefinition={boxDefinition} />}
+			</CardBody>
+			<CardFooter></CardFooter>
 		</Card>
 	)
 }

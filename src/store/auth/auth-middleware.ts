@@ -31,7 +31,7 @@ startAuthListening({
 						listenerApi.dispatch(
 							setAuthenticationState({
 								jwt: response.data.jwt,
-								refreshJwt: null,
+								refreshJwt: response.data.refreshJwt,
 							})
 						)
 					},

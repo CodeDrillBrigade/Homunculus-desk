@@ -81,3 +81,17 @@ export function stepsListToUnit(steps: UnitStep[]): BoxUnit | undefined {
 		boxUnit: steps[0].type === Metric.COMPLEX ? stepsListToUnit(steps.slice(1, steps.length)) : undefined,
 	}
 }
+
+export function describeStep(step: UnitStep, nextStep: UnitStep | undefined): string {
+	if (step.type === Metric.COMPLEX && nextStep?.type === Metric.COMPLEX) {
+		return `Box of ${nextStep.qty} Box${nextStep.qty > 1 ? 'es' : ''}`
+	} else if (step.type === Metric.COMPLEX && nextStep?.type === Metric.ML) {
+		return `Full ${nextStep.qty} ml Flask`
+	} else if (step.type === Metric.COMPLEX && nextStep?.type === Metric.PIECE) {
+		return `Full box of ${nextStep.qty} pieces`
+	} else if (step.type === Metric.ML && !nextStep) {
+		return `ml`
+	} else {
+		return `Piece`
+	}
+}

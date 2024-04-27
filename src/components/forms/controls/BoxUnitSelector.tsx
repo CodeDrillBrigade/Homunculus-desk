@@ -12,7 +12,7 @@ import {
 import { FormValue } from '../../../models/form/FormValue'
 import { BoxUnit } from '../../../models/embed/BoxUnit'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { UnitStep, unitToStepsList } from '../../../models/embed/UnitStep'
+import { describeStep, UnitStep, unitToStepsList } from '../../../models/embed/UnitStep'
 import { Metric } from '../../../models/embed/Metric'
 import { useFormControl } from '../../../hooks/form-control'
 import { HTMLChakraProps } from '@chakra-ui/system'
@@ -73,7 +73,7 @@ export const BoxUnitSelector = ({
 				unitSteps.map((step, idx) => (
 					<FormControl key={idx} marginTop="0.7em">
 						<FormLabel>
-							{step.icon} {inputHeader(step, unitSteps[idx + 1])}
+							{step.icon} {describeStep(step, unitSteps[idx + 1])}
 						</FormLabel>
 						<HStack>
 							<Button onClick={() => onDecrease(idx)}>-</Button>
@@ -83,7 +83,7 @@ export const BoxUnitSelector = ({
 					</FormControl>
 				))}
 			<Text marginTop="0.7em">
-				Total: {computeTotal(unitSteps, stepValues)} {inputHeader(unitSteps[unitSteps.length - 1], undefined)}
+				Total: {computeTotal(unitSteps, stepValues)} {describeStep(unitSteps[unitSteps.length - 1], undefined)}
 			</Text>
 			{!value.isValid && !!invalidLabel && (
 				<Text fontSize="sm" color="crimson">
@@ -130,18 +130,4 @@ function computeTotal(steps: UnitStep[], quantities: number[]): number {
 		total = total * steps[i + 1].qty + (quantities[i] ?? 0) * steps[i + 1].qty
 	}
 	return total + (quantities[steps.length - 1] ?? 0)
-}
-
-function inputHeader(step: UnitStep, nextStep: UnitStep | undefined): string {
-	if (step.type === Metric.COMPLEX && nextStep?.type === Metric.COMPLEX) {
-		return `Box of ${nextStep.qty} Box${nextStep.qty > 1 ? 'es' : ''}`
-	} else if (step.type === Metric.COMPLEX && nextStep?.type === Metric.ML) {
-		return `Full ${nextStep.qty} ml Flask`
-	} else if (step.type === Metric.COMPLEX && nextStep?.type === Metric.PIECE) {
-		return `Full box of ${nextStep.qty} pieces`
-	} else if (step.type === Metric.ML && !nextStep) {
-		return `ml`
-	} else {
-		return `Piece`
-	}
 }

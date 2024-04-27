@@ -1,4 +1,5 @@
 import {
+	Box,
 	Button,
 	Card,
 	CardBody,
@@ -9,12 +10,6 @@ import {
 	GridItem,
 	Heading,
 	Icon,
-	Modal,
-	ModalBody,
-	ModalCloseButton,
-	ModalContent,
-	ModalHeader,
-	ModalOverlay,
 	Tooltip,
 	VStack,
 } from '@chakra-ui/react'
@@ -34,56 +29,43 @@ import { generateSkeletons } from '../ui/StackedSkeleton'
 import { ErrorAlert } from '../errors/ErrorAlert'
 
 interface ShelvesModalProps {
-	isOpen: boolean
-	onClose: () => void
 	cabinet: Cabinet
 	roomId: string
 }
 
-export const ShelvesModal = ({ isOpen, onClose, cabinet, roomId }: ShelvesModalProps) => {
+export const ShelvesDisplayBig = ({ cabinet, roomId }: ShelvesModalProps) => {
 	const [selectedShelf, setSelectedShelf] = useState<string | undefined>(undefined)
 	const { data, error, isLoading } = useGetBoxByPositionQuery(selectedShelf ?? '', { skip: !selectedShelf })
 	return (
-		<Modal isOpen={isOpen} onClose={onClose}>
-			<ModalOverlay />
-			<ModalContent maxWidth="90vw" height="80vh">
-				<ModalHeader>
-					<Center>
-						<Heading>{cabinet.name}</Heading>
-					</Center>
-				</ModalHeader>
-				<ModalCloseButton />
-
-				<ModalBody>
-					<Grid templateColumns="repeat(4, 1fr)" templateRows="repeat(1, 1fr)" height="95%" gap={4}>
-						<GridItem colSpan={1} borderWidth="2px" borderRadius="15px">
-							<VStack>
-								<Heading key="shlf-hdr">Shelves</Heading>
-								{(cabinet.shelves ?? []).map(it => (
-									<ShelfListItem
-										key={it.id}
-										shelf={it}
-										onClick={() => {
-											setSelectedShelf(`${roomId}|${cabinet.id}|${it.id}`)
-										}}
-									/>
-								))}
-								<AddShelfForm key="add-shlf-frm" cabinetId={cabinet.id!} storageRoomId={roomId} />
-							</VStack>
-						</GridItem>
-						<GridItem colSpan={3}>
-							<VStack width="100%">
-								{!!data && data.map(it => <ElementBox key={it._id} box={it} width="100%" />)}
-								{isLoading && generateSkeletons({ quantity: 5, height: '3em' })}
-								{!!error && (
-									<ErrorAlert info={{ label: 'Cannot load boxes in this shelf', reason: error }} />
-								)}
-							</VStack>
-						</GridItem>
-					</Grid>
-				</ModalBody>
-			</ModalContent>
-		</Modal>
+		<Box paddingRight="1.5em" paddingLeft="1.5em">
+			<Center>
+				<Heading marginBottom="1em">{cabinet.name}</Heading>
+			</Center>
+			<Grid templateColumns="repeat(4, 1fr)" templateRows="repeat(1, 1fr)" gap={4} height="85vh">
+				<GridItem colSpan={1} borderWidth="2px" borderRadius="15px">
+					<VStack>
+						<Heading key="shlf-hdr">Shelves</Heading>
+						{(cabinet.shelves ?? []).map(it => (
+							<ShelfListItem
+								key={it.id}
+								shelf={it}
+								onClick={() => {
+									setSelectedShelf(`${roomId}|${cabinet.id}|${it.id}`)
+								}}
+							/>
+						))}
+						<AddShelfForm key="add-shlf-frm" cabinetId={cabinet.id!} storageRoomId={roomId} />
+					</VStack>
+				</GridItem>
+				<GridItem colSpan={3}>
+					<VStack width="100%">
+						{!!data && data.map(it => <ElementBox key={it._id} box={it} width="100%" />)}
+						{isLoading && generateSkeletons({ quantity: 5, height: '3em' })}
+						{!!error && <ErrorAlert info={{ label: 'Cannot load boxes in this shelf', reason: error }} />}
+					</VStack>
+				</GridItem>
+			</Grid>
+		</Box>
 	)
 }
 
@@ -105,7 +87,7 @@ const AddShelfForm = ({ cabinetId, storageRoomId }: { cabinetId: string; storage
 	const [newShelfName, setNewShelfName] = useState<FormValue<string>>({ value: undefined, isValid: false })
 
 	return (
-		<Card width="90%" boxShadow={0}>
+		<Card width="90%" boxShadow={0} marginBottom="1.5em">
 			<CardHeader paddingBottom="0px" marginBottom="0px">
 				<Heading size="md" paddingBottom="0px" marginBottom="0px">
 					Add a Shelf
