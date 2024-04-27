@@ -10,7 +10,6 @@ import {
 	Skeleton,
 	SpaceProps,
 	Box,
-	Tooltip,
 } from '@chakra-ui/react'
 import { Box as BoxModel } from '../../models/Box'
 import { useGetMaterialQuery } from '../../services/material'

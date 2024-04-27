@@ -1,21 +1,35 @@
 import { Button, Center, Heading, Input, VStack } from '@chakra-ui/react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useLoginMutation } from '../services/auth'
-import { jwtSelector, setAuthenticationState } from '../store/auth/auth-slice'
-import { useAppDispatch, useAppSelector } from '../hooks/redux'
+import { setAuthenticationState } from '../store/auth/auth-slice'
+import { useAppDispatch } from '../hooks/redux'
 import { useNavigate } from 'react-router-dom'
 import { getToken, localStorageJwtKey, localStorageRefreshJwtKey } from '../store/auth/auth-thunk'
 import { QueryStatus } from '@reduxjs/toolkit/query'
 import { DarkMode } from '../components/ui/DarkMode'
+import { ErrorAlert } from '../components/errors/ErrorAlert'
 
 export const LoginPage = () => {
 	const [username, setUsername] = useState<string | null>(null)
 	const [password, setPassword] = useState<string | null>(null)
+	const [jwt, setJwt] = useState<string | null>(null)
 	const [login, { status, error, data }] = useLoginMutation()
 	const dispatch = useAppDispatch()
 	const navigate = useNavigate()
-	dispatch(getToken())
-	const jwt = useAppSelector(jwtSelector)
+
+	useEffect(() => {
+		dispatch(getToken())
+			.unwrap()
+			.then(token => {
+				setJwt(token)
+			})
+	}, [dispatch])
+
+	useEffect(() => {
+		if (!!jwt) {
+			navigate('/')
+		}
+	}, [jwt, navigate])
 
 	const onChangeUsername = (event: React.FormEvent<HTMLInputElement>) => {
 		setUsername(event.currentTarget.value)
@@ -41,12 +55,6 @@ export const LoginPage = () => {
 	)
 
 	useEffect(() => {
-		if (!!jwt) {
-			navigate('/')
-		}
-	}, [jwt, navigate])
-
-	useEffect(() => {
 		if (!!data) {
 			dispatch(setAuthenticationState(data))
 			localStorage.setItem(localStorageJwtKey, data.jwt)
@@ -67,6 +75,7 @@ export const LoginPage = () => {
 				<Button onClick={onSubmit} isLoading={status === QueryStatus.pending} loadingText="Login">
 					Login
 				</Button>
+				{!!error && <ErrorAlert info={{ label: 'Invalid username or password', reason: error }} />}
 			</VStack>
 		</>
 	)
