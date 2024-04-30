@@ -1,6 +1,5 @@
 import {
 	Alert,
-	AlertDescription,
 	AlertIcon,
 	AlertTitle,
 	Button,
@@ -22,7 +21,7 @@ import { BoxUnitSelector } from '../forms/controls/BoxUnitSelector'
 import { TextInput } from '../forms/controls/TextInput'
 import { DatePicker } from '../forms/controls/DatePicker'
 import { useCreateBoxMutation } from '../../services/box'
-import { useCallback, useEffect } from 'react'
+import { useEffect } from 'react'
 import { BoxUnit } from '../../models/embed/BoxUnit'
 import { useFormControl } from '../../hooks/form-control'
 import { ErrorAlert } from '../errors/ErrorAlert'
@@ -34,6 +33,7 @@ interface AddBoxFormProps extends SpaceProps {
 interface BoxFormValue extends FormValues {
 	material: FormValue<Material>
 	expirationDate: FormValue<Date>
+	batchNumber: FormValue<string>
 	shelf: FormValue<string>
 	description: FormValue<string>
 	quantity: FormValue<BoxUnit>
@@ -42,6 +42,7 @@ interface BoxFormValue extends FormValues {
 const initialState: BoxFormValue = {
 	material: { value: undefined, isValid: false },
 	shelf: { value: undefined, isValid: false },
+	batchNumber: { value: undefined, isValid: false },
 	expirationDate: { value: undefined, isValid: true },
 	quantity: { value: undefined, isValid: false },
 	description: { value: undefined, isValid: true },
@@ -56,6 +57,10 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 		validator: input => !!input,
 		valueConsumer: value => dispatchState('shelf', value),
 	})
+	const batchNumberControls = useFormControl<string>({
+		validator: input => !!input,
+		valueConsumer: value => dispatchState('batchNumber', value),
+	})
 	const dateControls = useFormControl<Date>({
 		valueConsumer: value => dispatchState('expirationDate', value),
 		defaultValue: new Date(),
@@ -69,7 +74,7 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 		skip: !currentBoxDefinitionId || currentBoxDefinitionId.length <= 0,
 	})
 
-	const onSubmit = useCallback(() => {
+	const onSubmit = () => {
 		if (!isInvalid) {
 			if (!formState.material.isValid || !formState.material.value) {
 				console.error('Material is not valid!')
@@ -79,30 +84,25 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 				console.error('Shelf is not valid!')
 				return
 			}
+			if (!formState.batchNumber.isValid || !formState.batchNumber.value) {
+				console.error('Shelf is not valid!')
+				return
+			}
 			if (!formState.quantity.isValid || !formState.quantity.value) {
 				console.error('Quantity is not valid!')
 				return
 			}
 			createBox({
 				description: formState.description.value,
-				material: formState.material.value._id!,
+				material: formState.material.value._id,
+				batchNumber: formState.batchNumber.value,
 				expirationDate: formState.expirationDate.value?.getTime(),
 				position: formState.shelf.value,
 				quantity: formState.quantity.value,
 				usageLogs: [],
 			})
 		}
-	}, [
-		createBox,
-		formState.description.value,
-		formState.material.isValid,
-		formState.material.value,
-		formState.quantity.isValid,
-		formState.quantity.value,
-		formState.shelf.isValid,
-		formState.shelf.value,
-		isInvalid,
-	])
+	}
 
 	useEffect(() => {
 		if (isSuccess) {
@@ -127,6 +127,12 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 						label="Description"
 						placeholder="Description (optional)"
 						controls={descriptionControls}
+					/>
+					<TextInput
+						label="Batch number"
+						placeholder="Batch number"
+						controls={batchNumberControls}
+						invalidLabel="You must enter the batch number"
 					/>
 					<DatePicker label="Expiration date" marginTop="1.5em" controls={dateControls} />
 					<ShelfSelector

@@ -15,6 +15,7 @@ import { FormValues, useForm } from '../../hooks/form'
 interface AddMaterialFormData extends FormValues {
 	name: FormValue<string>
 	brand: FormValue<string>
+	referenceCode: FormValue<string>
 	description: FormValue<string>
 	tags: FormValue<Tag[]>
 	boxDefinition: FormValue<BoxDefinition>
@@ -23,6 +24,7 @@ interface AddMaterialFormData extends FormValues {
 const initialState: AddMaterialFormData = {
 	name: { value: undefined, isValid: false },
 	brand: { value: undefined, isValid: false },
+	referenceCode: { value: undefined, isValid: false },
 	description: { value: undefined, isValid: true },
 	tags: { value: undefined, isValid: true },
 	boxDefinition: { value: undefined, isValid: false },
@@ -46,6 +48,12 @@ export const AddMaterialForm = () => {
 			dispatchState('brand', value)
 		},
 	})
+	const referenceCodeControls = useFormControl<string>({
+		validator: (value: string | undefined) => !!value && value.trim().length <= 100,
+		valueConsumer: (value: FormValue<string>) => {
+			dispatchState('referenceCode', value)
+		},
+	})
 	const descriptionControls = useFormControl<string>({
 		valueConsumer: (value: FormValue<string>) => {
 			dispatchState('description', value)
@@ -62,6 +70,10 @@ export const AddMaterialForm = () => {
 				console.error('Brand is not valid!')
 				return
 			}
+			if (!formState.referenceCode.isValid || !formState.referenceCode.value) {
+				console.error('Reference Code is not valid!')
+				return
+			}
 			if (!boxSuccess || !createdBoxId) {
 				console.error('Box is not valid!')
 				return
@@ -70,6 +82,7 @@ export const AddMaterialForm = () => {
 				name: formState.name.value,
 				brand: formState.brand.value,
 				description: formState.description.value,
+				referenceCode: formState.referenceCode.value,
 				tags: formState.tags?.value?.map(it => it._id!) ?? [],
 				boxDefinition: createdBoxId,
 			})
@@ -112,6 +125,12 @@ export const AddMaterialForm = () => {
 						placeholder="Material brand"
 						controls={brandControls}
 						invalidLabel="Material brand cannot be null"
+					/>
+					<TextInput
+						label="Reference Code"
+						placeholder="The reference code"
+						controls={referenceCodeControls}
+						invalidLabel="Reference code cannot be null"
 					/>
 					<TextInput
 						label="Description"

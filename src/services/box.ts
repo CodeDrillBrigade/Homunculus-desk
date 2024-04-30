@@ -17,7 +17,7 @@ export const boxApi = createApi({
 	}),
 	tagTypes: [BoxTagType, BoxOnShelfType],
 	endpoints: builder => ({
-		createBox: builder.mutation<string, Box>({
+		createBox: builder.mutation<string, Partial<Box>>({
 			query: data => ({
 				url: '',
 				method: 'POST',

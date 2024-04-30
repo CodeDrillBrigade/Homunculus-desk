@@ -26,7 +26,7 @@ export const materialApi = createApi({
 			providesTags: box =>
 				!!box ? [{ type: MaterialTagType, id: box._id }, AllMaterialsTag] : [AllMaterialsTag],
 		}),
-		createMaterial: builder.mutation<string, Material>({
+		createMaterial: builder.mutation<string, Partial<Material>>({
 			query: data => ({
 				url: '',
 				method: 'POST',

@@ -23,7 +23,7 @@ export const storageRoomApi = createApi({
 			query: () => '',
 			providesTags: [AllStorageRoomsTag],
 		}),
-		createStorageRoom: builder.mutation<string, StorageRoom>({
+		createStorageRoom: builder.mutation<string, Partial<StorageRoom>>({
 			query: data => ({
 				url: '',
 				method: 'POST',
