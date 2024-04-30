@@ -1,13 +1,13 @@
 import { BoxDefinition } from '../../models/embed/BoxDefinition'
-import { Container, Flex, Stack, Text, useColorModeValue } from '@chakra-ui/react'
+import { Container, Flex, LayoutProps, SpaceProps, Stack, Text, useColorModeValue } from '@chakra-ui/react'
 import { describeStep, unitToStepsList } from '../../models/embed/UnitStep'
 
-interface QuantityCounterProps {
+interface QuantityCounterProps extends SpaceProps, LayoutProps {
 	quantity: number
 	boxDefinition: BoxDefinition
 }
 
-export const QuantityCounter = ({ quantity, boxDefinition }: QuantityCounterProps) => {
+export const QuantityCounter = ({ quantity, boxDefinition, ...style }: QuantityCounterProps) => {
 	const iconBg = useColorModeValue('blue.200', 'blue.400')
 	const unitAsSteps = unitToStepsList(boxDefinition.boxUnit)
 	const quantityInBaseUnit = [...unitAsSteps]
@@ -32,9 +32,9 @@ export const QuantityCounter = ({ quantity, boxDefinition }: QuantityCounterProp
 		{ total: quantity, count: [] } as { total: number; count: number[] }
 	).count
 	return (
-		<Stack direction="row" justifyContent="left">
+		<Stack direction="row" justifyContent="left" {...style}>
 			{unitAsSteps.map((it, idx) => (
-				<Flex justifyContent="left">
+				<Flex justifyContent="left" key={idx}>
 					<Container
 						borderRadius="full"
 						backgroundColor={iconBg}

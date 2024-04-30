@@ -37,7 +37,20 @@ export const boxApi = createApi({
 					  ]
 					: [{ type: BoxOnShelfType, id: shelfId }],
 		}),
+		deleteBox: builder.mutation<string, Box>({
+			query: box => ({
+				url: `/${box._id}`,
+				method: 'DELETE',
+			}),
+			invalidatesTags: (id, _, box) =>
+				!!id
+					? [
+							{ type: BoxOnShelfType, id: box.position },
+							{ type: BoxTagType, id: id },
+					  ]
+					: [],
+		}),
 	}),
 })
 
-export const { useCreateBoxMutation, useGetBoxByPositionQuery } = boxApi
+export const { useCreateBoxMutation, useDeleteBoxMutation, useGetBoxByPositionQuery } = boxApi
