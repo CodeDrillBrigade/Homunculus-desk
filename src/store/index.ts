@@ -7,6 +7,7 @@ import { metaTagApi } from '../services/tag'
 import { boxDefinitionApi } from '../services/boxDefinition'
 import { materialApi } from '../services/material'
 import { boxApi } from '../services/box'
+import { userApi } from '../services/user'
 
 export const store = configureStore({
 	reducer: {
@@ -17,6 +18,7 @@ export const store = configureStore({
 		[materialApi.reducerPath]: materialApi.reducer,
 		[metaTagApi.reducerPath]: metaTagApi.reducer,
 		[storageRoomApi.reducerPath]: storageRoomApi.reducer,
+		[userApi.reducerPath]: userApi.reducer,
 	},
 	middleware: getDefaultMiddleware =>
 		getDefaultMiddleware()
@@ -26,7 +28,8 @@ export const store = configureStore({
 			.prepend(boxDefinitionApi.middleware)
 			.prepend(metaTagApi.middleware)
 			.prepend(materialApi.middleware)
-			.prepend(storageRoomApi.middleware),
+			.prepend(storageRoomApi.middleware)
+			.prepend(userApi.middleware),
 })
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

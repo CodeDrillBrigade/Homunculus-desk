@@ -19,7 +19,8 @@ export const QuantityCounter = ({ quantity, boxDefinition, ...style }: QuantityC
 			},
 			[1]
 		)
-		.slice(0, unitAsSteps.length)
+		.slice(1, unitAsSteps.length + 1)
+	console.log(quantityInBaseUnit)
 	const iconsCount = quantityInBaseUnit.reduce(
 		(previous, current) => {
 			const stepCount = Math.floor(previous.total / current)

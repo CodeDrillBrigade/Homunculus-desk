@@ -26,7 +26,7 @@ export const boxDefinitionApi = createApi({
 			providesTags: box =>
 				!!box ? [{ type: BoxDefinitionTagType, id: box._id }, AllBoxDefinitionsTag] : [AllBoxDefinitionsTag],
 		}),
-		createBoxDefinition: builder.mutation<string, BoxDefinition>({
+		createBoxDefinition: builder.mutation<string, Partial<BoxDefinition>>({
 			query: data => ({
 				url: '',
 				method: 'PUT',

@@ -14,11 +14,24 @@ import {
 	CardFooter,
 	Button,
 	useDisclosure,
+	Accordion,
+	AccordionItem,
+	AccordionButton,
+	AccordionIcon,
+	AccordionPanel,
+	VStack,
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalHeader,
+	ModalCloseButton,
+	ModalBody,
 } from '@chakra-ui/react'
 import { Box as BoxModel } from '../../models/Box'
-import { materialApi, useGetMaterialQuery } from '../../services/material'
+import { useGetMaterialQuery } from '../../services/material'
 import { ErrorAlert } from '../errors/ErrorAlert'
 import { FaRegCalendarTimes } from 'react-icons/fa'
+import { FiUpload } from 'react-icons/fi'
 import { FaBoxOpen } from 'react-icons/fa'
 import { daysToToday, toDayMonthYear } from '../../utils/date-utils'
 import { IconType } from 'react-icons'
@@ -29,6 +42,10 @@ import { ConfirmModal } from '../modals/ConfirmModal'
 import { useDeleteBoxMutation } from '../../services/box'
 import { QueryStatus } from '@reduxjs/toolkit/query'
 import { useEffect } from 'react'
+import { UsageLogDisplay } from './UsageLogDisplay'
+import { Material } from '../../models/Material'
+import { BoxUnit } from '../../models/embed/BoxUnit'
+import { UpdateQuantityForm } from '../forms/UpdateQuantityForm'
 
 interface ElementBoxProps extends SpaceProps, LayoutProps {
 	box: BoxModel
@@ -36,7 +53,8 @@ interface ElementBoxProps extends SpaceProps, LayoutProps {
 
 export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 	const [deleteBox, { error: deleteError, status: deleteStatus }] = useDeleteBoxMutation()
-	const { onOpen, onClose, isOpen } = useDisclosure()
+	const { onOpen: deleteModalOpen, onClose: deleteModalClose, isOpen: deleteModalIsOpen } = useDisclosure()
+	const { onOpen: updateModalOpen, onClose: updateModalClose, isOpen: updateModalIsOpen } = useDisclosure()
 	const { data, error, isLoading } = useGetMaterialQuery(box.material)
 	const {
 		data: boxDefinition,
@@ -46,9 +64,9 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 
 	useEffect(() => {
 		if (deleteStatus === QueryStatus.fulfilled) {
-			onClose()
+			deleteModalClose()
 		}
-	}, [deleteStatus, onClose])
+	}, [deleteStatus, deleteModalClose])
 
 	const daysToExpiration = !!box.expirationDate ? daysToToday(box.expirationDate) : undefined
 	return (
@@ -57,7 +75,12 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 				<CardHeader>
 					<Flex justifyContent="space-between">
 						<Box>
-							{!!data && <Heading>{data.name}</Heading>}
+							{!!data && (
+								<>
+									<Heading>{data.name}</Heading>
+									{!!box.description && <Text fontSize="lg">{box.description}</Text>}
+								</>
+							)}
 							{isLoading && (
 								<Container>
 									<Skeleton height="2em" width="10em" />
@@ -85,7 +108,7 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 					</Flex>
 				</CardHeader>
 				<CardBody paddingTop="0px">
-					{!!box.description && <Text fontSize="lg">{box.description}</Text>}
+					<Text>Batch number: {box.batchNumber}</Text>
 					{definitionLoading && (
 						<Container>
 							<Skeleton height="2em" width="10em" />
@@ -101,18 +124,45 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 							marginTop="0.7em"
 						/>
 					)}
+					<Accordion marginTop="1em" allowToggle>
+						<AccordionItem>
+							<h2>
+								<AccordionButton>
+									<AccordionIcon marginRight="1em" />
+									<Box as="span" flex="1" textAlign="left">
+										Usage Logs
+									</Box>
+								</AccordionButton>
+							</h2>
+							<AccordionPanel pb={4}>
+								<VStack justifyContent="left">
+									{box.usageLogs.map(log => (
+										<UsageLogDisplay key={log.date} log={log} boxDefinition={boxDefinition} />
+									))}
+								</VStack>
+							</AccordionPanel>
+						</AccordionItem>
+					</Accordion>
 				</CardBody>
 				<CardFooter>
-					<Flex justifyContent="space-between">
-						<Button colorScheme="red" leftIcon={<DeleteIcon />} onClick={onOpen}>
+					<Flex width="full" justifyContent="space-between">
+						<Button
+							colorScheme="blue"
+							leftIcon={<Icon as={FiUpload} />}
+							onClick={updateModalOpen}
+							isDisabled={!data || !boxDefinition?.boxUnit}
+						>
+							Use/Add
+						</Button>
+						<Button colorScheme="red" leftIcon={<DeleteIcon />} onClick={deleteModalOpen}>
 							Delete
 						</Button>
 					</Flex>
 				</CardFooter>
 			</Card>
 			<ConfirmModal
-				onClose={onClose}
-				isOpen={isOpen}
+				onClose={deleteModalClose}
+				isOpen={deleteModalIsOpen}
 				isLoading={deleteStatus === QueryStatus.pending}
 				flavour="delete"
 				error={deleteError}
@@ -120,7 +170,41 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 					deleteBox(box)
 				}}
 			/>
+			{!!boxDefinition?.boxUnit && !!data && (
+				<UpdateBoxFormModal
+					isOpen={updateModalIsOpen}
+					onClose={updateModalClose}
+					box={box}
+					material={data}
+					boxDefinition={boxDefinition.boxUnit}
+				/>
+			)}
 		</>
+	)
+}
+
+interface UpdateBoxFormModalProps {
+	isOpen: boolean
+	onClose: () => void
+	box: BoxModel
+	material: Material
+	boxDefinition: BoxUnit
+}
+
+const UpdateBoxFormModal = ({ isOpen, onClose, box, material, boxDefinition }: UpdateBoxFormModalProps) => {
+	return (
+		<Modal isOpen={isOpen} onClose={onClose}>
+			<ModalOverlay />
+			<ModalContent>
+				<ModalHeader>
+					Update {material.name}, batch {box.batchNumber}
+				</ModalHeader>
+				<ModalCloseButton />
+				<ModalBody paddingBottom="1em">
+					<UpdateQuantityForm box={box} boxDefinition={boxDefinition} onDispatched={onClose} />
+				</ModalBody>
+			</ModalContent>
+		</Modal>
 	)
 }
 

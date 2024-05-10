@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { AuthState } from '../store/auth/auth-slice'
 import { BoxOnShelfType, BoxTagType } from './tags/box'
 import { Box } from '../models/Box'
+import { UsageLog } from '../models/embed/UsageLog'
 
 export const boxApi = createApi({
 	reducerPath: 'box',
@@ -50,7 +51,22 @@ export const boxApi = createApi({
 					  ]
 					: [],
 		}),
+		updateQuantity: builder.mutation<string, { box: Box; update: UsageLog }>({
+			query: ({ box, update }) => ({
+				url: `/${box._id}/quantity`,
+				method: 'POST',
+				body: JSON.stringify(update),
+			}),
+			invalidatesTags: (id, _, { box }) =>
+				!!id
+					? [
+							{ type: BoxOnShelfType, id: box.position },
+							{ type: BoxTagType, id: id },
+					  ]
+					: [],
+		}),
 	}),
 })
 
-export const { useCreateBoxMutation, useDeleteBoxMutation, useGetBoxByPositionQuery } = boxApi
+export const { useCreateBoxMutation, useDeleteBoxMutation, useGetBoxByPositionQuery, useUpdateQuantityMutation } =
+	boxApi
