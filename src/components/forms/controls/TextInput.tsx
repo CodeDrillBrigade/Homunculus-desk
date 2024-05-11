@@ -10,6 +10,7 @@ interface TextInputProps extends LayoutProps, SpaceProps {
 	valueConsumer?: (value: FormValue<string>) => void
 	invalidLabel?: string
 	controls?: FormControls<string>
+	isPassword?: boolean
 }
 
 export const TextInput = ({
@@ -19,6 +20,7 @@ export const TextInput = ({
 	valueConsumer,
 	invalidLabel,
 	controls,
+	isPassword,
 	...style
 }: TextInputProps) => {
 	const { value, setValue } = useFormControl<string>({ validator, valueConsumer })
@@ -34,6 +36,7 @@ export const TextInput = ({
 		<FormControl {...style}>
 			<FormLabel color={innerValue.isValid ? '' : 'crimson'}>{label}</FormLabel>
 			<Input
+				type={!!isPassword ? 'password' : 'test'}
 				placeholder={placeholder}
 				borderColor={innerValue.isValid ? '' : 'crimson'}
 				borderWidth={innerValue.isValid ? '' : '2px'}

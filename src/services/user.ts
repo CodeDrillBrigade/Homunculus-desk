@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { AuthState } from '../store/auth/auth-slice'
 import { UserTagType } from './tags/user'
 import { User } from '../models/User'
+import { PasswordDto } from '../models/dto/PasswordDto'
 
 export const userApi = createApi({
 	reducerPath: 'userApi',
@@ -25,7 +26,15 @@ export const userApi = createApi({
 			query: () => '',
 			providesTags: user => (!!user ? [{ type: UserTagType, id: user._id }] : []),
 		}),
+		changePassword: builder.mutation<boolean, { userId: string; password: PasswordDto }>({
+			query: ({ userId, password }) => ({
+				url: `/${userId}/password`,
+				method: 'PUT',
+				body: JSON.stringify(password),
+			}),
+			invalidatesTags: (result, _, { userId }) => (result ? [{ type: UserTagType, id: userId }] : []),
+		}),
 	}),
 })
 
-export const { useGetCurrentUserQuery, useGetUserByIdQuery } = userApi
+export const { useChangePasswordMutation, useGetCurrentUserQuery, useGetUserByIdQuery } = userApi

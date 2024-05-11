@@ -2,7 +2,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAppSelector } from '../../hooks/redux'
 import { useEffect } from 'react'
 import { jwtSelector } from '../../store/auth/auth-slice'
-import TopMenu from '../../components/ui/TopMenu'
+import { TopMenu } from '../../components/ui/TopMenu'
 
 export const AuthenticatedLayout = () => {
 	const jwt = useAppSelector(jwtSelector)
