@@ -1,4 +1,21 @@
-import { Button, Center, Heading, Input, VStack } from '@chakra-ui/react'
+import {
+	Alert,
+	AlertIcon,
+	Button,
+	Center,
+	Flex,
+	Heading,
+	Input,
+	Modal,
+	ModalBody,
+	ModalCloseButton,
+	ModalContent,
+	ModalFooter,
+	ModalHeader,
+	ModalOverlay,
+	useDisclosure,
+	VStack,
+} from '@chakra-ui/react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useLoginMutation } from '../services/auth'
 import { setAuthenticationState } from '../store/auth/auth-slice'
@@ -8,8 +25,13 @@ import { getToken, localStorageJwtKey, localStorageRefreshJwtKey } from '../stor
 import { QueryStatus } from '@reduxjs/toolkit/query'
 import { DarkMode } from '../components/ui/DarkMode'
 import { ErrorAlert } from '../components/errors/ErrorAlert'
+import { useResetPasswordRequestMutation } from '../services/process'
+import { useFormControl } from '../hooks/form-control'
+import { FormValue } from '../models/form/FormValue'
+import { TextInput } from '../components/forms/controls/TextInput'
 
 export const LoginPage = () => {
+	const { isOpen, onOpen, onClose } = useDisclosure()
 	const [username, setUsername] = useState<string | null>(null)
 	const [password, setPassword] = useState<string | null>(null)
 	const [jwt, setJwt] = useState<string | null>(null)
@@ -72,11 +94,82 @@ export const LoginPage = () => {
 				<Heading size="lg">Login</Heading>
 				<Input placeholder="Username" onChange={onChangeUsername} onKeyDown={onEnterPressed} />
 				<Input type="password" placeholder="Password" onChange={onChangePassword} onKeyDown={onEnterPressed} />
-				<Button onClick={onSubmit} isLoading={status === QueryStatus.pending} loadingText="Login">
-					Login
-				</Button>
+				<Flex width="50%" justifyContent="space-between" marginTop="1em">
+					<Button
+						colorScheme="blue"
+						onClick={onSubmit}
+						isLoading={status === QueryStatus.pending}
+						loadingText="Login"
+					>
+						Login
+					</Button>
+					<Button colorScheme="red" onClick={onOpen}>
+						Reset password
+					</Button>
+				</Flex>
 				{!!error && <ErrorAlert info={{ label: 'Invalid username or password', reason: error }} />}
 			</VStack>
+			<StartResetPasswordModal isOpen={isOpen} onClose={onClose} />
 		</>
+	)
+}
+
+const StartResetPasswordModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+	const [startPasswordReset, { error, isLoading, isSuccess }] = useResetPasswordRequestMutation()
+	const [email, setEmail] = useState<FormValue<string>>({ value: undefined, isValid: false })
+	const controls = useFormControl<string>({
+		validator: input => {
+			const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+			return !!input && regex.test(input)
+		},
+		valueConsumer: payload => setEmail(payload),
+	})
+
+	const onSubmit = () => {
+		if (!!email.value && email.isValid) {
+			startPasswordReset(email.value)
+			controls.resetValue()
+		}
+	}
+
+	return (
+		<Modal isOpen={isOpen} onClose={onClose}>
+			<ModalOverlay />
+			<ModalContent>
+				<ModalHeader>Change your password</ModalHeader>
+				<ModalCloseButton />
+
+				<ModalBody>
+					{!!error && (
+						<ErrorAlert info={{ label: 'An error occurred while resetting the password', reason: error }} />
+					)}
+					{isSuccess && (
+						<Alert status="success">
+							<AlertIcon />
+							Operation successful, you will receive an email containing the instructions to reset your
+							password.
+						</Alert>
+					)}
+					<TextInput
+						label="Your email"
+						placeholder="Your email"
+						controls={controls}
+						invalidLabel="You must specify a valid email."
+					/>
+				</ModalBody>
+
+				<ModalFooter>
+					<Button
+						colorScheme="blue"
+						mr={3}
+						onClick={onSubmit}
+						isDisabled={!email.isValid}
+						isLoading={isLoading}
+					>
+						Change password
+					</Button>
+				</ModalFooter>
+			</ModalContent>
+		</Modal>
 	)
 }

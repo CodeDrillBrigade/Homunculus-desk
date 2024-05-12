@@ -40,6 +40,7 @@ export const ChangePasswordForm = ({
 				validator={repeatValidator}
 				valueConsumer={repeatPasswordConsumer}
 				invalidLabel="The two passwords do not match."
+				marginTop="1em"
 			/>
 		</Container>
 	)

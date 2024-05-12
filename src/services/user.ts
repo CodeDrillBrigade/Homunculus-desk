@@ -22,6 +22,10 @@ export const userApi = createApi({
 			query: userId => `/${userId}`,
 			providesTags: user => (!!user ? [{ type: UserTagType, id: user._id }] : []),
 		}),
+		getUserByEmail: builder.query<User, string>({
+			query: email => `/byEmail/${email}`,
+			providesTags: user => (!!user ? [{ type: UserTagType, id: user._id }] : []),
+		}),
 		getCurrentUser: builder.query<User, void>({
 			query: () => '',
 			providesTags: user => (!!user ? [{ type: UserTagType, id: user._id }] : []),
@@ -37,4 +41,5 @@ export const userApi = createApi({
 	}),
 })
 
-export const { useChangePasswordMutation, useGetCurrentUserQuery, useGetUserByIdQuery } = userApi
+export const { useChangePasswordMutation, useGetCurrentUserQuery, useLazyGetUserByEmailQuery, useGetUserByIdQuery } =
+	userApi

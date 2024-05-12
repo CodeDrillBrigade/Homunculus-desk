@@ -1,4 +1,3 @@
-import { Contact } from './embed/Contact'
 import { UserStatus } from './embed/UserStatus'
 import { AuthToken } from './security/AuthToken'
 
@@ -10,6 +9,6 @@ export interface User {
 	name?: string
 	surname?: string
 	roles: string[]
-	contacts: Contact[]
+	email?: string
 	authenticationTokens: { [key: string]: AuthToken }
 }
