@@ -5,9 +5,12 @@ import { ShelvesDisplayBig } from '../../components/storage-rooms/ShelvesDisplay
 import { useAppDispatch } from '../../hooks/redux'
 import { setPageTitle } from '../../store/ui/ui-slice'
 import { useEffect } from 'react'
+import { useIsMobileLayout } from '../../hooks/responsive-size'
+import { ShelvesDisplayMobile } from '../../components/storage-rooms/ShelvesDisplayMobile'
 
 export const CabinetPage = () => {
 	const dispatch = useAppDispatch()
+	const isMobile = useIsMobileLayout()
 	const { roomId, cabinetId } = useParams()
 	const { data, error, isFetching } = useGetStorageRoomsQuery()
 	const room = !!data ? data.find(it => it._id === roomId) : undefined
@@ -19,7 +22,8 @@ export const CabinetPage = () => {
 		<>
 			{(!cabinetId || (!isFetching && !cabinet)) && <ErrorPage description={`Shelf ${cabinetId} not found`} />}
 			{!!error && <ErrorPage description="An error occurred" error={error} />}
-			{!!cabinet && !!room && <ShelvesDisplayBig cabinet={cabinet} roomId={room._id!} />}
+			{!!cabinet && !!room && !isMobile && <ShelvesDisplayBig cabinet={cabinet} roomId={room._id!} />}
+			{!!cabinet && !!room && isMobile && <ShelvesDisplayMobile cabinet={cabinet} roomId={room._id!} />}
 		</>
 	)
 }

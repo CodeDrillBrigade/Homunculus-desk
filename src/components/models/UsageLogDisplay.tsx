@@ -7,6 +7,7 @@ import { useGetUserByIdQuery } from '../../services/user'
 import { ErrorAlert } from '../errors/ErrorAlert'
 import { BoxDefinition } from '../../models/embed/BoxDefinition'
 import { QuantityCounter } from './QuantityCounter'
+import { useIsMobileLayout } from '../../hooks/responsive-size'
 
 interface UsageLogDisplayProps {
 	log: UsageLog
@@ -14,6 +15,7 @@ interface UsageLogDisplayProps {
 }
 
 export const UsageLogDisplay = ({ log, boxDefinition }: UsageLogDisplayProps) => {
+	const isMobile = useIsMobileLayout()
 	const { data, error, isLoading } = useGetUserByIdQuery(log.user)
 	return (
 		<>
@@ -24,15 +26,17 @@ export const UsageLogDisplay = ({ log, boxDefinition }: UsageLogDisplayProps) =>
 			)}
 			{!!error && <ErrorAlert info={{ label: 'Cannot load user', reason: error }} />}
 			{!!data && (
-				<Flex justifyContent="left" width="100%">
-					{log.operation === Operation.ADD ? (
-						<Icon as={FiPlusCircle} color="green.400" boxSize={6} />
-					) : (
-						<Icon as={FiMinusCircle} color="red.400" boxSize={6} />
-					)}
-					<Text marginLeft="0.5em" marginRight="0.5em">
-						{toDayMonthYear(log.date)} - {data.name} {data.surname}
-					</Text>
+				<Flex justifyContent="left" width="100%" flexDirection={isMobile ? 'column' : 'row'}>
+					<Flex mb={isMobile ? '1em' : undefined}>
+						{log.operation === Operation.ADD ? (
+							<Icon as={FiPlusCircle} color="green.400" boxSize={6} />
+						) : (
+							<Icon as={FiMinusCircle} color="red.400" boxSize={6} />
+						)}
+						<Text marginLeft="0.5em" marginRight="0.5em">
+							{toDayMonthYear(log.date)} - {data.name} {data.surname}
+						</Text>
+					</Flex>
 					{!!boxDefinition ? (
 						<QuantityCounter quantity={log.quantity.quantity} boxDefinition={boxDefinition} />
 					) : (

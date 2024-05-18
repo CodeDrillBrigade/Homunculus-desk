@@ -1,6 +1,7 @@
 import { BoxDefinition } from '../../models/embed/BoxDefinition'
 import { Container, Flex, LayoutProps, SpaceProps, Stack, Text, useColorModeValue } from '@chakra-ui/react'
 import { describeStep, unitToStepsList } from '../../models/embed/UnitStep'
+import { useIsMobileLayout } from '../../hooks/responsive-size'
 
 interface QuantityCounterProps extends SpaceProps, LayoutProps {
 	quantity: number
@@ -8,6 +9,7 @@ interface QuantityCounterProps extends SpaceProps, LayoutProps {
 }
 
 export const QuantityCounter = ({ quantity, boxDefinition, ...style }: QuantityCounterProps) => {
+	const isMobile = useIsMobileLayout()
 	const iconBg = useColorModeValue('blue.200', 'blue.400')
 	const unitAsSteps = unitToStepsList(boxDefinition.boxUnit)
 	const quantityInBaseUnit = [...unitAsSteps]
@@ -20,7 +22,6 @@ export const QuantityCounter = ({ quantity, boxDefinition, ...style }: QuantityC
 			[1]
 		)
 		.slice(1, unitAsSteps.length + 1)
-	console.log(quantityInBaseUnit)
 	const iconsCount = quantityInBaseUnit.reduce(
 		(previous, current) => {
 			const stepCount = Math.floor(previous.total / current)
@@ -33,7 +34,7 @@ export const QuantityCounter = ({ quantity, boxDefinition, ...style }: QuantityC
 		{ total: quantity, count: [] } as { total: number; count: number[] }
 	).count
 	return (
-		<Stack direction="row" justifyContent="left" {...style}>
+		<Stack direction={isMobile ? 'column' : 'row'} justifyContent="left" {...style}>
 			{unitAsSteps.map((it, idx) => (
 				<Flex justifyContent="left" key={idx}>
 					<Container
@@ -44,6 +45,7 @@ export const QuantityCounter = ({ quantity, boxDefinition, ...style }: QuantityC
 						paddingTop="0.25em"
 						paddingLeft="0.35em"
 						marginRight="0.5em"
+						marginLeft="0px"
 					>
 						{it.icon}
 					</Container>

@@ -7,7 +7,7 @@ import { useCreateMaterialMutation } from '../../services/material'
 import { FormValue } from '../../models/form/FormValue'
 import { Tag } from '../../models/embed/Tag'
 import { BoxDefinition } from '../../models/embed/BoxDefinition'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ErrorAlert } from '../errors/ErrorAlert'
 import { useFormControl } from '../../hooks/form-control'
 import { FormValues, useForm } from '../../hooks/form'
@@ -31,8 +31,11 @@ const initialState: AddMaterialFormData = {
 }
 
 export const AddMaterialForm = () => {
-	const [createBoxDefinition, { data: createdBoxId, error: boxError, isSuccess: boxSuccess, isLoading: boxLoading }] =
-		useCreateBoxDefinitionMutation()
+	const [isFormReset, setIsFormReset] = useState(false)
+	const [
+		createBoxDefinition,
+		{ data: createdBoxId, error: boxError, isSuccess: boxSuccess, isLoading: boxLoading, reset: resetBoxMutation },
+	] = useCreateBoxDefinitionMutation()
 	const [createMaterial, { error: materialError, isLoading: materialLoading, isSuccess: materialSuccess }] =
 		useCreateMaterialMutation()
 	const { formState, dispatchState, isInvalid: isFormInvalid } = useForm({ initialState })
@@ -78,6 +81,7 @@ export const AddMaterialForm = () => {
 				console.error('Box is not valid!')
 				return
 			}
+			setIsFormReset(false)
 			createMaterial({
 				name: formState.name.value,
 				brand: formState.brand.value,
@@ -90,13 +94,25 @@ export const AddMaterialForm = () => {
 	}, [boxSuccess, createMaterial, createdBoxId, formState, isFormInvalid])
 
 	useEffect(() => {
-		if (materialSuccess) {
+		if (materialSuccess && !isFormReset) {
+			setIsFormReset(true)
+			resetBoxMutation()
 			nameControls.setValue(undefined)
 			brandControls.setValue(undefined)
 			descriptionControls.setValue(undefined)
+			referenceCodeControls.setValue(undefined)
 			dispatchState('reset', undefined)
 		}
-	}, [brandControls, descriptionControls, dispatchState, materialSuccess, nameControls])
+	}, [
+		brandControls,
+		descriptionControls,
+		dispatchState,
+		isFormReset,
+		materialSuccess,
+		nameControls,
+		referenceCodeControls,
+		resetBoxMutation,
+	])
 
 	const consumeBoxDefinition = useCallback(
 		(payload: FormValue<BoxDefinition>) => {

@@ -62,7 +62,17 @@ export const TopMenu = () => {
 
 	return (
 		<>
-			<Flex as={'nav'} p={'10px'} alignItems={'center'}>
+			<Flex
+				as="header"
+				p="10px"
+				alignItems="center"
+				mb="1em"
+				w="99vw"
+				h="8vh"
+				position="fixed"
+				zIndex="sticky"
+				backdropFilter="saturate(100%) blur(10px)"
+			>
 				<HStack>
 					{!!user && !!permissions && (
 						<>
@@ -163,6 +173,7 @@ export const TopMenu = () => {
 					</Button>
 				)}
 			</Flex>
+			<Flex as="header" w="100vw" h="8vh" mb="1em"></Flex>
 			{!!user && <ChangePasswordModal isOpen={passwordChangeIsOpen} onClose={closePasswordChange} user={user} />}
 			{!!user && (
 				<ContinueRegistrationModal

@@ -26,6 +26,7 @@ import {
 	ModalHeader,
 	ModalCloseButton,
 	ModalBody,
+	Divider,
 } from '@chakra-ui/react'
 import { Box as BoxModel } from '../../models/Box'
 import { useGetMaterialQuery } from '../../services/material'
@@ -46,12 +47,14 @@ import { UsageLogDisplay } from './UsageLogDisplay'
 import { Material } from '../../models/Material'
 import { BoxUnit } from '../../models/embed/BoxUnit'
 import { UpdateQuantityForm } from '../forms/UpdateQuantityForm'
+import { useIsMobileLayout } from '../../hooks/responsive-size'
 
 interface ElementBoxProps extends SpaceProps, LayoutProps {
 	box: BoxModel
 }
 
 export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
+	const isMobile = useIsMobileLayout()
 	const [deleteBox, { error: deleteError, status: deleteStatus }] = useDeleteBoxMutation()
 	const { onOpen: deleteModalOpen, onClose: deleteModalClose, isOpen: deleteModalIsOpen } = useDisclosure()
 	const { onOpen: updateModalOpen, onClose: updateModalClose, isOpen: updateModalIsOpen } = useDisclosure()
@@ -136,8 +139,15 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 							</h2>
 							<AccordionPanel pb={4}>
 								<VStack justifyContent="left">
-									{box.usageLogs.map(log => (
-										<UsageLogDisplay key={log.date} log={log} boxDefinition={boxDefinition} />
+									{box.usageLogs.map((log, idx) => (
+										<>
+											<UsageLogDisplay
+												key={`${log.date}-${idx}`}
+												log={log}
+												boxDefinition={boxDefinition}
+											/>
+											{isMobile && <Divider key={`${log.date}-divider`} />}
+										</>
 									))}
 								</VStack>
 							</AccordionPanel>

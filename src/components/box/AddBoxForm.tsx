@@ -21,7 +21,7 @@ import { BoxUnitSelector } from '../forms/controls/BoxUnitSelector'
 import { TextInput } from '../forms/controls/TextInput'
 import { DatePicker } from '../forms/controls/DatePicker'
 import { useCreateBoxMutation } from '../../services/box'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { BoxUnit } from '../../models/embed/BoxUnit'
 import { useFormControl } from '../../hooks/form-control'
 import { ErrorAlert } from '../errors/ErrorAlert'
@@ -49,6 +49,7 @@ const initialState: BoxFormValue = {
 }
 
 export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
+	const [isFormReset, setIsFormReset] = useState<boolean>(false)
 	const [createBox, { error, isLoading, isSuccess }] = useCreateBoxMutation()
 	const { formState, dispatchState, isInvalid } = useForm({ initialState })
 
@@ -92,6 +93,7 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 				console.error('Quantity is not valid!')
 				return
 			}
+			setIsFormReset(false)
 			createBox({
 				description: formState.description.value,
 				material: formState.material.value._id,
@@ -105,14 +107,15 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 	}
 
 	useEffect(() => {
-		if (isSuccess) {
+		if (isSuccess && !isFormReset) {
+			setIsFormReset(true)
 			descriptionControls.resetValue()
 			shelfControls.resetValue()
 			materialControls.resetValue()
 			dateControls.resetValue()
 			dispatchState('reset')
 		}
-	}, [dateControls, descriptionControls, dispatchState, isSuccess, materialControls, shelfControls])
+	}, [dateControls, descriptionControls, dispatchState, isFormReset, isSuccess, materialControls, shelfControls])
 
 	return (
 		<Card margin="2em" {...style}>
