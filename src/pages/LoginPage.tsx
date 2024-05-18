@@ -13,6 +13,7 @@ import {
 	ModalFooter,
 	ModalHeader,
 	ModalOverlay,
+	Stack,
 	useDisclosure,
 	VStack,
 } from '@chakra-ui/react'
@@ -29,8 +30,10 @@ import { useResetPasswordRequestMutation } from '../services/process'
 import { useFormControl } from '../hooks/form-control'
 import { FormValue } from '../models/form/FormValue'
 import { TextInput } from '../components/forms/controls/TextInput'
+import { useIsMobileLayout } from '../hooks/responsive-size'
 
 export const LoginPage = () => {
+	const isMobile = useIsMobileLayout()
 	const { isOpen, onOpen, onClose } = useDisclosure()
 	const [username, setUsername] = useState<string | null>(null)
 	const [password, setPassword] = useState<string | null>(null)
@@ -90,11 +93,11 @@ export const LoginPage = () => {
 			<Center>
 				<DarkMode />
 			</Center>
-			<VStack padding={'0 25vw'}>
+			<VStack padding={isMobile ? '0 5vw' : '0 25vw'}>
 				<Heading size="lg">Login</Heading>
 				<Input placeholder="Username" onChange={onChangeUsername} onKeyDown={onEnterPressed} />
 				<Input type="password" placeholder="Password" onChange={onChangePassword} onKeyDown={onEnterPressed} />
-				<Flex width="50%" justifyContent="space-between" marginTop="1em">
+				<Stack width={isMobile ? '100%' : '50%'} justifyContent="space-between" marginTop="1em">
 					<Button
 						colorScheme="blue"
 						onClick={onSubmit}
@@ -106,7 +109,7 @@ export const LoginPage = () => {
 					<Button colorScheme="red" onClick={onOpen}>
 						Reset password
 					</Button>
-				</Flex>
+				</Stack>
 				{!!error && <ErrorAlert info={{ label: 'Invalid username or password', reason: error }} />}
 			</VStack>
 			<StartResetPasswordModal isOpen={isOpen} onClose={onClose} />

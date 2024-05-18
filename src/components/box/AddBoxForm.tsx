@@ -116,11 +116,6 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 
 	return (
 		<Card margin="2em" {...style}>
-			<CardHeader>
-				<Center>
-					<Heading>Add a new Box</Heading>
-				</Center>
-			</CardHeader>
 			<CardBody>
 				<VStack>
 					<TextInput

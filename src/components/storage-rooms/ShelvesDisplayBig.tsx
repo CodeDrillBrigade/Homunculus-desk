@@ -38,9 +38,6 @@ export const ShelvesDisplayBig = ({ cabinet, roomId }: ShelvesModalProps) => {
 	const { data, error, isLoading } = useGetBoxByPositionQuery(selectedShelf ?? '', { skip: !selectedShelf })
 	return (
 		<Box paddingRight="1.5em" paddingLeft="1.5em">
-			<Center>
-				<Heading marginBottom="1em">{cabinet.name}</Heading>
-			</Center>
 			<Grid templateColumns="repeat(4, 1fr)" templateRows="repeat(1, 1fr)" gap={4} height="85vh">
 				<GridItem colSpan={1} borderWidth="2px" borderRadius="15px">
 					<VStack>

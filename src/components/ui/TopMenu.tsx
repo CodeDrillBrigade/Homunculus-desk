@@ -1,13 +1,14 @@
 import {
 	Avatar,
 	AvatarBadge,
-	Box,
 	Button,
 	Flex,
+	Heading,
 	HStack,
 	Icon,
 	Menu,
 	MenuButton,
+	MenuDivider,
 	MenuItem,
 	MenuList,
 	SkeletonCircle,
@@ -29,10 +30,14 @@ import { InviteModal } from '../modals/InviteModal'
 import { jwtSelector } from '../../store/auth/auth-slice'
 import { ContinueRegistrationModal } from '../modals/ContinueRegistrationModal'
 import { UserStatus } from '../../models/embed/UserStatus'
+import { pageTitleSelector } from '../../store/ui/ui-slice'
+import { useIsMobileLayout } from '../../hooks/responsive-size'
 
 export const TopMenu = () => {
+	const isMobile = useIsMobileLayout()
 	const dispatch = useAppDispatch()
 	const jwt = useAppSelector(jwtSelector)
+	const pageTitle = useAppSelector(pageTitleSelector)
 	const { isOpen: passwordChangeIsOpen, onOpen: openPasswordChange, onClose: closePasswordChange } = useDisclosure()
 	const { isOpen: inviteIsOpen, onOpen: openInvite, onClose: closeInvite } = useDisclosure()
 	const {
@@ -72,30 +77,65 @@ export const TopMenu = () => {
 									</Avatar>
 								</MenuButton>
 								<MenuList>
+									{isMobile && (
+										<>
+											<MenuItem _hover={{ background: 'none' }}>
+												{user.name ?? user.username}
+											</MenuItem>
+											<MenuDivider />
+										</>
+									)}
 									{user.status === UserStatus.ACTIVE && (
-										<MenuItem onClick={openPasswordChange}>
-											{!user.passwordHash && (
-												<Box bg="red.400" borderRadius="full" width="1.9em" mr="1em">
-													<Icon as={BsExclamationLg} boxSize={5} ml="0.35em" mt="0.3em" />
-												</Box>
-											)}{' '}
+										<MenuItem
+											icon={
+												!user.passwordHash ? (
+													<Icon
+														as={BsExclamationLg}
+														boxSize={5}
+														borderRadius="full"
+														backgroundColor="red.400"
+													/>
+												) : undefined
+											}
+											onClick={openPasswordChange}
+										>
 											Change Password
 										</MenuItem>
 									)}
 									{user.status === UserStatus.REGISTERING && (
-										<MenuItem onClick={openCompleteRegistration}>
-											<Box bg="red.400" borderRadius="full" width="1.9em" mr="1em">
-												<Icon as={BsExclamationLg} boxSize={5} ml="0.35em" mt="0.3em" />
-											</Box>{' '}
+										<MenuItem
+											onClick={openCompleteRegistration}
+											icon={
+												<Icon
+													as={BsExclamationLg}
+													boxSize={5}
+													borderRadius="full"
+													backgroundColor="red.400"
+												/>
+											}
+										>
 											Complete Registration
 										</MenuItem>
 									)}
 									{user.status === UserStatus.ACTIVE && permissions.includes(PERMISSIONS.ADMIN) && (
 										<MenuItem onClick={openInvite}>Invite User</MenuItem>
 									)}
+									{isMobile && (
+										<MenuItem
+											onClick={() => {
+												dispatch(resetToken())
+											}}
+											icon={<Icon as={TbLogout} boxSize={5} />}
+										>
+											Logout
+										</MenuItem>
+									)}
+									<MenuItem _hover={{ background: 'none' }}>
+										<DarkMode />
+									</MenuItem>
 								</MenuList>
 							</Menu>
-							<Text>{user.name ?? user.username}</Text>
+							{!isMobile && <Text>{user.name ?? user.username}</Text>}
 						</>
 					)}
 					{(isLoading || permissionsLoading || !jwt) && <SkeletonCircle size="12" />}
@@ -109,17 +149,19 @@ export const TopMenu = () => {
 					)}
 				</HStack>
 				<Spacer />
-				<DarkMode />
+				<Heading>{pageTitle}</Heading>
 				<Spacer />
-				<Button
-					colorScheme={'orange'}
-					onClick={() => {
-						dispatch(resetToken())
-					}}
-					rightIcon={<Icon as={TbLogout} boxSize={7} />}
-				>
-					Logout
-				</Button>
+				{!isMobile && (
+					<Button
+						colorScheme={'orange'}
+						onClick={() => {
+							dispatch(resetToken())
+						}}
+						rightIcon={<Icon as={TbLogout} boxSize={7} />}
+					>
+						Logout
+					</Button>
+				)}
 			</Flex>
 			{!!user && <ChangePasswordModal isOpen={passwordChangeIsOpen} onClose={closePasswordChange} user={user} />}
 			{!!user && (

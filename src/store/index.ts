@@ -9,10 +9,12 @@ import { materialApi } from '../services/material'
 import { boxApi } from '../services/box'
 import { userApi } from '../services/user'
 import { processApi } from '../services/process'
+import { UIReducer } from './ui/ui-slice'
 
 export const store = configureStore({
 	reducer: {
 		auth: authReducer,
+		ui: UIReducer,
 		[authAPI.reducerPath]: authAPI.reducer,
 		[boxApi.reducerPath]: boxApi.reducer,
 		[boxDefinitionApi.reducerPath]: boxDefinitionApi.reducer,
