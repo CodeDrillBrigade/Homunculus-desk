@@ -3,6 +3,7 @@ import { AuthState } from '../store/auth/auth-slice'
 import { UserTagType } from './tags/user'
 import { User } from '../models/User'
 import { PasswordDto } from '../models/dto/PasswordDto'
+import { PERMISSIONS } from '../models/security/Permissions'
 
 export const userApi = createApi({
 	reducerPath: 'userApi',
@@ -22,8 +23,15 @@ export const userApi = createApi({
 			query: userId => `/${userId}`,
 			providesTags: user => (!!user ? [{ type: UserTagType, id: user._id }] : []),
 		}),
+		getPermissions: builder.query<PERMISSIONS[], void>({
+			query: () => '/permissions',
+		}),
 		getUserByEmail: builder.query<User, string>({
 			query: email => `/byEmail/${email}`,
+			providesTags: user => (!!user ? [{ type: UserTagType, id: user._id }] : []),
+		}),
+		getUserByUsername: builder.query<User, string>({
+			query: username => `/byUsername/${username}`,
 			providesTags: user => (!!user ? [{ type: UserTagType, id: user._id }] : []),
 		}),
 		getCurrentUser: builder.query<User, void>({
@@ -38,8 +46,33 @@ export const userApi = createApi({
 			}),
 			invalidatesTags: (result, _, { userId }) => (result ? [{ type: UserTagType, id: userId }] : []),
 		}),
+		inviteUser: builder.mutation<string, Partial<User>>({
+			query: user => ({
+				url: '',
+				method: 'POST',
+				body: JSON.stringify(user),
+				responseHandler: 'text',
+			}),
+		}),
+		modifyUser: builder.mutation<string, Partial<User>>({
+			query: user => ({
+				url: '',
+				method: 'PUT',
+				body: JSON.stringify(user),
+				responseHandler: 'text',
+			}),
+			invalidatesTags: (result, _, user) => (!!result ? [{ type: UserTagType, id: user._id }] : []),
+		}),
 	}),
 })
 
-export const { useChangePasswordMutation, useGetCurrentUserQuery, useLazyGetUserByEmailQuery, useGetUserByIdQuery } =
-	userApi
+export const {
+	useChangePasswordMutation,
+	useGetCurrentUserQuery,
+	useGetPermissionsQuery,
+	useGetUserByIdQuery,
+	useInviteUserMutation,
+	useLazyGetUserByEmailQuery,
+	useLazyGetUserByUsernameQuery,
+	useModifyUserMutation,
+} = userApi

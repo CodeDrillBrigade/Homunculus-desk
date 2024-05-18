@@ -8,6 +8,7 @@ interface ChangePasswordFormProps extends SpaceProps, LayoutProps {
 	passwordConsumer: (value: FormValue<string>) => void
 	repeatPasswordConsumer: (value: FormValue<string>) => void
 	repeatValidator: (input: string | undefined) => boolean
+	showTokenWarning?: boolean
 }
 
 export const ChangePasswordForm = ({
@@ -15,10 +16,12 @@ export const ChangePasswordForm = ({
 	passwordConsumer,
 	repeatPasswordConsumer,
 	repeatValidator,
+	showTokenWarning,
+	...style
 }: ChangePasswordFormProps) => {
 	return (
-		<Container>
-			{!user.passwordHash && (
+		<Container {...style}>
+			{!user.passwordHash && (showTokenWarning ?? true) && (
 				<Alert status="warning">
 					<AlertIcon />
 					You don't have any password set, only temporary tokens. It is highly recommended that you set a

@@ -10,13 +10,6 @@ import {
 	MenuButton,
 	MenuItem,
 	MenuList,
-	Modal,
-	ModalBody,
-	ModalCloseButton,
-	ModalContent,
-	ModalFooter,
-	ModalHeader,
-	ModalOverlay,
 	SkeletonCircle,
 	Spacer,
 	Text,
@@ -25,38 +18,53 @@ import {
 } from '@chakra-ui/react'
 import { DarkMode } from './DarkMode'
 import { resetToken } from '../../store/auth/auth-thunk'
-import { useAppDispatch } from '../../hooks/redux'
-import { useChangePasswordMutation, useGetCurrentUserQuery } from '../../services/user'
+import { useAppDispatch, useAppSelector } from '../../hooks/redux'
+import { useGetCurrentUserQuery, useGetPermissionsQuery } from '../../services/user'
 import { BsExclamationLg } from 'react-icons/bs'
 import { TbLogout } from 'react-icons/tb'
-import { ErrorAlert } from '../errors/ErrorAlert'
-import { FormValues, useForm } from '../../hooks/form'
-import { FormValue } from '../../models/form/FormValue'
-import { useCallback, useEffect } from 'react'
-import { User } from '../../models/User'
-import { ChangePasswordForm } from '../forms/ChangePasswordForm'
+import { PERMISSIONS } from '../../models/security/Permissions'
+import { ChangePasswordModal } from '../modals/ChangePasswordModal'
+import { useEffect } from 'react'
+import { InviteModal } from '../modals/InviteModal'
+import { jwtSelector } from '../../store/auth/auth-slice'
+import { ContinueRegistrationModal } from '../modals/ContinueRegistrationModal'
+import { UserStatus } from '../../models/embed/UserStatus'
 
 export const TopMenu = () => {
-	const { isOpen, onOpen, onClose } = useDisclosure()
-	const { data: user, error, isLoading } = useGetCurrentUserQuery()
 	const dispatch = useAppDispatch()
+	const jwt = useAppSelector(jwtSelector)
+	const { isOpen: passwordChangeIsOpen, onOpen: openPasswordChange, onClose: closePasswordChange } = useDisclosure()
+	const { isOpen: inviteIsOpen, onOpen: openInvite, onClose: closeInvite } = useDisclosure()
+	const {
+		isOpen: completeRegistrationIsOpen,
+		onOpen: openCompleteRegistration,
+		onClose: closeCompleteRegistration,
+	} = useDisclosure()
+	const { data: user, error, isLoading } = useGetCurrentUserQuery(undefined, { skip: !jwt })
+	const {
+		data: permissions,
+		error: permissionsError,
+		isLoading: permissionsLoading,
+	} = useGetPermissionsQuery(undefined, { skip: !jwt })
 
 	useEffect(() => {
-		if (!!user && !user.passwordHash) {
-			onOpen()
+		if (!!user && user.status === UserStatus.REGISTERING) {
+			openCompleteRegistration()
+		} else if (!!user && !user.passwordHash) {
+			openPasswordChange()
 		}
-	}, [onOpen, user])
+	}, [openCompleteRegistration, openPasswordChange, user])
 
 	return (
 		<>
 			<Flex as={'nav'} p={'10px'} alignItems={'center'}>
 				<HStack>
-					{!!user && (
+					{!!user && !!permissions && (
 						<>
 							<Menu>
 								<MenuButton>
 									<Avatar name={user.name ?? user.username}>
-										{!user.passwordHash && (
+										{(!user.passwordHash || user.status === UserStatus.REGISTERING) && (
 											<AvatarBadge boxSize="1.25em" bg="red.400">
 												<Icon as={BsExclamationLg} boxSize="0.6em" />
 											</AvatarBadge>
@@ -64,22 +72,38 @@ export const TopMenu = () => {
 									</Avatar>
 								</MenuButton>
 								<MenuList>
-									<MenuItem onClick={onOpen}>
-										{!user.passwordHash && (
+									{user.status === UserStatus.ACTIVE && (
+										<MenuItem onClick={openPasswordChange}>
+											{!user.passwordHash && (
+												<Box bg="red.400" borderRadius="full" width="1.9em" mr="1em">
+													<Icon as={BsExclamationLg} boxSize={5} ml="0.35em" mt="0.3em" />
+												</Box>
+											)}{' '}
+											Change Password
+										</MenuItem>
+									)}
+									{user.status === UserStatus.REGISTERING && (
+										<MenuItem onClick={openCompleteRegistration}>
 											<Box bg="red.400" borderRadius="full" width="1.9em" mr="1em">
 												<Icon as={BsExclamationLg} boxSize={5} ml="0.35em" mt="0.3em" />
-											</Box>
-										)}{' '}
-										Change Password
-									</MenuItem>
+											</Box>{' '}
+											Complete Registration
+										</MenuItem>
+									)}
+									{user.status === UserStatus.ACTIVE && permissions.includes(PERMISSIONS.ADMIN) && (
+										<MenuItem onClick={openInvite}>Invite User</MenuItem>
+									)}
 								</MenuList>
 							</Menu>
 							<Text>{user.name ?? user.username}</Text>
 						</>
 					)}
-					{isLoading && <SkeletonCircle size="12" />}
-					{!!error && (
-						<Tooltip label={`Cannot load the user: ${JSON.stringify(error)}`} aria-label="Error tooltip">
+					{(isLoading || permissionsLoading || !jwt) && <SkeletonCircle size="12" />}
+					{(!!error || !!permissionsError) && (
+						<Tooltip
+							label={`Cannot load the user: ${JSON.stringify(error ?? permissionsError)}`}
+							aria-label="Error tooltip"
+						>
 							<Avatar bg="red.400" icon={<Icon as={BsExclamationLg} boxSize={9} />} />
 						</Tooltip>
 					)}
@@ -97,85 +121,15 @@ export const TopMenu = () => {
 					Logout
 				</Button>
 			</Flex>
-			{!!user && <ChangePasswordModal isOpen={isOpen} onClose={onClose} user={user} />}
+			{!!user && <ChangePasswordModal isOpen={passwordChangeIsOpen} onClose={closePasswordChange} user={user} />}
+			{!!user && (
+				<ContinueRegistrationModal
+					isOpen={completeRegistrationIsOpen}
+					onClose={closeCompleteRegistration}
+					user={user}
+				/>
+			)}
+			<InviteModal isOpen={inviteIsOpen} onClose={closeInvite} />
 		</>
-	)
-}
-
-interface ChangePasswordModalProps {
-	user: User
-	isOpen: boolean
-	onClose: () => void
-}
-
-interface ChangePasswordFormState extends FormValues {
-	password: FormValue<string>
-	repeat: FormValue<string>
-}
-
-const initialState: ChangePasswordFormState = {
-	password: { value: undefined, isValid: false },
-	repeat: { value: undefined, isValid: false },
-}
-
-const ChangePasswordModal = ({ isOpen, onClose, user }: ChangePasswordModalProps) => {
-	const [changePassword, { error, isLoading, isSuccess }] = useChangePasswordMutation()
-	const { formState, dispatchState, isInvalid } = useForm({ initialState })
-
-	const onSubmit = useCallback(
-		(formState: ChangePasswordFormState) => {
-			if (!!formState.password.value && !!formState.repeat.value) {
-				changePassword({ userId: user._id, password: { password: formState.password.value } })
-			} else {
-				throw Error('There was an error changing the password')
-			}
-		},
-		[changePassword, user._id]
-	)
-
-	useEffect(() => {
-		if (isSuccess) {
-			onClose()
-		}
-	}, [isSuccess, onClose])
-
-	return (
-		<Modal isOpen={isOpen} onClose={onClose}>
-			<ModalOverlay />
-			<ModalContent>
-				<ModalHeader>Change your password</ModalHeader>
-				<ModalCloseButton />
-
-				<ModalBody>
-					{!!error && (
-						<ErrorAlert info={{ label: 'An error occurred while changing password', reason: error }} />
-					)}
-					<ChangePasswordForm
-						user={user}
-						passwordConsumer={payload => {
-							dispatchState('password', payload)
-						}}
-						repeatPasswordConsumer={payload => {
-							dispatchState('repeat', payload)
-						}}
-						repeatValidator={input => !!input && formState.password.value === input}
-					/>
-				</ModalBody>
-
-				<ModalFooter>
-					<Button
-						colorScheme="blue"
-						mr={3}
-						onClick={() => {
-							onSubmit(formState)
-						}}
-						isDisabled={isInvalid}
-						isLoading={isLoading}
-					>
-						Change password
-					</Button>
-				</ModalFooter>
-			</ModalContent>
-		</Modal>
 	)
 }

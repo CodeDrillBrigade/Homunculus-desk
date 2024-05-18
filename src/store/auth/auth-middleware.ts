@@ -28,12 +28,8 @@ startAuthListening({
 				})
 				.then(
 					(response: AxiosResponse<JwtResponse, any>) => {
-						listenerApi.dispatch(
-							setAuthenticationState({
-								jwt: response.data.jwt,
-								refreshJwt: response.data.refreshJwt,
-							})
-						)
+						localStorage.setItem(localStorageJwtKey, response.data.jwt)
+						listenerApi.dispatch(setAuthenticationState({ jwt: response.data.jwt, refreshJwt }))
 					},
 					() => {
 						localStorage.removeItem(localStorageJwtKey)

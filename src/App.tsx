@@ -8,6 +8,7 @@ import { MaterialPage } from './pages/material/MaterialPage'
 import { BoxPage } from './pages/box/BoxPage'
 import { CabinetPage } from './pages/storage/CabinetPage'
 import { PasswordResetPage } from './pages/PasswordResetPage'
+import { RegisterUserPage } from './pages/RegisterUserPage'
 
 const router = createBrowserRouter([
 	{
@@ -28,6 +29,7 @@ const router = createBrowserRouter([
 	},
 	{ path: 'login', element: <LoginPage /> },
 	{ path: 'passwordReset', element: <PasswordResetPage /> },
+	{ path: 'register', element: <RegisterUserPage /> },
 ])
 
 function App() {

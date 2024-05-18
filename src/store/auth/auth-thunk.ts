@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import { AuthState, resetAuthenticationState, setAuthenticationState } from './auth-slice'
+import { userApi } from '../../services/user'
 
 export const localStorageJwtKey = 'jwt'
 export const localStorageRefreshJwtKey = 'refreshJwt'
@@ -26,5 +27,6 @@ export const resetToken = createAsyncThunk('auth/resetToken', async (_param: voi
 	localStorage.removeItem(localStorageJwtKey)
 	localStorage.removeItem(localStorageRefreshJwtKey)
 
+	dispatch(userApi.util.resetApiState())
 	dispatch(resetAuthenticationState())
 })
