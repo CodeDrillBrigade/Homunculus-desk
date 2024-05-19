@@ -1,6 +1,6 @@
 # Homunculus Desk
 
-![Homunculus Icon](https://raw.githubusercontent.com/CodeDrillBrigade/Homunculus-desk/main/public/logo512.png)
+![Homunculus Icon](https://raw.githubusercontent.com/CodeDrillBrigade/Homunculus-desk/main/public/logo192.png)
 
 Homunculus is a simple app to manage biochemistry lab inventories.<br>
 It supports:

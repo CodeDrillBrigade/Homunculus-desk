@@ -49,6 +49,8 @@ jobs:
                   body: ${{ github.event.pull_request.body }}
                   tag: ${{ env.NEW_VERSION }}
                   token: ${{ secrets.GITHUB_TOKEN }}
+        outputs:
+            releasedVersion: ${{ env.NEW_VERSION }}
 
     docker:
         name: Generate and Push Docker image
@@ -77,5 +79,5 @@ jobs:
                   push: true
                   platforms: linux/amd64,linux/arm64
                   tags: |
-                      testadirapa/homunculus-desk:${{ env.NEW_VERSION }}
+                      testadirapa/homunculus-desk:${{ needs.generate-release.outputs.releasedVersion }}
                       testadirapa/homunculus-desk:latest
