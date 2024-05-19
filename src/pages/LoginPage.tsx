@@ -3,7 +3,7 @@ import {
 	AlertIcon,
 	Button,
 	Center,
-	Flex,
+	Image,
 	Heading,
 	Input,
 	Modal,
@@ -16,6 +16,7 @@ import {
 	Stack,
 	useDisclosure,
 	VStack,
+	useColorMode,
 } from '@chakra-ui/react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useLoginMutation } from '../services/auth'
@@ -33,6 +34,7 @@ import { TextInput } from '../components/forms/controls/TextInput'
 import { useIsMobileLayout } from '../hooks/responsive-size'
 
 export const LoginPage = () => {
+	const { colorMode } = useColorMode()
 	const isMobile = useIsMobileLayout()
 	const { isOpen, onOpen, onClose } = useDisclosure()
 	const [username, setUsername] = useState<string | null>(null)
@@ -90,10 +92,15 @@ export const LoginPage = () => {
 
 	return (
 		<>
-			<Center>
-				<DarkMode />
-			</Center>
 			<VStack padding={isMobile ? '0 5vw' : '0 25vw'}>
+				<Image
+					src={
+						process.env.PUBLIC_URL +
+						`${colorMode === 'dark' ? '/homunculus_dark.svg' : '/homunculus_light.svg'}`
+					}
+					boxSize={{ base: '60vw', lg: '20vw' }}
+					alt="Homunculus Logo"
+				/>
 				<Heading size="lg">Login</Heading>
 				<Input placeholder="Username" onChange={onChangeUsername} onKeyDown={onEnterPressed} />
 				<Input type="password" placeholder="Password" onChange={onChangePassword} onKeyDown={onEnterPressed} />
@@ -109,6 +116,7 @@ export const LoginPage = () => {
 					<Button colorScheme="red" onClick={onOpen}>
 						Reset password
 					</Button>
+					<DarkMode />
 				</Stack>
 				{!!error && <ErrorAlert info={{ label: 'Invalid username or password', reason: error }} />}
 			</VStack>

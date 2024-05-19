@@ -12,6 +12,7 @@ import { useChangePasswordMutation, useLazyGetUserByEmailQuery } from '../servic
 import { ChangePasswordForm } from '../components/forms/ChangePasswordForm'
 import { FormValues, useForm } from '../hooks/form'
 import { FormValue } from '../models/form/FormValue'
+import { DarkMode } from '../components/ui/DarkMode'
 
 interface ChangePasswordFormState extends FormValues {
 	password: FormValue<string>
@@ -80,7 +81,7 @@ export const PasswordResetPage = () => {
 
 	return (
 		<>
-			<Center>
+			<Center mb="1em">
 				<Heading>Reset your password</Heading>
 			</Center>
 			{!!resetError && (
@@ -144,6 +145,7 @@ export const PasswordResetPage = () => {
 					>
 						Reset password
 					</Button>
+					<DarkMode />
 				</VStack>
 			)}
 		</>

@@ -12,6 +12,7 @@ import { UserStatus } from '../models/embed/UserStatus'
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query'
 import { SerializedError } from '@reduxjs/toolkit'
 import { RegisterUserForm } from '../components/forms/RegisterUserForm'
+import { DarkMode } from '../components/ui/DarkMode'
 
 export const RegisterUserPage = () => {
 	const dispatch = useAppDispatch()
@@ -62,7 +63,7 @@ export const RegisterUserPage = () => {
 
 	return (
 		<>
-			<Center>
+			<Center mb="1em">
 				<Heading>Register</Heading>
 			</Center>
 			{!!updateUserError && (
@@ -107,13 +108,17 @@ export const RegisterUserPage = () => {
 				<Skeleton>{generateSkeletons({ quantity: 1, minWidth: '90vw', height: '10vh' })}</Skeleton>
 			)}
 			{!!jwtResponse && !!user && (
-				<RegisterUserForm
-					user={user}
-					onUpdateSuccess={onUpdateSuccess}
-					onUpdateError={onUpdateError}
-					pl="10vw"
-					pr="10vw"
-				/>
+				<>
+					<RegisterUserForm
+						user={user}
+						onUpdateSuccess={onUpdateSuccess}
+						onUpdateError={onUpdateError}
+						pl="10vw"
+						pr="10vw"
+						mb="1em"
+					/>
+					<DarkMode />
+				</>
 			)}
 		</>
 	)
