@@ -7,9 +7,12 @@ on:
         branches:
             - 'main'
 
+permissions:
+    contents: write
+
 jobs:
     deploy_on_docker:
-        name: Deploy
+        name: Release
         if: github.event.pull_request.merged == true && (contains(github.event.pull_request.labels.*.name, 'SemVer.major') || contains(github.event.pull_request.labels.*.name, 'SemVer.minor') || contains(github.event.pull_request.labels.*.name, 'SemVer.patch'))
         runs-on: ubuntu-latest
         steps:
