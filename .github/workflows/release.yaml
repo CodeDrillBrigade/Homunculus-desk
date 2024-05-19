@@ -59,15 +59,6 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v2
 
-            - name: Get the version
-              id: get_version
-              run: |
-                  if [[ $GITHUB_REF == refs/tags/* ]]; then
-                    echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
-                  else
-                    echo ::set-output name=VERSION::latest
-                  fi
-
             - name: Set up QEMU
               uses: docker/setup-qemu-action@v3
 
@@ -86,5 +77,5 @@ jobs:
                   push: true
                   platforms: linux/amd64,linux/arm64
                   tags: |
-                      testadirapa/homunculus-desk:${{ steps.get_version.outputs.VERSION }}
+                      testadirapa/homunculus-desk:${{ env.NEW_VERSION }}
                       testadirapa/homunculus-desk:latest
