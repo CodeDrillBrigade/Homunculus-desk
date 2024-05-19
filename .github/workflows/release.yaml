@@ -1,0 +1,48 @@
+name: Release
+
+on:
+    pull_request:
+        types:
+            - closed
+        branches:
+            - 'main'
+
+jobs:
+    deploy_on_docker:
+        name: Deploy
+        if: github.event.pull_request.merged == true && (contains(github.event.pull_request.labels.*.name, 'SemVer.major') || contains(github.event.pull_request.labels.*.name, 'SemVer.minor') || contains(github.event.pull_request.labels.*.name, 'SemVer.patch'))
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout
+              uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+
+            - name: Get Previous tag
+              id: previoustag
+              uses: 'WyriHaximus/github-action-get-previous-tag@v1'
+
+            - name: Get next versions
+              id: semvers
+              uses: 'WyriHaximus/github-action-next-semvers@v1'
+              with:
+                  version: ${{ steps.previoustag.outputs.tag }}
+
+            - name: Update major version
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'SemVer.major') }}
+              run: echo "NEW_VERSION=${{ steps.semvers.outputs.major }}" >> $GITHUB_ENV
+
+            - name: Update minor version
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'SemVer.minor') }}
+              run: echo "NEW_VERSION=${{ steps.semvers.outputs.minor }}" >> $GITHUB_ENV
+
+            - name: Update patch version
+              if: ${{ contains(github.event.pull_request.labels.*.name, 'SemVer.patch') }}
+              run: echo "NEW_VERSION=${{ steps.semvers.outputs.patch }}" >> $GITHUB_ENV
+
+            - name: Upload Release
+              uses: ncipollo/release-action@v1
+              with:
+                  body: ${{ github.event.pull_request.body }}
+                  tag: ${{ env.NEW_VERSION }}
+                  token: ${{ secrets.GITHUB_TOKEN }}
