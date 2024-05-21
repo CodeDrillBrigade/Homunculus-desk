@@ -88,10 +88,12 @@ export function describeStep(step: UnitStep, nextStep: UnitStep | undefined): st
 	} else if (step.type === Metric.COMPLEX && nextStep?.type === Metric.ML) {
 		return `Full ${nextStep.qty} ml Flask`
 	} else if (step.type === Metric.COMPLEX && nextStep?.type === Metric.PIECE) {
-		return `Full box of ${nextStep.qty} pieces`
+		return `Full Box${nextStep.qty > 1 ? 'es' : ''} of ${nextStep.qty} pieces`
 	} else if (step.type === Metric.ML && !nextStep) {
 		return `ml`
-	} else {
+	} else if (step.qty === 1) {
 		return `Piece`
+	} else {
+		return `Pieces`
 	}
 }
