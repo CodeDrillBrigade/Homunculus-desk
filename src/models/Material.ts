@@ -5,7 +5,7 @@ export interface Material {
 	name: string
 	boxDefinition: string
 	brand: string
-	referenceCode: string
+	referenceCode?: string
 	description?: string
 	tags?: string[]
 	noteList?: Note[]

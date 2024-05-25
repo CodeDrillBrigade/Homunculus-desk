@@ -50,13 +50,9 @@ export function SelectInput<T>({
 	return (
 		<FormControl {...style}>
 			<FormLabel color={value.isValid ? '' : 'crimson'}>{label}</FormLabel>
-			<Select onChange={onSelectChange}>
+			<Select onChange={onSelectChange} defaultValue={value.value?.id}>
 				{values.map((it, idx) => (
-					<option
-						selected={(it.id ?? it.name) === value.value?.id}
-						key={`select-${label}-${idx}`}
-						id={it.id ?? it.name}
-					>
+					<option key={`select-${label}-${idx}`} id={it.id ?? it.name}>
 						{it.name}
 					</option>
 				))}

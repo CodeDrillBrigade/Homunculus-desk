@@ -6,7 +6,7 @@ export interface Box {
 	material: string
 	quantity: BoxUnit
 	position: string
-	batchNumber: string
+	batchNumber?: string
 	expirationDate?: number
 	deleted?: number
 	description?: string
