@@ -6,6 +6,7 @@ import {
 	Heading,
 	HStack,
 	Icon,
+	IconButton,
 	Menu,
 	MenuButton,
 	MenuDivider,
@@ -22,20 +23,24 @@ import { resetToken } from '../../store/auth/auth-thunk'
 import { useAppDispatch, useAppSelector } from '../../hooks/redux'
 import { useGetCurrentUserQuery, useGetPermissionsQuery } from '../../services/user'
 import { BsExclamationLg } from 'react-icons/bs'
-import { TbLogout } from 'react-icons/tb'
+import { TbLogout, TbHome } from 'react-icons/tb'
 import { PERMISSIONS } from '../../models/security/Permissions'
 import { ChangePasswordModal } from '../modals/ChangePasswordModal'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { InviteModal } from '../modals/InviteModal'
 import { jwtSelector } from '../../store/auth/auth-slice'
 import { ContinueRegistrationModal } from '../modals/ContinueRegistrationModal'
 import { UserStatus } from '../../models/embed/UserStatus'
 import { pageTitleSelector } from '../../store/ui/ui-slice'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { IoArrowBack } from 'react-icons/io5'
 
 export const TopMenu = () => {
 	const isMobile = useIsMobileLayout()
 	const dispatch = useAppDispatch()
+	const navigate = useNavigate()
+	const { pathname } = useLocation()
 	const jwt = useAppSelector(jwtSelector)
 	const pageTitle = useAppSelector(pageTitleSelector)
 	const { isOpen: passwordChangeIsOpen, onOpen: openPasswordChange, onClose: closePasswordChange } = useDisclosure()
@@ -76,6 +81,15 @@ export const TopMenu = () => {
 				<HStack>
 					{!!user && !!permissions && (
 						<>
+							{pathname !== '/' && (
+								<IconButton
+									variant="clear"
+									aria-label="Go back"
+									fontSize="25px"
+									icon={<Icon as={IoArrowBack} />}
+									onClick={() => navigate(-1)}
+								/>
+							)}
 							<Menu>
 								<MenuButton>
 									<Avatar name={user.name ?? user.username}>
@@ -95,6 +109,10 @@ export const TopMenu = () => {
 											<MenuDivider />
 										</>
 									)}
+									<MenuItem onClick={() => navigate('/')} icon={<Icon as={TbHome} boxSize={5} />}>
+										Home
+									</MenuItem>
+									<MenuDivider />
 									{user.status === UserStatus.ACTIVE && (
 										<MenuItem
 											icon={
