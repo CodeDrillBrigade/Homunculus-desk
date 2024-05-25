@@ -1,4 +1,21 @@
-import { Button, Card, CardBody, CardHeader, Heading, VStack } from '@chakra-ui/react'
+import {
+	Alert,
+	AlertIcon,
+	Button,
+	Card,
+	CardBody,
+	CardHeader,
+	Heading,
+	Modal,
+	ModalBody,
+	ModalCloseButton,
+	ModalContent,
+	ModalFooter,
+	ModalHeader,
+	ModalOverlay,
+	useDisclosure,
+	VStack,
+} from '@chakra-ui/react'
 import { TextInput } from '../forms/controls/TextInput'
 import { TagInput } from '../forms/controls/TagInput'
 import { BoxDefinitionBuilder } from '../forms/controls/BoxDefinitionBuilder'
@@ -24,7 +41,7 @@ interface AddMaterialFormData extends FormValues {
 const initialState: AddMaterialFormData = {
 	name: { value: undefined, isValid: false },
 	brand: { value: undefined, isValid: false },
-	referenceCode: { value: undefined, isValid: false },
+	referenceCode: { value: undefined, isValid: true },
 	description: { value: undefined, isValid: true },
 	tags: { value: undefined, isValid: true },
 	boxDefinition: { value: undefined, isValid: false },
@@ -32,6 +49,7 @@ const initialState: AddMaterialFormData = {
 
 export const AddMaterialForm = () => {
 	const [isFormReset, setIsFormReset] = useState(false)
+	const { isOpen, onOpen, onClose } = useDisclosure()
 	const [
 		createBoxDefinition,
 		{ data: createdBoxId, error: boxError, isSuccess: boxSuccess, isLoading: boxLoading, reset: resetBoxMutation },
@@ -52,7 +70,7 @@ export const AddMaterialForm = () => {
 		},
 	})
 	const referenceCodeControls = useFormControl<string>({
-		validator: (value: string | undefined) => !!value && value.trim().length <= 100,
+		validator: (value: string | undefined) => !value || value.trim().length <= 100,
 		valueConsumer: (value: FormValue<string>) => {
 			dispatchState('referenceCode', value)
 		},
@@ -60,6 +78,12 @@ export const AddMaterialForm = () => {
 	const descriptionControls = useFormControl<string>({
 		valueConsumer: (value: FormValue<string>) => {
 			dispatchState('description', value)
+		},
+	})
+	const tagControls = useFormControl<Tag[]>({
+		defaultValue: [],
+		valueConsumer: (value: FormValue<Tag[]>) => {
+			dispatchState('tags', value)
 		},
 	})
 
@@ -71,10 +95,6 @@ export const AddMaterialForm = () => {
 			}
 			if (!formState.brand.isValid || !formState.brand.value) {
 				console.error('Brand is not valid!')
-				return
-			}
-			if (!formState.referenceCode.isValid || !formState.referenceCode.value) {
-				console.error('Reference Code is not valid!')
 				return
 			}
 			if (!boxSuccess || !createdBoxId) {
@@ -96,11 +116,13 @@ export const AddMaterialForm = () => {
 	useEffect(() => {
 		if (materialSuccess && !isFormReset) {
 			setIsFormReset(true)
+			onOpen()
 			resetBoxMutation()
-			nameControls.setValue(undefined)
-			brandControls.setValue(undefined)
-			descriptionControls.setValue(undefined)
-			referenceCodeControls.setValue(undefined)
+			nameControls.resetValue()
+			brandControls.resetValue()
+			descriptionControls.resetValue()
+			referenceCodeControls.resetValue()
+			tagControls.resetValue()
 			dispatchState('reset', undefined)
 		}
 	}, [
@@ -110,8 +132,10 @@ export const AddMaterialForm = () => {
 		isFormReset,
 		materialSuccess,
 		nameControls,
+		onOpen,
 		referenceCodeControls,
 		resetBoxMutation,
+		tagControls,
 	])
 
 	const consumeBoxDefinition = useCallback(
@@ -122,60 +146,79 @@ export const AddMaterialForm = () => {
 	)
 
 	return (
-		<Card>
-			<CardHeader>
-				<Heading>Add a new Material</Heading>
-			</CardHeader>
-			<CardBody>
-				<VStack>
-					{!!boxError && <ErrorAlert info={{ label: 'Something went wrong', reason: boxError }} />}
-					{!!materialError && <ErrorAlert info={{ label: 'Something went wrong', reason: materialError }} />}
-					<TextInput
-						label="Name"
-						placeholder="Material name"
-						controls={nameControls}
-						invalidLabel="Material name cannot be null"
-					/>
-					<TextInput
-						label="Brand"
-						placeholder="Material brand"
-						controls={brandControls}
-						invalidLabel="Material brand cannot be null"
-					/>
-					<TextInput
-						label="Reference Code"
-						placeholder="The reference code"
-						controls={referenceCodeControls}
-						invalidLabel="Reference code cannot be null"
-					/>
-					<TextInput
-						label="Description"
-						placeholder="Material description (optional)"
-						controls={descriptionControls}
-					/>
-					<TagInput
-						label={'Tags'}
-						placeholder={'Choose one or more tags (optional)'}
-						valueConsumer={value => {
-							dispatchState('tags', value)
-						}}
-					/>
-					<BoxDefinitionBuilder valueConsumer={consumeBoxDefinition} />
-					<Button
-						colorScheme="blue"
-						mr={3}
-						onClick={() => {
-							if (formState.boxDefinition.isValid && !!formState.boxDefinition.value) {
-								createBoxDefinition(formState.boxDefinition.value)
-							}
-						}}
-						isDisabled={isFormInvalid}
-						isLoading={boxLoading || materialLoading}
-					>
-						Create
-					</Button>
-				</VStack>
-			</CardBody>
-		</Card>
+		<>
+			<Card>
+				<CardHeader>
+					<Heading>Add a new Material</Heading>
+				</CardHeader>
+				<CardBody>
+					<VStack>
+						{!!boxError && <ErrorAlert info={{ label: 'Something went wrong', reason: boxError }} />}
+						{!!materialError && (
+							<ErrorAlert info={{ label: 'Something went wrong', reason: materialError }} />
+						)}
+						<TextInput
+							label="Name"
+							placeholder="Material name"
+							controls={nameControls}
+							invalidLabel="Material name cannot be null"
+						/>
+						<TextInput
+							label="Brand"
+							placeholder="Material brand"
+							controls={brandControls}
+							invalidLabel="Material brand cannot be null"
+						/>
+						<TextInput
+							label="Reference Code"
+							placeholder="The reference code"
+							controls={referenceCodeControls}
+							invalidLabel="Reference code cannot be null"
+						/>
+						<TextInput
+							label="Description"
+							placeholder="Material description (optional)"
+							controls={descriptionControls}
+						/>
+						<TagInput
+							label={'Tags'}
+							placeholder={'Choose one or more tags (optional)'}
+							controls={tagControls}
+						/>
+						<BoxDefinitionBuilder valueConsumer={consumeBoxDefinition} />
+						<Button
+							colorScheme="blue"
+							mr={3}
+							onClick={() => {
+								if (formState.boxDefinition.isValid && !!formState.boxDefinition.value) {
+									createBoxDefinition(formState.boxDefinition.value)
+								}
+							}}
+							isDisabled={isFormInvalid}
+							isLoading={boxLoading || materialLoading}
+						>
+							Create
+						</Button>
+					</VStack>
+				</CardBody>
+			</Card>
+			<Modal isOpen={isOpen} onClose={onClose}>
+				<ModalOverlay />
+				<ModalContent>
+					<ModalBody>
+						<Alert status="success">
+							<AlertIcon />
+							Operation completed successfully.
+						</Alert>
+					</ModalBody>
+
+					<ModalFooter>
+						<Button colorScheme="blue" onClick={onClose}>
+							Close
+						</Button>
+					</ModalFooter>
+				</ModalContent>
+			</Modal>
+		</>
 	)
 }

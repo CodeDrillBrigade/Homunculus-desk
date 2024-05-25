@@ -2,6 +2,8 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { AuthState } from '../store/auth/auth-slice'
 import { AllMaterialsTag, MaterialTagType } from './tags/material'
 import { Material } from '../models/Material'
+import { Box } from '../models/Box'
+import { BoxOnShelfType, BoxTagType } from './tags/box'
 
 export const materialApi = createApi({
 	reducerPath: 'material',
@@ -19,12 +21,23 @@ export const materialApi = createApi({
 	endpoints: builder => ({
 		getMaterials: builder.query<Material[], void>({
 			query: () => '',
-			providesTags: [AllMaterialsTag],
+			providesTags: materials =>
+				!!materials
+					? [
+							...materials.map(material => {
+								return { type: MaterialTagType, id: material._id! } as {
+									type: typeof MaterialTagType
+									id: string
+								}
+							}),
+							AllMaterialsTag,
+					  ]
+					: [AllMaterialsTag],
 		}),
 		getMaterial: builder.query<Material, string>({
 			query: (materialId: string) => `/${encodeURIComponent(materialId)}`,
-			providesTags: box =>
-				!!box ? [{ type: MaterialTagType, id: box._id }, AllMaterialsTag] : [AllMaterialsTag],
+			providesTags: material =>
+				!!material ? [{ type: MaterialTagType, id: material._id }, AllMaterialsTag] : [AllMaterialsTag],
 		}),
 		createMaterial: builder.mutation<string, Partial<Material>>({
 			query: data => ({
@@ -34,6 +47,13 @@ export const materialApi = createApi({
 			}),
 			invalidatesTags: [AllMaterialsTag],
 		}),
+		deleteMaterial: builder.mutation<string, Material>({
+			query: material => ({
+				url: `/${material._id}`,
+				method: 'DELETE',
+			}),
+			invalidatesTags: id => (!!id ? [{ type: MaterialTagType, id }] : []),
+		}),
 		findMaterialsByFuzzyName: builder.query<Material[], { query: string; limit?: number }>({
 			query: ({ query, limit }) => `/byFuzzyName/${encodeURIComponent(query)}${!!limit ? `?limit=${limit}` : ''}`,
 		}),
@@ -42,6 +62,7 @@ export const materialApi = createApi({
 
 export const {
 	useCreateMaterialMutation,
+	useDeleteMaterialMutation,
 	useGetMaterialQuery,
 	useGetMaterialsQuery,
 	useFindMaterialsByFuzzyNameQuery,

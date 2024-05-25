@@ -13,7 +13,6 @@ import { FormValue } from '../../../models/form/FormValue'
 import { BoxUnit } from '../../../models/embed/BoxUnit'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { describeStep, UnitStep, unitToStepsList } from '../../../models/embed/UnitStep'
-import { Metric } from '../../../models/embed/Metric'
 import { useFormControl } from '../../../hooks/form-control'
 import { HTMLChakraProps } from '@chakra-ui/system'
 

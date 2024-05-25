@@ -22,6 +22,7 @@ import { ElementTag } from '../../components/models/ElementTag'
 import { useAppDispatch } from '../../hooks/redux'
 import { setPageTitle } from '../../store/ui/ui-slice'
 import { useEffect } from 'react'
+import { MaterialCard } from '../../components/models/MaterialCard'
 
 export const MaterialPage = () => {
 	const dispatch = useAppDispatch()
@@ -51,33 +52,7 @@ const ListMaterials = () => {
 				<VStack>
 					{status === QueryStatus.pending && generateSkeletons({ quantity: 5, height: '3em' })}
 					{!!error && <ErrorAlert info={{ label: 'Cannot load materials', reason: error }} />}
-					{!!data &&
-						data.map(it => (
-							<Card key={it._id} boxShadow="none" width="100%">
-								<CardHeader>
-									<Heading size="sm">{it.name}</Heading>
-								</CardHeader>
-								{!!it.description && (
-									<CardBody paddingTop="0px">
-										<Text>{it.description}</Text>
-									</CardBody>
-								)}
-								{!!it.tags && it.tags.length > 0 && (
-									<CardFooter paddingTop="0px">
-										<Flex>
-											{it.tags.map(id => (
-												<ElementTag
-													key={id}
-													tagId={id}
-													marginRight="0.4em"
-													compact={!!it.tags && it.tags.length >= 5}
-												/>
-											))}
-										</Flex>
-									</CardFooter>
-								)}
-							</Card>
-						))}
+					{!!data && data.map(it => <MaterialCard key={it._id} material={it} />)}
 				</VStack>
 			</CardBody>
 		</Card>

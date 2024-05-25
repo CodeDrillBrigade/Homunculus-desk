@@ -1,9 +1,11 @@
 import { FormValue } from '../models/form/FormValue'
 import { useCallback, useState } from 'react'
 
+type FormValueDispatcher<T> = (currentValue: T | undefined) => T
+
 export interface FormControls<T> {
 	value: FormValue<T>
-	setValue: (value: T | undefined) => void
+	setValue: (value: T | undefined | FormValueDispatcher<T>) => void
 	validator?: (value: T | undefined) => boolean
 	valueConsumer?: (value: FormValue<T>) => void
 	resetValue: () => void
@@ -22,15 +24,25 @@ export function useFormControl<T>({ defaultValue, validator, valueConsumer }: Fo
 	})
 
 	const setValue = useCallback(
-		(value: T | undefined) => {
-			const newValue = {
-				value: value,
-				isValid: !validator || validator(value),
-			}
-			setFormValue(newValue)
-			if (!!valueConsumer) {
-				valueConsumer(newValue)
-			}
+		(value: T | undefined | FormValueDispatcher<T>) => {
+			setFormValue(currentValue => {
+				let computedValue: T | undefined
+				if (typeof value === 'function') {
+					const dispatcher = value as FormValueDispatcher<T>
+					computedValue = dispatcher(currentValue.value)
+				} else {
+					computedValue = value as T | undefined
+				}
+
+				const newValue = {
+					value: computedValue,
+					isValid: !validator || validator(computedValue),
+				}
+				if (!!valueConsumer) {
+					valueConsumer(newValue)
+				}
+				return newValue
+			})
 		},
 		[validator, valueConsumer]
 	)

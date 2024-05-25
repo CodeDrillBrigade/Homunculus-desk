@@ -8,5 +8,5 @@ export const BoxPage = () => {
 	useEffect(() => {
 		dispatch(setPageTitle('Add a new Box'))
 	}, [dispatch])
-	return <AddBoxForm marginLeft="1em" marginRight="1em" />
+	return <AddBoxForm marginLeft="2em" marginRight="2em" />
 }

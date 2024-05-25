@@ -20,19 +20,13 @@ It supports:
 ## :warning: Running Homunculus
 
 This is only the React-based frontend of Homunculus. To run the whole application, check the [full-fledged compose repo](https://github.com/CodeDrillBrigade/homunculus-compose).<br>
-If for some reason you want to build this repo as a standalone:
-
--   Clone it
--   Create a `.env` file that contains an env var for your backend:
-
-```
-REACT_APP_APIURL=<YOUR_BACKEND_URL>
-```
-
--   Run it
-
-You can use the provided Dockerfile to build an image for it without needing modifications:
+However, to run that, you will still need an docker image for this frontend. You can build it running the following commands:
 
 ```bash
-docker build . -t homunculus:your-local-version
+git clone https://github.com/CodeDrillBrigade/Homunculus-desk.git
+cd Homunculus-desk
+echo "REACT_APP_APIURL=<YOUR_BACKEND_URL>" >> .env
+docker buiild . -t homunculus-desk:latest
 ```
+
+:warning: Don't forget to replace `<YOUR_BACKEND_URL>` with the actual URL of your Homunculus backend.

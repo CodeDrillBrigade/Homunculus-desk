@@ -23,6 +23,7 @@ import {
 	Flex,
 	PopoverFooter,
 	useBreakpointValue,
+	Icon,
 } from '@chakra-ui/react'
 import { FormValue } from '../../../models/form/FormValue'
 import { Tag } from '../../../models/embed/Tag'
@@ -36,6 +37,8 @@ import { ColorPicker } from './ColorPicker'
 import { tagColors } from '../../../styles/colors'
 import { getRandomDarkHexColor, makeDarker } from '../../../utils/style-utils'
 import { chunkArray } from '../../../utils/array-utils'
+import { FaPlus } from 'react-icons/fa6'
+import { FormControls, useFormControl } from '../../../hooks/form-control'
 
 interface LabelInputProps extends SpaceProps {
 	label: string
@@ -43,9 +46,11 @@ interface LabelInputProps extends SpaceProps {
 	validator?: (input?: Tag[]) => boolean
 	valueConsumer?: (value: FormValue<Tag[]>) => void
 	invalidLabel?: string
+	controls?: FormControls<Tag[]>
 }
 
-export const TagInput = ({ label, placeholder, validator, valueConsumer, invalidLabel }: LabelInputProps) => {
+export const TagInput = ({ label, placeholder, validator, valueConsumer, invalidLabel, controls }: LabelInputProps) => {
+	const { value, setValue } = useFormControl<Tag[]>({ validator, valueConsumer })
 	const size = useBreakpointValue<{ tags: number }>(
 		{
 			xl: { tags: 10 },
@@ -61,10 +66,11 @@ export const TagInput = ({ label, placeholder, validator, valueConsumer, invalid
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
 	const { isOpen: modalIsOpen, onOpen: modalOpen, onClose: modalClose } = useDisclosure()
 	const { data: tags, error, isFetching } = useGetTagsQuery()
-	const [selectedTags, setSelectedTags] = useState<FormValue<Tag[]>>({ value: [], isValid: true })
 	const [filteredTags, setFilteredTags] = useState<Tag[]>([])
 	const [inputValue, setInputValue] = useState<string>('')
 	const [darkColors, setDarkColors] = useState<{ [key: string]: string }>({})
+	const selectedTags = controls?.value ?? value
+	const setSelectedTags = controls?.setValue ?? setValue
 
 	useEffect(() => {
 		if (!!tags) {
@@ -91,18 +97,10 @@ export const TagInput = ({ label, placeholder, validator, valueConsumer, invalid
 		const tag = tags?.find(it => it._id === tagId)
 		if (!!tag) {
 			setSelectedTags(currentTags => {
-				if (currentTags.value?.includes(tag) === true) {
+				if (currentTags?.includes(tag) === true) {
 					return currentTags
 				} else {
-					const newLabels = [...(currentTags.value ?? []), tag]
-					const selectedLabels = {
-						value: newLabels,
-						isValid: !validator || validator(newLabels),
-					}
-					if (!!valueConsumer) {
-						valueConsumer(selectedLabels)
-					}
-					return selectedLabels
+					return [...(currentTags ?? []), tag]
 				}
 			})
 		}
@@ -112,17 +110,7 @@ export const TagInput = ({ label, placeholder, validator, valueConsumer, invalid
 
 	const handleTagRemoval = (tagId: string | undefined) => {
 		if (!!tagId) {
-			setSelectedTags(currentTags => {
-				const newTags = (currentTags.value ?? []).filter(it => it._id !== tagId)
-				const selectedTags = {
-					value: newTags,
-					isValid: !validator || validator(newTags),
-				}
-				if (!!valueConsumer) {
-					valueConsumer(selectedTags)
-				}
-				return selectedTags
-			})
+			setSelectedTags(currentTags => (currentTags ?? []).filter(it => it._id !== tagId))
 		}
 	}
 
@@ -180,7 +168,13 @@ export const TagInput = ({ label, placeholder, validator, valueConsumer, invalid
 						{isFetching && generateSkeletons({ quantity: 5, height: '1.5ex' })}
 						{!!error && <ErrorAlert info={{ label: 'Cannot load labels', reason: error }} />}
 					</PopoverBody>
-					<PopoverFooter>{!!tags && <Button onClick={modalOpen}>Add Tag</Button>}</PopoverFooter>
+					<PopoverFooter>
+						{!!tags && (
+							<Button colorScheme="blue" leftIcon={<Icon as={FaPlus} />} onClick={modalOpen}>
+								Add Tag
+							</Button>
+						)}
+					</PopoverFooter>
 				</PopoverContent>
 				<Flex padding="0.6em" margin="0px">
 					{chunkSelected.map((chunk, idx) => (

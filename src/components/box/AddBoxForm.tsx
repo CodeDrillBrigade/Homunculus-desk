@@ -1,30 +1,19 @@
-import {
-	Alert,
-	AlertIcon,
-	AlertTitle,
-	Button,
-	Card,
-	CardBody,
-	CardHeader,
-	Center,
-	Heading,
-	SpaceProps,
-	VStack,
-} from '@chakra-ui/react'
+import { Alert, AlertIcon, AlertTitle, Button, Card, CardBody, SpaceProps, Text, VStack } from '@chakra-ui/react'
 import { MaterialSelector } from '../forms/controls/MaterialSelector'
 import { ShelfSelector } from '../forms/controls/ShelfSelector'
 import { FormValue } from '../../models/form/FormValue'
 import { Material } from '../../models/Material'
 import { FormValues, useForm } from '../../hooks/form'
 import { useGetBoxDefinitionQuery } from '../../services/boxDefinition'
-import { BoxUnitSelector } from '../forms/controls/BoxUnitSelector'
 import { TextInput } from '../forms/controls/TextInput'
 import { DatePicker } from '../forms/controls/DatePicker'
 import { useCreateBoxMutation } from '../../services/box'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { BoxUnit } from '../../models/embed/BoxUnit'
 import { useFormControl } from '../../hooks/form-control'
 import { ErrorAlert } from '../errors/ErrorAlert'
+import { NumberInput } from '../forms/controls/NumberInput'
+import { describeStep, unitToStepsList } from '../../models/embed/UnitStep'
 
 interface AddBoxFormProps extends SpaceProps {
 	something?: string
@@ -42,7 +31,7 @@ interface BoxFormValue extends FormValues {
 const initialState: BoxFormValue = {
 	material: { value: undefined, isValid: false },
 	shelf: { value: undefined, isValid: false },
-	batchNumber: { value: undefined, isValid: false },
+	batchNumber: { value: undefined, isValid: true },
 	expirationDate: { value: undefined, isValid: true },
 	quantity: { value: undefined, isValid: false },
 	description: { value: undefined, isValid: true },
@@ -52,6 +41,21 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 	const [isFormReset, setIsFormReset] = useState<boolean>(false)
 	const [createBox, { error, isLoading, isSuccess }] = useCreateBoxMutation()
 	const { formState, dispatchState, isInvalid } = useForm({ initialState })
+	const currentBoxDefinitionId = formState.material.value?.boxDefinition
+	const { data: boxDefinition } = useGetBoxDefinitionQuery(currentBoxDefinitionId ?? '', {
+		skip: !currentBoxDefinitionId || currentBoxDefinitionId.length <= 0,
+	})
+
+	const lastStep = useMemo(() => {
+		if (!boxDefinition) return null
+		const steps = unitToStepsList(boxDefinition.boxUnit)
+		return steps[steps.length - 1]
+	}, [boxDefinition])
+
+	const totalInBox = useMemo(() => {
+		if (!boxDefinition) return null
+		return unitToStepsList(boxDefinition.boxUnit).reduce((p, c) => p * c.qty, 1)
+	}, [boxDefinition])
 
 	const descriptionControls = useFormControl<string>({ valueConsumer: value => dispatchState('description', value) })
 	const shelfControls = useFormControl<string>({
@@ -59,20 +63,27 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 		valueConsumer: value => dispatchState('shelf', value),
 	})
 	const batchNumberControls = useFormControl<string>({
-		validator: input => !!input,
 		valueConsumer: value => dispatchState('batchNumber', value),
 	})
 	const dateControls = useFormControl<Date>({
 		valueConsumer: value => dispatchState('expirationDate', value),
-		defaultValue: new Date(),
+		defaultValue: undefined,
 	})
 	const materialControls = useFormControl<Material>({
 		validator: input => !!input,
 		valueConsumer: value => dispatchState('material', value),
 	})
-	const currentBoxDefinitionId = formState.material.value?.boxDefinition
-	const { data: boxDefinition } = useGetBoxDefinitionQuery(currentBoxDefinitionId ?? '', {
-		skip: !currentBoxDefinitionId || currentBoxDefinitionId.length <= 0,
+	const quantityControls = useFormControl<number>({
+		validator: input => !!totalInBox && !!input && input >= 1,
+		valueConsumer: value => {
+			if (!!totalInBox && !!lastStep && !!value.value) {
+				dispatchState('quantity', {
+					value: { quantity: value.value * totalInBox, metric: lastStep.type },
+					isValid: value.isValid,
+				})
+			}
+		},
+		defaultValue: 1,
 	})
 
 	const onSubmit = () => {
@@ -82,10 +93,6 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 				return
 			}
 			if (!formState.shelf.isValid || !formState.shelf.value) {
-				console.error('Shelf is not valid!')
-				return
-			}
-			if (!formState.batchNumber.isValid || !formState.batchNumber.value) {
 				console.error('Shelf is not valid!')
 				return
 			}
@@ -113,12 +120,22 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 			shelfControls.resetValue()
 			materialControls.resetValue()
 			dateControls.resetValue()
+			quantityControls.resetValue()
 			dispatchState('reset')
 		}
-	}, [dateControls, descriptionControls, dispatchState, isFormReset, isSuccess, materialControls, shelfControls])
+	}, [
+		dateControls,
+		descriptionControls,
+		dispatchState,
+		isFormReset,
+		isSuccess,
+		materialControls,
+		quantityControls,
+		shelfControls,
+	])
 
 	return (
-		<Card margin="2em" {...style}>
+		<Card mt="2em" {...style}>
 			<CardBody>
 				<VStack>
 					<TextInput
@@ -146,18 +163,22 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 						invalidLabel="You must select a valid material"
 						marginTop="1.5em"
 					/>
-					{formState.material.isValid && !!boxDefinition?.boxUnit && (
-						<BoxUnitSelector
-							boxUnit={boxDefinition.boxUnit}
-							label="Quantity of items in the box"
-							validator={input => !!input && !input.boxUnit && input.quantity > 0}
-							invalidLabel="The box cannot be empty"
-							borderWidth="1px"
-							borderRadius="md"
-							padding="0.6em"
-							marginTop="1.5em"
-							valueConsumer={value => dispatchState('quantity', value)}
-						/>
+					{formState.material.isValid && !!boxDefinition?.boxUnit && !!lastStep && (
+						<>
+							<NumberInput
+								defaultValue={1}
+								label="How many boxes do you want to add on this shelf?"
+								min={1}
+								controls={quantityControls}
+								mt="1em"
+							/>
+							<Text marginTop="0.7em">
+								{`Total: ${formState.quantity.value?.quantity ?? totalInBox} ${describeStep(
+									lastStep,
+									undefined
+								)}`}
+							</Text>
+						</>
 					)}
 					<Button colorScheme="blue" mr={3} onClick={onSubmit} isDisabled={isInvalid} isLoading={isLoading}>
 						Create
