@@ -33,9 +33,9 @@ import {
 } from '../../../models/embed/UnitStep'
 
 const measures: SelectOption<Metric>[] = [
-	{ value: Metric.ML, name: 'ml' },
-	{ value: Metric.COMPLEX, name: 'Box' },
-	{ value: Metric.PIECE, name: 'Units' },
+	{ value: Metric.ML, name: 'ml', id: 'ml' },
+	{ value: Metric.COMPLEX, name: 'Box', id: 'Box' },
+	{ value: Metric.PIECE, name: 'Units', id: 'Units' },
 ]
 
 const isFormValid = (formValue: BoxDefinition) =>
@@ -99,6 +99,7 @@ export const BoxDefinitionBuilder = ({
 		},
 	})
 	const [steps, setSteps] = useState<UnitStep[]>([defaultStep])
+	const [stepsId, setStepsId] = useState<string>(`${new Date().getTime()}`)
 
 	useEffect(() => {
 		valueConsumer(formValue)
@@ -177,6 +178,7 @@ export const BoxDefinitionBuilder = ({
 		(definition: BoxDefinition | null) => {
 			nameControls.setValue(definition?.name)
 			descriptionControls.setValue(definition?.description)
+			setStepsId(definition?._id ?? `${new Date().getTime()}`)
 			setSteps(unitToStepsList(definition?.boxUnit))
 			setFormValue({
 				value: definition ?? undefined,
@@ -187,9 +189,9 @@ export const BoxDefinitionBuilder = ({
 	)
 
 	const selectConsumer = useCallback(
-		(value: FormValue<BoxDefinition | null>) => {
+		(value: FormValue<SelectOption<BoxDefinition | null>>) => {
 			if (value.isValid && value.value !== undefined) {
-				loadPreset(value.value)
+				loadPreset(value.value.value)
 			}
 		},
 		[loadPreset]
@@ -236,7 +238,7 @@ export const BoxDefinitionBuilder = ({
 				colorScheme={steps.every(step => step.qty > 0) ? undefined : 'red'}
 			>
 				{steps.map((step, stepIdx) => (
-					<Step key={`box-step-${stepIdx}`}>
+					<Step key={`box-step-${stepsId}-${stepIdx}`}>
 						<StepIndicator>
 							<StepStatus complete={step.icon} incomplete={step.icon} active={step.icon} />
 						</StepIndicator>
@@ -261,10 +263,11 @@ export const BoxDefinitionBuilder = ({
 									label="Unit of Measure"
 									placeholder="Choose a Unit"
 									values={measures}
+									defaultValue={step.type}
 									width="30%"
 									valueConsumer={value => {
 										if (value.isValid && !!value.value) {
-											updateSteps(stepIdx, value.value)
+											updateSteps(stepIdx, value.value.value)
 										}
 									}}
 								/>
