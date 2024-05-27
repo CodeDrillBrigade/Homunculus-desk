@@ -18,8 +18,6 @@ export const userApi = createApi(
 			}
 		}),
 		endpoints: (builder) => ({
-			// query -> prendono dal backend senza modificare stato
-			// mutation -> modificano lo stato
 			getCurrentUser: builder.query<User,void>({
 				query: ()=> ""
 			}),

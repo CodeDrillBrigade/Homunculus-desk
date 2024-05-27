@@ -1,4 +1,4 @@
-import {FormControl, FormLabel, LayoutProps, Select, SpaceProps, Text} from "@chakra-ui/react";
+import {Center, FormControl, FormLabel, LayoutProps, Select, SpaceProps, Text} from "@chakra-ui/react";
 import {FormValue} from "../../../models/form/FormValue";
 import React, {useState} from "react";
 
@@ -43,6 +43,6 @@ export function SelectInput<T>({label, placeholder, values, validator, valueCons
 		<Select onChange={onSelectChange}>
 			{values.map( (it, idx) => <option key={`select-${label}-${idx}`} id={it.id ?? it.name}>{it.name}</option>)}
 		</Select>
-		{!value.isValid && !!invalidLabel && <Text fontSize='sm' color="crimson">{invalidLabel}</Text>}
+		{!value.isValid && !!invalidLabel && <Center><Text fontSize='md' color="crimson">{invalidLabel}</Text></Center>}
 	</FormControl>)
 }

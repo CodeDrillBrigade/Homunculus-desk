@@ -1,4 +1,4 @@
-import {Avatar, Button, Flex, HStack, Image, SkeletonCircle, Spacer, Text} from "@chakra-ui/react";
+import {Avatar, Box, Button, Flex, HStack, Image, SkeletonCircle, Spacer, Text} from "@chakra-ui/react";
 import {DarkMode} from "./DarkMode";
 import {resetToken} from "../../store/auth/auth-thunk";
 import {useAppDispatch} from "../../hooks/redux";
@@ -10,7 +10,8 @@ export const TopMenu = () =>
 	const { data, error, status} = useGetCurrentUserQuery()
 	const { data:permissions } = useGetPermissionsQuery()
 	const dispatch = useAppDispatch()
-	// console.log(permissions)
+	const prefix = ["Hello, ", "Hi, ", "Welcome, ", ""][Math.floor(Math.random() * 4)]
+	const suffix = "!"
 
 	function logout()
 	{
@@ -19,10 +20,17 @@ export const TopMenu = () =>
 
 	return <>
 		<Flex as={"nav"} p={"10px"} alignItems={"center"}>
-			<Back />
-			<HStack>
+			<Box marginRight={5}>
+				<Back />
+			</Box>
+			<HStack >
+				{ /*
+					Nota: Attualmente questo HStack cambia lunghezza quando cambia il nome dell'utente loggato,
+					 facendo spostare a destra il pulsante DarkMode. Il risultato fa schifo e maxWidth non
+					 sembra avere effetto.
+				*/ }
 				{ !!data && !!permissions && <Avatar name={data.name} /> }
-				{ !! data && <Text>{data.name}</Text> }
+				{ !! data && <Text>{`${prefix}${data.name}${prefix==="" ? "" : suffix}`}</Text> }
 
 				{ !data && <SkeletonCircle /> }
 			</HStack>

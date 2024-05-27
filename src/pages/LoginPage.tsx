@@ -1,4 +1,11 @@
-import { Button, Center, Heading, Input, VStack } from '@chakra-ui/react'
+import {
+	Box,
+	Button,
+	Center,
+	Heading,
+	Input,
+	VStack
+} from '@chakra-ui/react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useLoginMutation } from '../services/auth'
 import { jwtSelector, setAuthenticationState } from '../store/auth/auth-slice'
@@ -7,6 +14,8 @@ import { useNavigate } from 'react-router-dom'
 import { getToken, localStorageJwtKey, localStorageRefreshJwtKey } from '../store/auth/auth-thunk'
 import { QueryStatus } from '@reduxjs/toolkit/query'
 import { DarkMode } from '../components/ui/DarkMode'
+import {PermissionsCheckBox} from "../components/forms/controls/PermissionsCheckBox";
+import {PERMISSIONS} from "../models/security/Permission";
 
 export const LoginPage = () => {
 	const [username, setUsername] = useState<string | null>(null)
@@ -57,11 +66,14 @@ export const LoginPage = () => {
 
 	return (
 		<>
+			<Box marginTop={10}>
 			<Center>
 				<DarkMode />
 			</Center>
-			<VStack padding={'0 25vw'}>
+			</Box>
+			<VStack padding={'0 25vw'} marginTop={20}>
 				<Heading size="lg">Login</Heading>
+
 				<Input placeholder="Username" onChange={onChangeUsername} onKeyDown={onEnterPressed} />
 				<Input type="password" placeholder="Password" onChange={onChangePassword} onKeyDown={onEnterPressed} />
 				<Button onClick={onSubmit} isLoading={status === QueryStatus.pending} loadingText="Login">

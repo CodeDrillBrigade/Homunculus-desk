@@ -8,7 +8,7 @@ export const HomePage = () =>
     const navigate = useNavigate()
     const goto = (page:string) => navigate(`/${page}`)
 
-    const pages = ["material", "storage", "box"]
+    const pages = ["material", "storage", "box", "role"]
     const h = 20
     const w= "100%"
     const br = "lg";
@@ -30,5 +30,6 @@ export const HomePage = () =>
               </Center>
             </GridItem>
         </Grid>
+
     </>
 }
