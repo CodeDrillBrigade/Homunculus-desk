@@ -20,12 +20,6 @@ import {
 	AccordionIcon,
 	AccordionPanel,
 	VStack,
-	Modal,
-	ModalOverlay,
-	ModalContent,
-	ModalHeader,
-	ModalCloseButton,
-	ModalBody,
 	Divider,
 } from '@chakra-ui/react'
 import { Box as BoxModel } from '../../models/Box'
@@ -41,13 +35,10 @@ import { QuantityCounter } from './QuantityCounter'
 import { DeleteIcon } from '@chakra-ui/icons'
 import { ConfirmModal } from '../modals/ConfirmModal'
 import { useDeleteBoxMutation } from '../../services/box'
-import { QueryStatus } from '@reduxjs/toolkit/query'
 import { useEffect } from 'react'
 import { UsageLogDisplay } from './UsageLogDisplay'
-import { Material } from '../../models/Material'
-import { BoxUnit } from '../../models/embed/BoxUnit'
-import { UpdateQuantityForm } from '../forms/UpdateQuantityForm'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
+import { UpdateBoxFormModal } from '../modals/UpdateBoxFormModal'
 
 interface ElementBoxProps extends SpaceProps, LayoutProps {
 	box: BoxModel
@@ -55,7 +46,8 @@ interface ElementBoxProps extends SpaceProps, LayoutProps {
 
 export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 	const isMobile = useIsMobileLayout()
-	const [deleteBox, { error: deleteError, status: deleteStatus }] = useDeleteBoxMutation()
+	const [deleteBox, { error: deleteError, isLoading: deleteLoading, isSuccess: deleteSuccess }] =
+		useDeleteBoxMutation()
 	const { onOpen: deleteModalOpen, onClose: deleteModalClose, isOpen: deleteModalIsOpen } = useDisclosure()
 	const { onOpen: updateModalOpen, onClose: updateModalClose, isOpen: updateModalIsOpen } = useDisclosure()
 	const { data, error, isLoading } = useGetMaterialQuery(box.material)
@@ -66,10 +58,10 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 	} = useGetBoxDefinitionQuery(data?.boxDefinition ?? '', { skip: !data?.boxDefinition })
 
 	useEffect(() => {
-		if (deleteStatus === QueryStatus.fulfilled) {
+		if (deleteSuccess) {
 			deleteModalClose()
 		}
-	}, [deleteStatus, deleteModalClose])
+	}, [deleteSuccess, deleteModalClose])
 
 	const daysToExpiration = !!box.expirationDate ? daysToToday(box.expirationDate) : undefined
 	return (
@@ -138,16 +130,12 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 								</AccordionButton>
 							</h2>
 							<AccordionPanel pb={4}>
-								<VStack justifyContent="left">
+								<VStack align="stretch">
 									{box.usageLogs.map((log, idx) => (
-										<>
-											<UsageLogDisplay
-												key={`${log.date}-${idx}`}
-												log={log}
-												boxDefinition={boxDefinition}
-											/>
+										<Flex key={`${log.date}-${idx}`} align="center" justify="start">
+											<UsageLogDisplay log={log} boxDefinition={boxDefinition} />
 											{isMobile && <Divider key={`${log.date}-divider`} />}
-										</>
+										</Flex>
 									))}
 								</VStack>
 							</AccordionPanel>
@@ -173,7 +161,7 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 			<ConfirmModal
 				onClose={deleteModalClose}
 				isOpen={deleteModalIsOpen}
-				isLoading={deleteStatus === QueryStatus.pending}
+				isLoading={deleteLoading}
 				flavour="delete"
 				error={deleteError}
 				onConfirm={() => {
@@ -190,31 +178,6 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 				/>
 			)}
 		</>
-	)
-}
-
-interface UpdateBoxFormModalProps {
-	isOpen: boolean
-	onClose: () => void
-	box: BoxModel
-	material: Material
-	boxDefinition: BoxUnit
-}
-
-const UpdateBoxFormModal = ({ isOpen, onClose, box, material, boxDefinition }: UpdateBoxFormModalProps) => {
-	return (
-		<Modal isOpen={isOpen} onClose={onClose}>
-			<ModalOverlay />
-			<ModalContent>
-				<ModalHeader>
-					Update {material.name}, batch {box.batchNumber}
-				</ModalHeader>
-				<ModalCloseButton />
-				<ModalBody paddingBottom="1em">
-					<UpdateQuantityForm box={box} boxDefinition={boxDefinition} onDispatched={onClose} />
-				</ModalBody>
-			</ModalContent>
-		</Modal>
 	)
 }
 

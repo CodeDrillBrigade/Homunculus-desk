@@ -26,7 +26,7 @@ However, to run that, you will still need an docker image for this frontend. You
 git clone https://github.com/CodeDrillBrigade/Homunculus-desk.git
 cd Homunculus-desk
 echo "REACT_APP_APIURL=<YOUR_BACKEND_URL>" >> .env
-docker buiild . -t homunculus-desk:latest
+docker build . -t homunculus-desk:latest
 ```
 
 :warning: Don't forget to replace `<YOUR_BACKEND_URL>` with the actual URL of your Homunculus backend.

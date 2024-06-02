@@ -1,6 +1,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { AuthState } from '../store/auth/auth-slice'
-import { BoxOnShelfType, BoxTagType } from './tags/box'
+import {
+	BoxOnShelfType,
+	boxTagOnShelfProvider,
+	BoxTagType,
+	boxTagWithMaterialProvider,
+	BoxWithMaterialType,
+} from './tags/box'
 import { Box } from '../models/Box'
 import { UsageLog } from '../models/embed/UsageLog'
 
@@ -16,7 +22,7 @@ export const boxApi = createApi({
 			headers.set('content-type', 'application/json')
 		},
 	}),
-	tagTypes: [BoxTagType, BoxOnShelfType],
+	tagTypes: [BoxTagType, BoxOnShelfType, BoxWithMaterialType],
 	endpoints: builder => ({
 		createBox: builder.mutation<string, Partial<Box>>({
 			query: data => ({
@@ -24,32 +30,25 @@ export const boxApi = createApi({
 				method: 'POST',
 				body: JSON.stringify(data),
 			}),
-			invalidatesTags: (__, _, box) => [{ type: BoxOnShelfType, id: box.position }],
+			invalidatesTags: (__, _, box) => [
+				{ type: BoxOnShelfType, id: box.position! },
+				{ type: BoxWithMaterialType, id: box.material! },
+			],
 		}),
 		getBoxByPosition: builder.query<Box[], string>({
 			query: (shelfId: string) => `/onShelf/${encodeURIComponent(shelfId)}`,
-			providesTags: (boxes, _, shelfId) =>
-				!!boxes
-					? [
-							...boxes.map(box => {
-								return { type: BoxTagType, id: box._id! } as { type: typeof BoxTagType; id: string }
-							}),
-							{ type: BoxOnShelfType, id: shelfId },
-					  ]
-					: [{ type: BoxOnShelfType, id: shelfId }],
+			providesTags: (boxes, _, shelfId) => boxTagOnShelfProvider(boxes, shelfId),
+		}),
+		getBoxWithMaterial: builder.query<Box[], string>({
+			query: (materialId: string) => `/withMaterial/${encodeURIComponent(materialId)}`,
+			providesTags: (boxes, _, materialId) => boxTagWithMaterialProvider(boxes, materialId),
 		}),
 		deleteBox: builder.mutation<string, Box>({
 			query: box => ({
 				url: `/${box._id}`,
 				method: 'DELETE',
 			}),
-			invalidatesTags: (id, _, box) =>
-				!!id
-					? [
-							{ type: BoxOnShelfType, id: box.position },
-							{ type: BoxTagType, id: id },
-					  ]
-					: [],
+			invalidatesTags: (_, __, box) => boxTagOnShelfProvider([box], box.position),
 		}),
 		updateQuantity: builder.mutation<string, { box: Box; update: UsageLog }>({
 			query: ({ box, update }) => ({
@@ -57,16 +56,15 @@ export const boxApi = createApi({
 				method: 'POST',
 				body: JSON.stringify(update),
 			}),
-			invalidatesTags: (id, _, { box }) =>
-				!!id
-					? [
-							{ type: BoxOnShelfType, id: box.position },
-							{ type: BoxTagType, id: id },
-					  ]
-					: [],
+			invalidatesTags: (_, __, { box }) => boxTagOnShelfProvider([box], box.position),
 		}),
 	}),
 })
 
-export const { useCreateBoxMutation, useDeleteBoxMutation, useGetBoxByPositionQuery, useUpdateQuantityMutation } =
-	boxApi
+export const {
+	useCreateBoxMutation,
+	useDeleteBoxMutation,
+	useGetBoxByPositionQuery,
+	useGetBoxWithMaterialQuery,
+	useUpdateQuantityMutation,
+} = boxApi

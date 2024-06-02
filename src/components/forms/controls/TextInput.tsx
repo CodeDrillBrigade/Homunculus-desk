@@ -34,17 +34,17 @@ export const TextInput = ({
 
 	return (
 		<FormControl {...style}>
-			<FormLabel color={innerValue.isValid ? '' : 'crimson'}>{label}</FormLabel>
+			<FormLabel color={innerValue.isValid ? '' : 'red'}>{label}</FormLabel>
 			<Input
 				type={!!isPassword ? 'password' : 'test'}
 				placeholder={placeholder}
-				borderColor={innerValue.isValid ? '' : 'crimson'}
+				borderColor={innerValue.isValid ? '' : 'red'}
 				borderWidth={innerValue.isValid ? '' : '2px'}
 				value={innerValue.value ?? ''}
 				onChange={handleChange}
 			/>
 			{!innerValue.isValid && !!invalidLabel && (
-				<Text fontSize="sm" color="crimson">
+				<Text fontSize="sm" color="red">
 					{invalidLabel}
 				</Text>
 			)}

@@ -9,8 +9,10 @@ import { FiMinusCircle, FiPlusCircle } from 'react-icons/fi'
 import { FormValue } from '../../models/form/FormValue'
 import { FormValues, useForm } from '../../hooks/form'
 import { useUpdateQuantityMutation } from '../../services/box'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { Operation } from '../../models/embed/Operation'
+import { unitToStepsList } from '../../models/embed/UnitStep'
+import { computeTotal } from '../../utils/box-utils'
 
 interface UpdateQuantityFormProps {
 	box: Box
@@ -23,12 +25,25 @@ interface UpdateQuantityFormValues extends FormValues {
 	quantity: FormValue<BoxUnit>
 }
 
-const initialState: UpdateQuantityFormValues = {
-	date: { value: new Date().getTime(), isValid: true },
-	quantity: { value: undefined, isValid: true },
-}
-
 export const UpdateQuantityForm = ({ box, boxDefinition, onDispatched }: UpdateQuantityFormProps) => {
+	const unitSteps = useMemo(() => unitToStepsList(boxDefinition), [boxDefinition])
+	const initialState: UpdateQuantityFormValues = {
+		date: { value: new Date().getTime(), isValid: true },
+		quantity: {
+			value: {
+				quantity: computeTotal(
+					unitSteps,
+					unitSteps
+						.slice(0, unitSteps.length - 1)
+						.map(_ => 0)
+						.concat([1])
+				),
+				metric: unitSteps[unitSteps.length - 1].type,
+			},
+			isValid: true,
+		},
+	}
+
 	const { formState, dispatchState, isInvalid } = useForm({ initialState })
 	const { data: currentUser, error: currentUserError } = useGetCurrentUserQuery()
 	const [updateQuantity, { error, isLoading, isSuccess }] = useUpdateQuantityMutation()

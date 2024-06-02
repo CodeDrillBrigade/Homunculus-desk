@@ -180,11 +180,7 @@ export const AddMaterialForm = () => {
 							placeholder="Material description (optional)"
 							controls={descriptionControls}
 						/>
-						<TagInput
-							label={'Tags'}
-							placeholder={'Choose one or more tags (optional)'}
-							controls={tagControls}
-						/>
+						<TagInput label={'Tags'} controls={tagControls} />
 						<BoxDefinitionBuilder valueConsumer={consumeBoxDefinition} />
 						<Button
 							colorScheme="blue"

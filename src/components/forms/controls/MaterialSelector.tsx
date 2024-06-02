@@ -48,7 +48,7 @@ export function MaterialSelector({
 	const innerSetValue = controls?.setValue ?? setValue
 	const [isTyping, setIsTyping] = useState(false)
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
-	const [inputValue, setInputValue] = useState('')
+	const [inputValue, setInputValue] = useState(controls?.value?.value?.name ?? '')
 	const [queryValue, setQueryValue] = useState('')
 	const { data, error, isFetching } = useFindMaterialsByFuzzyNameQuery(
 		{ query: queryValue, limit: 10 },
@@ -112,7 +112,7 @@ export function MaterialSelector({
 
 	return (
 		<FormControl {...style}>
-			<FormLabel color={innerValue.isValid ? '' : 'crimson'}>{label}</FormLabel>
+			<FormLabel color={innerValue.isValid ? '' : 'red'}>{label}</FormLabel>
 			<Popover
 				closeOnBlur={false}
 				closeOnEsc={true}
@@ -125,7 +125,7 @@ export function MaterialSelector({
 					<InputGroup>
 						<Input
 							placeholder={placeholder}
-							borderColor={innerValue.isValid ? '' : 'crimson'}
+							borderColor={innerValue.isValid ? '' : 'red'}
 							borderWidth={innerValue.isValid ? '' : '2px'}
 							value={inputValue}
 							onChange={handleChange}
@@ -165,7 +165,7 @@ export function MaterialSelector({
 				</PopoverContent>
 			</Popover>
 			{!innerValue.isValid && !!invalidLabel && (
-				<Text fontSize="sm" color="crimson">
+				<Text fontSize="sm" color="red">
 					{invalidLabel}
 				</Text>
 			)}

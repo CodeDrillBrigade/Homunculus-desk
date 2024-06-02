@@ -1,6 +1,6 @@
 import React from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { HomePage } from './pages/Home/HomePage'
+import { HomePage } from './pages/home/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import { ManageStoragePage } from './pages/storage/ManageStoragePage'
 import { AuthenticatedLayout } from './pages/layout/AuthenticatedLayout'
@@ -9,6 +9,7 @@ import { BoxPage } from './pages/box/BoxPage'
 import { CabinetPage } from './pages/storage/CabinetPage'
 import { PasswordResetPage } from './pages/PasswordResetPage'
 import { RegisterUserPage } from './pages/RegisterUserPage'
+import { SearchMaterialsPage } from './pages/material/SearchMaterialsPage'
 
 const router = createBrowserRouter([
 	{
@@ -17,7 +18,13 @@ const router = createBrowserRouter([
 		children: [
 			{ index: true, element: <HomePage /> },
 			{ path: 'box', element: <BoxPage /> },
-			{ path: 'material', element: <MaterialPage /> },
+			{
+				path: 'material',
+				children: [
+					{ index: true, element: <MaterialPage /> },
+					{ path: 'search', element: <SearchMaterialsPage /> },
+				],
+			},
 			{
 				path: 'storage',
 				children: [

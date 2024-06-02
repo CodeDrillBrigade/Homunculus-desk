@@ -92,8 +92,8 @@ export function describeStep(step: UnitStep, nextStep: UnitStep | undefined): st
 	} else if (step.type === Metric.ML && !nextStep) {
 		return `ml`
 	} else if (step.qty === 1) {
-		return `Piece`
+		return `Single piece`
 	} else {
-		return `Pieces`
+		return `Single pieces`
 	}
 }

@@ -1,26 +1,6 @@
-import {
-	Alert,
-	AlertIcon,
-	Box,
-	Button,
-	Card,
-	CardBody,
-	CardHeader,
-	Center,
-	Grid,
-	GridItem,
-	Heading,
-	Tooltip,
-	VStack,
-} from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Grid, GridItem, Heading, VStack } from '@chakra-ui/react'
 import { Cabinet } from '../../models/embed/storage/Cabinet'
-import { TextInput } from '../forms/controls/TextInput'
 import { useState } from 'react'
-import { FormValue } from '../../models/form/FormValue'
-import { useAddShelfMutation } from '../../services/storageRoom'
-import { QueryStatus } from '@reduxjs/toolkit/query'
-import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { extractErrorMessage } from '../../utils/error-utils'
 import { useGetBoxByPositionQuery } from '../../services/box'
 import { ElementBox } from '../models/ElementBox'
 import { generateSkeletons } from '../ui/StackedSkeleton'
