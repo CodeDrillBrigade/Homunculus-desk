@@ -1,4 +1,4 @@
-import { Center, Container, Divider, Heading, LayoutProps, Text, VStack } from '@chakra-ui/react'
+import { Box, Center, Container, Divider, Heading, LayoutProps, Text, VStack } from '@chakra-ui/react'
 import { Link } from 'react-router-dom'
 
 interface MainMenuItemProps extends LayoutProps {
@@ -15,20 +15,22 @@ export const MainMenuItem = ({ title, elements, showLastDivider, ...style }: Mai
 					<Heading size="md">{title}</Heading>
 				</Center>
 			</Container>
-			{Object.entries(elements).map(([name, link], idx) => (
-				<>
-					<Container key={`menu-${title}-${idx}`}>
-						<Center>
-							{!!link && <Link to={link}>{name}</Link>}
-							{!link && <Text>{name}</Text>}
-						</Center>
-					</Container>
-					{(idx < Object.keys(elements).length - 1 ||
-						(idx === Object.keys(elements).length - 1 && showLastDivider)) && (
-						<Divider key={`divider-${title}-${idx}`} />
-					)}
-				</>
-			))}
+			{Object.entries(elements).map(([name, link], idx) => {
+				const showDivider =
+					idx < Object.keys(elements).length - 1 ||
+					(idx === Object.keys(elements).length - 1 && showLastDivider)
+				return (
+					<Box w="100%" key={`menu-${title}-${idx}`}>
+						<Container pb={showDivider ? '0.5em' : '0px'}>
+							<Center>
+								{!!link && <Link to={link}>{name}</Link>}
+								{!link && <Text>{name}</Text>}
+							</Center>
+						</Container>
+						{showDivider && <Divider borderRadius="md" borderColor="blue.400" />}
+					</Box>
+				)
+			})}
 		</VStack>
 	)
 }

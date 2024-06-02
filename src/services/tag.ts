@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { AuthState } from '../store/auth/auth-slice'
-import { AllTags, TagTagType } from './tags/tag'
+import { AllTags, metaTagTagProvider, TagTagType } from './tags/tag'
 import { Tag } from '../models/embed/Tag'
 
 export const metaTagApi = createApi({
@@ -21,11 +21,19 @@ export const metaTagApi = createApi({
 			query: () => '',
 			providesTags: [AllTags],
 		}),
+		getTagsByIds: builder.query<Tag[], string[]>({
+			query: ids => ({
+				url: '/byIds',
+				body: JSON.stringify(ids),
+				method: 'POST',
+			}),
+			providesTags: metaTagTagProvider,
+		}),
 		getTag: builder.query<Tag, string>({
 			query: (tagId: string) => `/${encodeURIComponent(tagId)}`,
-			providesTags: tag => (!!tag ? [{ type: TagTagType, id: tag._id }, AllTags] : [AllTags]),
+			providesTags: tag => metaTagTagProvider(!!tag ? [tag] : undefined),
 		}),
-		createTag: builder.mutation<string, Tag>({
+		createTag: builder.mutation<string, Partial<Tag>>({
 			query: data => ({
 				url: '',
 				method: 'POST',
@@ -36,4 +44,4 @@ export const metaTagApi = createApi({
 	}),
 })
 
-export const { useCreateTagMutation, useGetTagQuery, useGetTagsQuery } = metaTagApi
+export const { useCreateTagMutation, useGetTagsByIdsQuery, useGetTagQuery, useGetTagsQuery } = metaTagApi

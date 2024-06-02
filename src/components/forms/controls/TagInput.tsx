@@ -24,6 +24,7 @@ import {
 	PopoverFooter,
 	useBreakpointValue,
 	Icon,
+	VStack,
 } from '@chakra-ui/react'
 import { FormValue } from '../../../models/form/FormValue'
 import { Tag } from '../../../models/embed/Tag'
@@ -40,29 +41,40 @@ import { chunkArray } from '../../../utils/array-utils'
 import { FaPlus } from 'react-icons/fa6'
 import { FormControls, useFormControl } from '../../../hooks/form-control'
 
+export type Size = 'sm' | 'md' | 'lg' | 'xl' | 'base'
+
+const tagsForSize: Record<Size, { tags: number }> = {
+	xl: { tags: 10 },
+	lg: { tags: 8 },
+	md: { tags: 6 },
+	sm: { tags: 3 },
+	base: { tags: 3 },
+}
+
 interface LabelInputProps extends SpaceProps {
 	label: string
-	placeholder: string
+	defaultValue?: Tag[]
+	forcedSize?: number
 	validator?: (input?: Tag[]) => boolean
 	valueConsumer?: (value: FormValue<Tag[]>) => void
 	invalidLabel?: string
 	controls?: FormControls<Tag[]>
 }
 
-export const TagInput = ({ label, placeholder, validator, valueConsumer, invalidLabel, controls }: LabelInputProps) => {
-	const { value, setValue } = useFormControl<Tag[]>({ validator, valueConsumer })
-	const size = useBreakpointValue<{ tags: number }>(
-		{
-			xl: { tags: 10 },
-			lg: { tags: 8 },
-			md: { tags: 6 },
-			sm: { tags: 3 },
-			base: { tags: 3 },
-		},
-		{
-			fallback: 'md',
-		}
-	)
+export const TagInput = ({
+	label,
+	defaultValue,
+	validator,
+	valueConsumer,
+	invalidLabel,
+	controls,
+	forcedSize,
+	...style
+}: LabelInputProps) => {
+	const { value, setValue } = useFormControl<Tag[]>({ validator, valueConsumer, defaultValue })
+	const size = useBreakpointValue<{ tags: number }>(tagsForSize, {
+		fallback: 'md',
+	})
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
 	const { isOpen: modalIsOpen, onOpen: modalOpen, onClose: modalClose } = useDisclosure()
 	const { data: tags, error, isFetching } = useGetTagsQuery()
@@ -115,10 +127,9 @@ export const TagInput = ({ label, placeholder, validator, valueConsumer, invalid
 	}
 
 	const chunkedTags = !!tags ? chunkArray(filteredTags, size?.tags ?? 5) : undefined
-	const chunkSelected = chunkArray(selectedTags?.value ?? [], size?.tags ?? 5)
-
+	const chunkSelected = chunkArray(selectedTags?.value ?? [], forcedSize ?? size?.tags ?? 5)
 	return (
-		<FormControl>
+		<FormControl {...style}>
 			<AddTagModal isOpen={modalIsOpen} onClose={modalClose} />
 			<FormLabel color={selectedTags.isValid ? '' : 'crimson'}>{label}</FormLabel>
 			<Popover
@@ -131,7 +142,7 @@ export const TagInput = ({ label, placeholder, validator, valueConsumer, invalid
 			>
 				<PopoverTrigger>
 					<Input
-						placeholder={placeholder}
+						placeholder="Search or create a Tag"
 						value={inputValue}
 						onChange={handleChange}
 						onBlur={popoverClose}
@@ -177,23 +188,25 @@ export const TagInput = ({ label, placeholder, validator, valueConsumer, invalid
 					</PopoverFooter>
 				</PopoverContent>
 				<Flex padding="0.6em" margin="0px">
-					{chunkSelected.map((chunk, idx) => (
-						<Flex key={`tag-selected-flex-${idx}`} marginBottom="0.6em">
-							{chunk.map(it => (
-								<TagComponent
-									size="md"
-									key={it._id}
-									borderRadius="full"
-									variant="solid"
-									bg={it.color}
-									marginLeft="0.6em"
-								>
-									<TagLabel>{it.name}</TagLabel>
-									<TagCloseButton onClick={() => handleTagRemoval(it._id)} />
-								</TagComponent>
-							))}
-						</Flex>
-					))}
+					<VStack align="stretch">
+						{chunkSelected.map((chunk, idx) => (
+							<Flex key={`tag-selected-flex-${idx}`} marginBottom="0.6em" align="center" justify="start">
+								{chunk.map(it => (
+									<TagComponent
+										size="md"
+										key={it._id}
+										borderRadius="full"
+										variant="solid"
+										bg={it.color}
+										marginLeft="0.6em"
+									>
+										<TagLabel>{it.name}</TagLabel>
+										<TagCloseButton onClick={() => handleTagRemoval(it._id)} />
+									</TagComponent>
+								))}
+							</Flex>
+						))}
+					</VStack>
 				</Flex>
 			</Popover>
 		</FormControl>

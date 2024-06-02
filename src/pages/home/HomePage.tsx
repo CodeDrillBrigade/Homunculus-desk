@@ -19,22 +19,22 @@ export const HomePage = () => {
 		<Flex width="100%" justifyContent="center" alignItems="top" gap={4} direction={isMobile ? 'column' : 'row'}>
 			<MainMenuItem
 				title="Storage"
-				elements={{ 'Browse rooms': 'storage' }}
+				elements={{ 'Browse rooms': '/storage' }}
 				showLastDivider={true}
 				width={menuItemWidth}
 			/>
 			<MainMenuItem
 				title="Material"
 				elements={{
-					'Add a new Material': 'material',
-					Search: null,
+					'Add a new Material': '/material',
+					'Search Materials': '/material/search',
 				}}
 				showLastDivider={false}
 				width={menuItemWidth}
 			/>
 			<MainMenuItem
 				title="Box"
-				elements={{ 'Add a new Box': 'box' }}
+				elements={{ 'Add a new Box': '/box' }}
 				width={menuItemWidth}
 				showLastDivider={true}
 			/>

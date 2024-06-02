@@ -1,9 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { AuthState } from '../store/auth/auth-slice'
-import { AllMaterialsTag, MaterialTagType } from './tags/material'
+import { AllMaterialsTag, MaterialTag, materialTagProvider, MaterialTagType } from './tags/material'
 import { Material } from '../models/Material'
-import { Box } from '../models/Box'
-import { BoxOnShelfType, BoxTagType } from './tags/box'
+import { Tag } from '../models/embed/Tag'
 
 export const materialApi = createApi({
 	reducerPath: 'material',
@@ -39,6 +38,10 @@ export const materialApi = createApi({
 			providesTags: material =>
 				!!material ? [{ type: MaterialTagType, id: material._id }, AllMaterialsTag] : [AllMaterialsTag],
 		}),
+		getLastCreated: builder.query<Material[], number>({
+			query: (limit: number) => `/recentlyCreated?limit=${limit}`,
+			providesTags: materialTagProvider,
+		}),
 		createMaterial: builder.mutation<string, Partial<Material>>({
 			query: data => ({
 				url: '',
@@ -54,8 +57,41 @@ export const materialApi = createApi({
 			}),
 			invalidatesTags: id => (!!id ? [{ type: MaterialTagType, id }] : []),
 		}),
+		modifyMaterial: builder.mutation<void, Material>({
+			query: material => ({
+				url: '',
+				method: 'PUT',
+				body: JSON.stringify(material),
+			}),
+			invalidatesTags: (_, __, material) => materialTagProvider([material]),
+		}),
 		findMaterialsByFuzzyName: builder.query<Material[], { query: string; limit?: number }>({
 			query: ({ query, limit }) => `/byFuzzyName/${encodeURIComponent(query)}${!!limit ? `?limit=${limit}` : ''}`,
+			providesTags: materialTagProvider,
+		}),
+		searchIdsByNameBrandCode: builder.query<string[], { query: string; tags: Tag[] | null }>({
+			query: ({ query, tags }) => ({
+				url: `/idsByNameBrandCode?query=${encodeURIComponent(query)}`,
+				body: JSON.stringify(tags?.map(it => it._id) ?? null),
+				method: 'POST',
+			}),
+			providesTags: ids =>
+				!!ids
+					? [
+							...ids.map(materialId => {
+								return { type: MaterialTagType, id: materialId! } as MaterialTag
+							}),
+							AllMaterialsTag,
+					  ]
+					: [AllMaterialsTag],
+		}),
+		getMaterialsByIds: builder.query<Material[], string[]>({
+			query: ids => ({
+				url: '/byIds',
+				body: JSON.stringify(ids),
+				method: 'POST',
+			}),
+			providesTags: materialTagProvider,
 		}),
 	}),
 })
@@ -63,7 +99,12 @@ export const materialApi = createApi({
 export const {
 	useCreateMaterialMutation,
 	useDeleteMaterialMutation,
+	useGetLastCreatedQuery,
+	useGetMaterialsByIdsQuery,
 	useGetMaterialQuery,
-	useGetMaterialsQuery,
 	useFindMaterialsByFuzzyNameQuery,
+	useModifyMaterialMutation,
+	useSearchIdsByNameBrandCodeQuery,
 } = materialApi
+
+export const useMaterialPrefetch = materialApi.usePrefetch

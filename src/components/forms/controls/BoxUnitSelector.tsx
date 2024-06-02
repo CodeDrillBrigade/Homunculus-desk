@@ -11,10 +11,11 @@ import {
 } from '@chakra-ui/react'
 import { FormValue } from '../../../models/form/FormValue'
 import { BoxUnit } from '../../../models/embed/BoxUnit'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { describeStep, UnitStep, unitToStepsList } from '../../../models/embed/UnitStep'
 import { useFormControl } from '../../../hooks/form-control'
 import { HTMLChakraProps } from '@chakra-ui/system'
+import { computeTotal } from '../../../utils/box-utils'
 
 interface BoxUnitSelectorProps extends LayoutProps, SpaceProps, HTMLChakraProps<'div'> {
 	boxUnit: BoxUnit
@@ -32,29 +33,58 @@ export const BoxUnitSelector = ({
 	invalidLabel,
 	...style
 }: BoxUnitSelectorProps) => {
-	const { value, setValue } = useFormControl<BoxUnit>({ validator, valueConsumer })
 	const unitSteps = useMemo(() => unitToStepsList(boxUnit), [boxUnit])
-	const [stepValues, setStepValues] = useState<number[]>(unitSteps.map(_ => 0))
+	const [stepValues, setStepValues] = useState<number[]>(
+		unitSteps
+			.slice(0, unitSteps.length - 1)
+			.map(_ => 0)
+			.concat([1])
+	)
+	const { value, setValue } = useFormControl<BoxUnit>({
+		defaultValue: {
+			quantity: computeTotal(
+				unitSteps,
+				unitSteps
+					.slice(0, unitSteps.length - 1)
+					.map(_ => 0)
+					.concat([1])
+			),
+			metric: unitSteps[unitSteps.length - 1].type,
+		},
+		validator,
+		valueConsumer,
+	})
 	const [isFullBox, setIsFullBox] = useState(false)
 
-	useEffect(() => {
-		const quantity = computeTotal(unitSteps, stepValues)
-		const metric = unitSteps[unitSteps.length - 1].type
-		setValue({ quantity, metric })
-	}, [setValue, stepValues, unitSteps])
+	const dispatchNewQuantity = useCallback(
+		(qty: number[]) => {
+			const quantity = computeTotal(unitSteps, qty)
+			const metric = unitSteps[unitSteps.length - 1].type
+			setValue({ quantity, metric })
+		},
+		[setValue, unitSteps]
+	)
 
 	const onIncrease = useCallback(
 		(idx: number) => {
-			setStepValues(previousState => increaseState(idx, previousState, unitSteps))
+			setStepValues(previousState => {
+				const newQty = increaseState(idx, previousState, unitSteps)
+				dispatchNewQuantity(newQty)
+				return newQty
+			})
 		},
-		[unitSteps]
+		[dispatchNewQuantity, unitSteps]
 	)
 
 	const onDecrease = useCallback(
 		(idx: number) => {
-			setStepValues(previousState => decreaseState(idx, previousState, unitSteps))
+			setStepValues(previousState => {
+				const newQty = decreaseState(idx, previousState, unitSteps)
+				dispatchNewQuantity(newQty)
+				return newQty
+			})
 		},
-		[unitSteps]
+		[dispatchNewQuantity, unitSteps]
 	)
 
 	const onCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,7 +96,7 @@ export const BoxUnitSelector = ({
 
 	return (
 		<FormControl {...style}>
-			<FormLabel color={value.isValid ? '' : 'crimson'}>{label}</FormLabel>
+			<FormLabel color={value.isValid ? '' : 'red'}>{label}</FormLabel>
 			<Checkbox onChange={onCheck}>Full box?</Checkbox>
 			{!isFullBox &&
 				unitSteps.map((step, idx) => (
@@ -85,7 +115,7 @@ export const BoxUnitSelector = ({
 				Total: {computeTotal(unitSteps, stepValues)} {describeStep(unitSteps[unitSteps.length - 1], undefined)}
 			</Text>
 			{!value.isValid && !!invalidLabel && (
-				<Text fontSize="sm" color="crimson">
+				<Text fontSize="sm" color="red">
 					{invalidLabel}
 				</Text>
 			)}
@@ -121,12 +151,4 @@ function decreaseState(idx: number, state: number[], steps: UnitStep[]): number[
 		newState[idx] = newState[idx] - 1
 		return newState
 	}
-}
-
-function computeTotal(steps: UnitStep[], quantities: number[]): number {
-	let total = 0
-	for (let i = 0; i < steps.length - 1; i++) {
-		total = total * steps[i + 1].qty + (quantities[i] ?? 0) * steps[i + 1].qty
-	}
-	return total + (quantities[steps.length - 1] ?? 0)
 }
