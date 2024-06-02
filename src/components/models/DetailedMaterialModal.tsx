@@ -41,7 +41,7 @@ import { FormValue } from '../../models/form/FormValue'
 import { Tag } from '../../models/embed/Tag'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
 import { CheckCircleIcon, DeleteIcon, WarningIcon } from '@chakra-ui/icons'
-import { useDeleteMaterialMutation, useModifyMaterialMutation } from '../../services/material'
+import { useModifyMaterialMutation } from '../../services/material'
 import { extractErrorMessage } from '../../utils/error-utils'
 import { useDeleteBoxMutation, useGetBoxWithMaterialQuery } from '../../services/box'
 import { QuantityCounter } from './QuantityCounter'
@@ -82,11 +82,6 @@ export const DetailedMaterialModal = ({ material, isOpen, onClose }: DetailedMat
 	const [boxToDelete, setBoxToDelete] = useState<BoxEntity | undefined>()
 	const { isOpen: updateModalIsOpen, onOpen: updateModalOpen, onClose: updateModalClose } = useDisclosure()
 	const { onOpen: deleteBoxModalOpen, onClose: deleteBoxModalClose, isOpen: deleteBoxModalIsOpen } = useDisclosure()
-	const {
-		onOpen: deleteMaterialModalOpen,
-		onClose: deleteMaterialModalClose,
-		isOpen: deleteMaterialModalIsOpen,
-	} = useDisclosure()
 
 	const {
 		data: tags,
@@ -104,10 +99,6 @@ export const DetailedMaterialModal = ({ material, isOpen, onClose }: DetailedMat
 	const { data: storageRooms } = useGetStorageRoomsQuery()
 	const [deleteBox, { error: deleteBoxError, isLoading: deleteBoxLoading, isSuccess: deleteBoxSuccess }] =
 		useDeleteBoxMutation()
-	const [
-		deleteMaterial,
-		{ error: deleteMaterialError, isLoading: deleteMaterialLoading, isSuccess: deleteMaterialSuccess },
-	] = useDeleteMaterialMutation()
 
 	const totalInBoxes = !!boxes ? boxes.reduce((acc, el) => acc + el.quantity.quantity, 0) : undefined
 
@@ -117,13 +108,6 @@ export const DetailedMaterialModal = ({ material, isOpen, onClose }: DetailedMat
 			deleteBoxModalClose()
 		}
 	}, [deleteBoxSuccess, deleteBoxModalClose])
-
-	useEffect(() => {
-		if (deleteMaterialSuccess) {
-			deleteMaterialModalClose()
-			onClose()
-		}
-	}, [deleteMaterialModalClose, deleteMaterialSuccess, onClose])
 
 	const onMaterialUpdate = useCallback(
 		(formState: UpdateMaterialFormValues) => {
@@ -303,7 +287,7 @@ export const DetailedMaterialModal = ({ material, isOpen, onClose }: DetailedMat
 				</ModalBody>
 
 				<ModalFooter>
-					<Flex width="full" justifyContent="space-between">
+					<Flex width="full" justifyContent="start">
 						<Flex>
 							<Button
 								colorScheme="blue"
@@ -322,22 +306,9 @@ export const DetailedMaterialModal = ({ material, isOpen, onClose }: DetailedMat
 								</Tooltip>
 							)}
 						</Flex>
-						<Button colorScheme="red" leftIcon={<DeleteIcon />} onClick={deleteMaterialModalOpen}>
-							Delete
-						</Button>
 					</Flex>
 				</ModalFooter>
 			</ModalContent>
-			<ConfirmModal
-				onClose={deleteMaterialModalClose}
-				isOpen={deleteMaterialModalIsOpen}
-				isLoading={deleteMaterialLoading}
-				flavour="delete"
-				error={deleteMaterialError}
-				onConfirm={() => {
-					deleteMaterial(material)
-				}}
-			/>
 			{!!boxToDelete && (
 				<ConfirmModal
 					onClose={() => {

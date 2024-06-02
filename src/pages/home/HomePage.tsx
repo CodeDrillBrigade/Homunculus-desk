@@ -13,10 +13,18 @@ export const HomePage = () => {
 		dispatch(resetPageTitle())
 	}, [dispatch])
 
-	const menuItemWidth = isMobile ? '90vw' : '31vw'
+	const menuItemWidth = isMobile ? '100%' : '31vw'
 
 	return (
-		<Flex width="100%" justifyContent="center" alignItems="top" gap={4} direction={isMobile ? 'column' : 'row'}>
+		<Flex
+			width="full"
+			justifyContent="center"
+			alignItems="top"
+			gap={4}
+			direction={isMobile ? 'column' : 'row'}
+			pl={isMobile ? '1em' : undefined}
+			pr={isMobile ? '1em' : undefined}
+		>
 			<MainMenuItem
 				title="Storage"
 				elements={{ 'Browse rooms': '/storage' }}

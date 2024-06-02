@@ -62,21 +62,21 @@ export const NumberInput = ({
 	const input = getInputProps()
 	return (
 		<FormControl {...style}>
-			<FormLabel color={innerValue.isValid ? '' : 'crimson'}>{label}</FormLabel>
+			<FormLabel color={innerValue.isValid ? '' : 'red'}>{label}</FormLabel>
 			<HStack>
 				<Button {...dec}>-</Button>
 				<Input
 					{...input}
-					borderColor={innerValue.isValid ? '' : 'crimson'}
+					borderColor={innerValue.isValid ? '' : 'red'}
 					borderWidth={innerValue.isValid ? '' : '2px'}
 				/>
 				<Button {...inc}>+</Button>
-				{!innerValue.isValid && !!invalidLabel && (
-					<Text fontSize="sm" color="crimson">
-						{invalidLabel}
-					</Text>
-				)}
 			</HStack>
+			{!innerValue.isValid && !!invalidLabel && (
+				<Text fontSize="sm" color="red" mt="0.5em">
+					{invalidLabel}
+				</Text>
+			)}
 		</FormControl>
 	)
 }

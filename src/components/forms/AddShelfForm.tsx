@@ -25,9 +25,7 @@ export const AddShelfForm = ({ cabinetId, storageRoomId }: { cabinetId: string; 
 							label="Name"
 							placeholder="Name (max. 50 characters)"
 							validator={input => !!input && input.trim().length <= 50}
-							valueConsumer={value => {
-								setNewShelfName(value)
-							}}
+							valueConsumer={setNewShelfName}
 						/>
 					</GridItem>
 					<GridItem colSpan={1}>

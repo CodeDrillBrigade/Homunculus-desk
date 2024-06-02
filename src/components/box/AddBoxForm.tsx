@@ -16,7 +16,8 @@ import { NumberInput } from '../forms/controls/NumberInput'
 import { describeStep, unitToStepsList } from '../../models/embed/UnitStep'
 
 interface AddBoxFormProps extends SpaceProps {
-	something?: string
+	defaultMaterial?: Material
+	onDispatchSuccess?: () => void
 }
 
 interface BoxFormValue extends FormValues {
@@ -37,10 +38,15 @@ const initialState: BoxFormValue = {
 	description: { value: undefined, isValid: true },
 }
 
-export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
+export const AddBoxForm = ({ defaultMaterial, onDispatchSuccess, ...style }: AddBoxFormProps) => {
 	const [isFormReset, setIsFormReset] = useState<boolean>(false)
 	const [createBox, { error, isLoading, isSuccess }] = useCreateBoxMutation()
-	const { formState, dispatchState, isInvalid } = useForm({ initialState })
+	const { formState, dispatchState, isInvalid } = useForm({
+		initialState: {
+			...initialState,
+			material: { value: defaultMaterial, isValid: !!defaultMaterial },
+		},
+	})
 	const currentBoxDefinitionId = formState.material.value?.boxDefinition
 	const { data: boxDefinition } = useGetBoxDefinitionQuery(currentBoxDefinitionId ?? '', {
 		skip: !currentBoxDefinitionId || currentBoxDefinitionId.length <= 0,
@@ -70,6 +76,7 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 		defaultValue: undefined,
 	})
 	const materialControls = useFormControl<Material>({
+		defaultValue: defaultMaterial,
 		validator: input => !!input,
 		valueConsumer: value => dispatchState('material', value),
 	})
@@ -122,6 +129,9 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 			dateControls.resetValue()
 			quantityControls.resetValue()
 			dispatchState('reset')
+			if (!!onDispatchSuccess) {
+				onDispatchSuccess()
+			}
 		}
 	}, [
 		dateControls,
@@ -130,6 +140,7 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 		isFormReset,
 		isSuccess,
 		materialControls,
+		onDispatchSuccess,
 		quantityControls,
 		shelfControls,
 	])
@@ -166,14 +177,15 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 					{formState.material.isValid && !!boxDefinition?.boxUnit && !!lastStep && (
 						<>
 							<NumberInput
-								defaultValue={1}
+								defaultValue={0}
 								label="How many boxes do you want to add on this shelf?"
-								min={1}
+								min={0}
 								controls={quantityControls}
 								mt="1em"
+								invalidLabel="Quantity is required and must be greater than 0"
 							/>
 							<Text marginTop="0.7em">
-								{`Total: ${formState.quantity.value?.quantity ?? totalInBox} ${describeStep(
+								{`Total: ${formState.quantity.value?.quantity ?? 0} ${describeStep(
 									lastStep,
 									undefined
 								)}`}
@@ -185,7 +197,7 @@ export const AddBoxForm = ({ something, ...style }: AddBoxFormProps) => {
 					</Button>
 					{!!error && <ErrorAlert info={{ label: 'Cannot create box', reason: error }} />}
 					{isSuccess && (
-						<Alert status="success">
+						<Alert status="success" borderRadius="md">
 							<AlertIcon />
 							<AlertTitle>Operation completed successfully</AlertTitle>
 						</Alert>
