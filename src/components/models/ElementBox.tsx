@@ -21,6 +21,7 @@ import {
 	AccordionPanel,
 	VStack,
 	Divider,
+	IconButton,
 } from '@chakra-ui/react'
 import { Box as BoxModel } from '../../models/Box'
 import { useGetMaterialQuery } from '../../services/material'
@@ -35,10 +36,12 @@ import { QuantityCounter } from './QuantityCounter'
 import { DeleteIcon } from '@chakra-ui/icons'
 import { ConfirmModal } from '../modals/ConfirmModal'
 import { useDeleteBoxMutation } from '../../services/box'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { UsageLogDisplay } from './UsageLogDisplay'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
 import { UpdateBoxFormModal } from '../modals/UpdateBoxFormModal'
+import { MdEdit } from 'react-icons/md'
+import { EditBoxModal } from '../modals/EditBoxModal'
 
 interface ElementBoxProps extends SpaceProps, LayoutProps {
 	box: BoxModel
@@ -50,6 +53,7 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 		useDeleteBoxMutation()
 	const { onOpen: deleteModalOpen, onClose: deleteModalClose, isOpen: deleteModalIsOpen } = useDisclosure()
 	const { onOpen: updateModalOpen, onClose: updateModalClose, isOpen: updateModalIsOpen } = useDisclosure()
+	const { onOpen: editModalOpen, onClose: editModalClose, isOpen: editModalIsOpen } = useDisclosure()
 	const { data, error, isLoading } = useGetMaterialQuery(box.material)
 	const {
 		data: boxDefinition,
@@ -99,6 +103,12 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 									color="red"
 								/>
 							)}
+							<IconButton
+								onClick={editModalOpen}
+								aria-label="material settings"
+								icon={<Icon as={MdEdit} boxSize={6} />}
+								variant="ghost"
+							/>
 						</Flex>
 					</Flex>
 				</CardHeader>
@@ -177,6 +187,7 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 					boxDefinition={boxDefinition.boxUnit}
 				/>
 			)}
+			<EditBoxModal onClose={editModalClose} isOpen={editModalIsOpen} box={box} />
 		</>
 	)
 }

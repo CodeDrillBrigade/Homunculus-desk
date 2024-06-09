@@ -28,6 +28,7 @@ interface ShelfSelectorProps extends SpaceProps, LayoutProps {
 	validator?: (input?: string) => boolean
 	valueConsumer?: (value: FormValue<string>) => void
 	invalidLabel?: string
+	defaultValue?: string
 	controls?: FormControls<string>
 }
 
@@ -35,11 +36,12 @@ export const ShelfSelector = ({
 	label,
 	validator,
 	valueConsumer,
+	defaultValue,
 	invalidLabel,
 	controls,
 	...style
 }: ShelfSelectorProps) => {
-	const { value, setValue } = useFormControl<string>({ validator, valueConsumer })
+	const { value, setValue } = useFormControl<string>({ validator, valueConsumer, defaultValue })
 	const { data, error, isFetching } = useGetStorageRoomsQuery()
 	const innerValue = controls?.value ?? value
 	const innerSetValue = controls?.setValue ?? setValue
@@ -53,7 +55,7 @@ export const ShelfSelector = ({
 
 	return (
 		<FormControl {...style}>
-			<FormLabel color={innerValue.isValid ? '' : 'crimson'}>{label}</FormLabel>
+			<FormLabel color={innerValue.isValid ? '' : 'red'}>{label}</FormLabel>
 			<VStack>
 				{!!data && (
 					<RadioGroup width="100%" value={innerValue.value ?? ''} onChange={onRadioChange}>
@@ -113,7 +115,7 @@ export const ShelfSelector = ({
 				{isFetching && generateSkeletons({ quantity: 5, height: '1.5ex' })}
 				{!!error && <ErrorAlert info={{ label: 'Cannot load rooms', reason: error }} />}
 				{!innerValue.isValid && !!invalidLabel && (
-					<Text fontSize="sm" color="crimson">
+					<Text fontSize="sm" color="red">
 						{invalidLabel}
 					</Text>
 				)}

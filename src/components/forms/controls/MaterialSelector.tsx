@@ -26,7 +26,7 @@ import { generateSkeletons } from '../../ui/StackedSkeleton'
 import { ErrorAlert } from '../../errors/ErrorAlert'
 
 interface MaterialSelectorProps extends SpaceProps, LayoutProps {
-	label: string
+	label?: string
 	placeholder: string
 	validator?: (input?: Material) => boolean
 	valueConsumer?: (value: FormValue<Material>) => void
@@ -112,7 +112,7 @@ export function MaterialSelector({
 
 	return (
 		<FormControl {...style}>
-			<FormLabel color={innerValue.isValid ? '' : 'red'}>{label}</FormLabel>
+			{!!label && <FormLabel color={innerValue.isValid ? '' : 'red'}>{label}</FormLabel>}
 			<Popover
 				closeOnBlur={false}
 				closeOnEsc={true}

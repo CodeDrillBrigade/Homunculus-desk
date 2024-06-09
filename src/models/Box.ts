@@ -7,7 +7,7 @@ export interface Box {
 	quantity: BoxUnit
 	position: string
 	batchNumber?: string
-	expirationDate?: number
+	expirationDate?: number | null
 	deleted?: number
 	description?: string
 	usageLogs: UsageLog[]

@@ -10,6 +10,7 @@ import { CabinetPage } from './pages/storage/CabinetPage'
 import { PasswordResetPage } from './pages/PasswordResetPage'
 import { RegisterUserPage } from './pages/RegisterUserPage'
 import { SearchMaterialsPage } from './pages/material/SearchMaterialsPage'
+import { SearchBoxPage } from './pages/box/SearchBoxPage'
 
 const router = createBrowserRouter([
 	{
@@ -17,7 +18,13 @@ const router = createBrowserRouter([
 		element: <AuthenticatedLayout />,
 		children: [
 			{ index: true, element: <HomePage /> },
-			{ path: 'box', element: <BoxPage /> },
+			{
+				path: 'box',
+				children: [
+					{ index: true, element: <BoxPage /> },
+					{ path: 'search', element: <SearchBoxPage /> },
+				],
+			},
 			{
 				path: 'material',
 				children: [
