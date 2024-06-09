@@ -10,7 +10,7 @@ export function daysToToday(timestamp: number): number {
 	return Math.floor(diffInMilliseconds / dayMillis)
 }
 
-export function toDayMonthYear(timestamp: number | undefined): string {
+export function toDayMonthYear(timestamp: number | undefined | null): string {
 	if (!timestamp) return ''
 	const date = new Date(timestamp)
 	const day = date.getDate().toString().padStart(2, '0')

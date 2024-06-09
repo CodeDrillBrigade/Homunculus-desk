@@ -6,21 +6,33 @@ import { useIsMobileLayout } from '../../hooks/responsive-size'
 interface AddBoxFormModalProps {
 	onClose: () => void
 	isOpen: boolean
-	material: Material
+	material?: Material
+	position?: {
+		id: string
+		name: string
+	}
 }
 
-export const AddBoxFormModal = ({ onClose, isOpen, material }: AddBoxFormModalProps) => {
+export const AddBoxFormModal = ({ onClose, isOpen, material, position }: AddBoxFormModalProps) => {
 	const isMobile = useIsMobileLayout()
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size={isMobile ? 'full' : 'xl'}>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader>
-					<Text>Add a new box of: {material.name}</Text>
+					<Text>
+						Add a new box{!!material ? ` of ${material.name}` : ''}
+						{!!position ? `in ${position.name}` : ''}
+					</Text>
 				</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody pt="0px">
-					<AddBoxForm defaultMaterial={material} onDispatchSuccess={onClose} mt="0px" />
+					<AddBoxForm
+						defaultMaterial={material}
+						defaultPosition={position?.id}
+						onDispatchSuccess={onClose}
+						mt="0px"
+					/>
 				</ModalBody>
 			</ModalContent>
 		</Modal>

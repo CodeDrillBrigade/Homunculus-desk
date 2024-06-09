@@ -56,7 +56,17 @@ export const boxApi = createApi({
 				method: 'POST',
 				body: JSON.stringify(update),
 			}),
-			invalidatesTags: (_, __, { box }) => boxTagOnShelfProvider([box], box.position),
+			invalidatesTags: (_, __, { box }) =>
+				boxTagOnShelfProvider([box], box.position).concat(boxTagWithMaterialProvider([box], box.material)),
+		}),
+		modifyBox: builder.mutation<void, Box>({
+			query: box => ({
+				url: ``,
+				method: 'PUT',
+				body: JSON.stringify(box),
+			}),
+			invalidatesTags: (_, __, box) =>
+				boxTagOnShelfProvider([box], box.position).concat(boxTagWithMaterialProvider([box], box.material)),
 		}),
 	}),
 })
@@ -66,5 +76,6 @@ export const {
 	useDeleteBoxMutation,
 	useGetBoxByPositionQuery,
 	useGetBoxWithMaterialQuery,
+	useModifyBoxMutation,
 	useUpdateQuantityMutation,
 } = boxApi

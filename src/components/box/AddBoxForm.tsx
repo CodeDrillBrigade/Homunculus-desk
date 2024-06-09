@@ -17,6 +17,7 @@ import { describeStep, unitToStepsList } from '../../models/embed/UnitStep'
 
 interface AddBoxFormProps extends SpaceProps {
 	defaultMaterial?: Material
+	defaultPosition?: string
 	onDispatchSuccess?: () => void
 }
 
@@ -38,13 +39,14 @@ const initialState: BoxFormValue = {
 	description: { value: undefined, isValid: true },
 }
 
-export const AddBoxForm = ({ defaultMaterial, onDispatchSuccess, ...style }: AddBoxFormProps) => {
+export const AddBoxForm = ({ defaultMaterial, defaultPosition, onDispatchSuccess, ...style }: AddBoxFormProps) => {
 	const [isFormReset, setIsFormReset] = useState<boolean>(false)
 	const [createBox, { error, isLoading, isSuccess }] = useCreateBoxMutation()
 	const { formState, dispatchState, isInvalid } = useForm({
 		initialState: {
 			...initialState,
 			material: { value: defaultMaterial, isValid: !!defaultMaterial },
+			shelf: { value: defaultPosition, isValid: !!defaultPosition },
 		},
 	})
 	const currentBoxDefinitionId = formState.material.value?.boxDefinition
@@ -65,6 +67,7 @@ export const AddBoxForm = ({ defaultMaterial, onDispatchSuccess, ...style }: Add
 
 	const descriptionControls = useFormControl<string>({ valueConsumer: value => dispatchState('description', value) })
 	const shelfControls = useFormControl<string>({
+		defaultValue: defaultPosition,
 		validator: input => !!input,
 		valueConsumer: value => dispatchState('shelf', value),
 	})

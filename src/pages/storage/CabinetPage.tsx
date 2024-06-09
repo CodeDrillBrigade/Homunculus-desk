@@ -22,8 +22,8 @@ export const CabinetPage = () => {
 		<>
 			{(!cabinetId || (!isFetching && !cabinet)) && <ErrorPage description={`Shelf ${cabinetId} not found`} />}
 			{!!error && <ErrorPage description="An error occurred" error={error} />}
-			{!!cabinet && !!room && !isMobile && <ShelvesDisplayBig cabinet={cabinet} roomId={room._id!} />}
-			{!!cabinet && !!room && isMobile && <ShelvesDisplayMobile cabinet={cabinet} roomId={room._id!} />}
+			{!!cabinet && !!room && !isMobile && <ShelvesDisplayBig cabinet={cabinet} room={room} />}
+			{!!cabinet && !!room && isMobile && <ShelvesDisplayMobile cabinet={cabinet} room={room} />}
 		</>
 	)
 }

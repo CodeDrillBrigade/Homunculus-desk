@@ -42,9 +42,12 @@ export const HomePage = () => {
 			/>
 			<MainMenuItem
 				title="Box"
-				elements={{ 'Add a new Box': '/box' }}
+				elements={{
+					'Add a new Box': '/box',
+					'Search Boxes': '/box/search',
+				}}
 				width={menuItemWidth}
-				showLastDivider={true}
+				showLastDivider={false}
 			/>
 		</Flex>
 	)

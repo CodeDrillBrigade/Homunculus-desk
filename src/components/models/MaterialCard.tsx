@@ -20,7 +20,7 @@ import { useDeleteMaterialMutation } from '../../services/material'
 import { ConfirmModal } from '../modals/ConfirmModal'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
 import { DetailedMaterialModal } from './DetailedMaterialModal'
-import { IoMdSettings } from 'react-icons/io'
+import { MdEdit } from 'react-icons/md'
 import { AddBoxFormModal } from '../modals/AddBoxFormModal'
 
 interface MaterialCardProps {
@@ -62,7 +62,7 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 							<IconButton
 								onClick={openDetails}
 								aria-label="material settings"
-								icon={<Icon as={IoMdSettings} />}
+								icon={<Icon as={MdEdit} boxSize={6} />}
 								variant="ghost"
 							/>
 						)}
