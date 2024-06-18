@@ -74,7 +74,7 @@ export const StorageRoomCard = ({ storageRoom, ...style }: StorageRoomCardProps)
 						<Icon as={MdOutlineMeetingRoom} boxSize={9} />
 						<Heading size="lg"> {storageRoom.name}</Heading>
 					</Flex>
-					<Menu>
+					<Menu isLazy={true}>
 						<MenuButton as={IconButton} aria-label="Options" icon={<HamburgerIcon />} variant="outline" />
 						<MenuList>
 							<MenuItem icon={<EditIcon />} onClick={onUpdateModalOpen}>
