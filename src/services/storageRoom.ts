@@ -79,6 +79,21 @@ export const storageRoomApi = createApi({
 			}),
 			invalidatesTags: [AllStorageRoomsTag],
 		}),
+		deleteCabinet: builder.mutation<void, { roomId: string; cabinetId: string }>({
+			query: data => ({
+				url: `/${encodeURIComponent(data.roomId)}/cabinet/${encodeURIComponent(data.cabinetId)}`,
+				method: 'DELETE',
+			}),
+			invalidatesTags: [AllStorageRoomsTag],
+		}),
+		modifyCabinet: builder.mutation<void, { roomId: string; cabinet: Cabinet }>({
+			query: data => ({
+				url: `/${encodeURIComponent(data.roomId)}/cabinet`,
+				method: 'PUT',
+				body: JSON.stringify(data.cabinet),
+			}),
+			invalidatesTags: [AllStorageRoomsTag],
+		}),
 	}),
 })
 
@@ -86,9 +101,11 @@ export const {
 	useAddCabinetMutation,
 	useAddShelfMutation,
 	useCreateStorageRoomMutation,
+	useDeleteCabinetMutation,
 	useDeleteShelfMutation,
 	useDeleteStorageRoomMutation,
 	useGetStorageRoomsQuery,
+	useModifyCabinetMutation,
 	useModifyShelfMutation,
 	useModifyStorageRoomMutation,
 } = storageRoomApi
