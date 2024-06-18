@@ -1,4 +1,4 @@
-import { Box, Button, Grid, GridItem, Heading, useDisclosure, VStack } from '@chakra-ui/react'
+import { Box, Button, Flex, Grid, GridItem, Heading, IconButton, useDisclosure, VStack } from '@chakra-ui/react'
 import { Cabinet } from '../../models/embed/storage/Cabinet'
 import React, { useState } from 'react'
 import { useGetBoxByPositionQuery } from '../../services/box'
@@ -11,7 +11,7 @@ import { NoBoxesWarning } from '../errors/NoBoxesWarning'
 import { AddBoxFormModal } from '../modals/AddBoxFormModal'
 import { StorageRoom } from '../../models/StorageRoom'
 import { readableNameFromId } from '../../utils/storage-room-utils'
-import { AddIcon } from '@chakra-ui/icons'
+import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons'
 
 export interface ShelvesDisplayProps {
 	cabinet: Cabinet
@@ -26,15 +26,18 @@ export const ShelvesDisplayBig = ({ cabinet, room }: ShelvesDisplayProps) => {
 		<Box paddingRight="1.5em" paddingLeft="1.5em">
 			<Grid templateColumns="repeat(4, 1fr)" templateRows="repeat(1, 1fr)" gap={4} height="85vh">
 				<GridItem colSpan={1} borderWidth="2px" borderRadius="15px">
-					<VStack>
+					<VStack gap={3}>
 						<Heading key="shlf-hdr">Shelves</Heading>
 						{(cabinet.shelves ?? []).map(it => (
 							<ShelfListItem
 								key={it.id}
+								room={room}
+								cabinet={cabinet}
 								shelf={it}
 								onClick={() => {
 									setSelectedShelf(`${room._id}|${cabinet.id}|${it.id}`)
 								}}
+								width="90%"
 							/>
 						))}
 						<AddShelfForm key="add-shlf-frm" cabinetId={cabinet.id!} storageRoomId={room._id} />

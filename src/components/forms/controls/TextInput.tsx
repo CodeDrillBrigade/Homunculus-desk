@@ -6,6 +6,7 @@ import { FormControls, useFormControl } from '../../../hooks/form-control'
 interface TextInputProps extends LayoutProps, SpaceProps {
 	label: string
 	placeholder: string
+	defaultValue?: string
 	validator?: (input?: string) => boolean
 	valueConsumer?: (value: FormValue<string>) => void
 	invalidLabel?: string
@@ -21,9 +22,10 @@ export const TextInput = ({
 	invalidLabel,
 	controls,
 	isPassword,
+	defaultValue,
 	...style
 }: TextInputProps) => {
-	const { value, setValue } = useFormControl<string>({ validator, valueConsumer })
+	const { value, setValue } = useFormControl<string>({ validator, valueConsumer, defaultValue })
 	const innerValue = controls?.value ?? value
 	const innerSetValue = controls?.setValue ?? setValue
 
