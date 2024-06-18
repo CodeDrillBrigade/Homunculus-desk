@@ -7,7 +7,12 @@ import {
 	Flex,
 	Heading,
 	Icon,
+	IconButton,
 	LayoutProps,
+	Menu,
+	MenuButton,
+	MenuItem,
+	MenuList,
 	ResponsiveValue,
 	SimpleGrid,
 	SpaceProps,
@@ -16,13 +21,20 @@ import {
 	useDisclosure,
 } from '@chakra-ui/react'
 import { CabinetCard } from './CabinetCard'
-import { useAddCabinetMutation } from '../../services/storageRoom'
+import {
+	useAddCabinetMutation,
+	useDeleteStorageRoomMutation,
+	useModifyStorageRoomMutation,
+} from '../../services/storageRoom'
 import { TextWithDescriptionFormData, TextWithDescriptionModal } from '../forms/TextWithDescriptionModal'
 import { QueryStatus } from '@reduxjs/toolkit/query'
-import { AddIcon } from '@chakra-ui/icons'
+import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons'
 import { MdOutlineMeetingRoom } from 'react-icons/md'
 import { borderDark, borderLight } from '../../styles/theme'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
+import React, { useCallback } from 'react'
+import { ConfirmModal } from '../modals/ConfirmModal'
+import { ChangeStorageNameModal } from '../modals/ChangeStorageNameModal'
 
 interface StorageRoomCardProps extends SpaceProps, LayoutProps {
 	storageRoom: StorageRoom
@@ -36,12 +48,43 @@ export const StorageRoomCard = ({ storageRoom, ...style }: StorageRoomCardProps)
 
 	const cabinetCardHeight = isMobile ? '23vh' : '20vh'
 
+	const [deleteRoom, { isLoading: deleteIsLoading, error: deleteError }] = useDeleteStorageRoomMutation()
+	const [modifyRoom, { isLoading: modifyIsLoading, error: modifyError, isSuccess: modifySuccess }] =
+		useModifyStorageRoomMutation()
+
+	const { isOpen: deleteModalIsOpen, onOpen: onDeleteModalOpen, onClose: onDeleteModalClose } = useDisclosure()
+	const { isOpen: updateModalIsOpen, onOpen: onUpdateModalOpen, onClose: onUpdateModalClose } = useDisclosure()
+
+	const onDeleteRoom = useCallback(() => {
+		deleteRoom(storageRoom._id)
+	}, [deleteRoom, storageRoom._id])
+
+	const onModifyRoom = useCallback(
+		(newName: string) => {
+			modifyRoom({ ...storageRoom, name: newName })
+		},
+		[modifyRoom, storageRoom]
+	)
+
 	return (
 		<Card {...style} bg="transparent" borderWidth="2px" borderColor={borderColor}>
 			<CardHeader paddingBottom="0px">
-				<Flex alignItems="center" gap="2">
-					<Icon as={MdOutlineMeetingRoom} boxSize={9} />
-					<Heading size="lg"> {storageRoom.name}</Heading>
+				<Flex width="full" justifyContent="space-between">
+					<Flex gap={2}>
+						<Icon as={MdOutlineMeetingRoom} boxSize={9} />
+						<Heading size="lg"> {storageRoom.name}</Heading>
+					</Flex>
+					<Menu>
+						<MenuButton as={IconButton} aria-label="Options" icon={<HamburgerIcon />} variant="outline" />
+						<MenuList>
+							<MenuItem icon={<EditIcon />} onClick={onUpdateModalOpen}>
+								Change room name
+							</MenuItem>
+							<MenuItem icon={<DeleteIcon />} onClick={onDeleteModalOpen}>
+								Delete room
+							</MenuItem>
+						</MenuList>
+					</Menu>
 				</Flex>
 				{!!storageRoom.description && <Text>{storageRoom.description}</Text>}
 			</CardHeader>
@@ -59,6 +102,24 @@ export const StorageRoomCard = ({ storageRoom, ...style }: StorageRoomCardProps)
 					<AddCabinetButton storageRoom={storageRoom} width={cardWidth} height={cabinetCardHeight} />
 				</SimpleGrid>
 			</CardBody>
+			<ConfirmModal
+				onClose={onDeleteModalClose}
+				isOpen={deleteModalIsOpen}
+				isLoading={deleteIsLoading}
+				error={deleteError}
+				flavour="delete"
+				onConfirm={onDeleteRoom}
+			/>
+			<ChangeStorageNameModal
+				onClose={onUpdateModalClose}
+				isOpen={updateModalIsOpen}
+				isLoading={modifyIsLoading}
+				title="Change the shelf name"
+				defaultValue={storageRoom.name}
+				onConfirm={onModifyRoom}
+				error={modifyError}
+				isSuccess={modifySuccess}
+			/>
 		</Card>
 	)
 }
