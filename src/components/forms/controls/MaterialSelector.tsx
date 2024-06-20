@@ -26,6 +26,7 @@ import { Material } from '../../../models/Material'
 import { useFindMaterialsByFuzzyNameQuery, useGetLastCreatedQuery } from '../../../services/material'
 import { generateSkeletons } from '../../ui/StackedSkeleton'
 import { ErrorAlert } from '../../errors/ErrorAlert'
+import { ElementTag } from '../../models/ElementTag'
 
 interface MaterialSelectorProps extends SpaceProps, LayoutProps {
 	label?: string
@@ -151,16 +152,39 @@ export function MaterialSelector({
 								(!inputValue || inputValue.length > 0) &&
 								materials.map((it, idx) => (
 									<Flex key={it._id} justifyContent="flex-start" marginLeft="1em">
-										{idx === 0 && <Kbd marginRight="1em">Tab</Kbd>}
-										<Text
+										<Flex
 											_hover={{ cursor: 'pointer' }}
 											onClick={() => {
 												handleSelection(it._id)
 												popoverClose()
 											}}
+											direction="column"
 										>
-											{it.name}
-										</Text>
+											<Flex>
+												{idx === 0 && <Kbd marginRight="1em">Tab</Kbd>}
+												<Text>
+													<b>{it.name}</b>, Brand: {it.brand}
+													{!!it.referenceCode && ` - # ${it.referenceCode}`}
+												</Text>
+											</Flex>
+											{!!it.tags && it.tags.length > 0 && (
+												<Flex
+													align="center"
+													justify="start"
+													mt="0.2em"
+													ml={idx === 0 ? '3em' : '0px'}
+												>
+													{it.tags.map(id => (
+														<ElementTag
+															key={id}
+															tagId={id}
+															marginRight="0.4em"
+															compact={!!it.tags && it.tags.length >= 5}
+														/>
+													))}
+												</Flex>
+											)}
+										</Flex>
 									</Flex>
 								))}
 							{!!materials && materials.length === 0 && (
