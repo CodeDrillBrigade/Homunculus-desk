@@ -1,6 +1,9 @@
 import { StorageRoom } from '../models/StorageRoom'
 
-export function readableNameFromId(rooms: StorageRoom[], fullShelfId: string): string {
+export function readableNameFromId(rooms: StorageRoom[], fullShelfId: string | undefined): string {
+	if (!fullShelfId) {
+		return 'Unknown room, cabinet, and shelf'
+	}
 	const [roomId, cabinetId, shelfId] = fullShelfId.split('|')
 	const room = rooms.find(it => it._id === roomId)
 	const cabinet = !!room ? room.cabinets?.find(it => it.id === cabinetId) : undefined
