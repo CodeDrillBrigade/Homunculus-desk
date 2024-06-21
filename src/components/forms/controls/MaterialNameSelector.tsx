@@ -1,6 +1,9 @@
 import {
 	Alert,
 	AlertIcon,
+	Box,
+	Container,
+	Divider,
 	Flex,
 	FormControl,
 	FormLabel,
@@ -146,15 +149,19 @@ export function MaterialNameSelector({
 								data.length > 0 &&
 								(!inputValue || inputValue.length > 0) &&
 								data.map((it, idx) => (
-									<Flex
-										key={it}
-										justifyContent="flex-start"
-										marginLeft="1em"
-										onClick={() => onElementClicked(it)}
-									>
-										{idx === 0 && <Kbd marginRight="1em">Tab</Kbd>}
-										<Text>{it}</Text>
-									</Flex>
+									<Box key={it} width="full">
+										<Flex
+											justifyContent="flex-start"
+											marginLeft="1em"
+											onClick={() => onElementClicked(it)}
+											width="full"
+											_hover={{ cursor: 'pointer' }}
+										>
+											{idx === 0 && <Kbd marginRight="1em">Tab</Kbd>}
+											<Text>{it}</Text>
+										</Flex>
+										<Divider mt="0.5em" ml="1em" width="98%" />
+									</Box>
 								))}
 							{!!data && data.length === 0 && (
 								<Flex justifyContent="flex-start" marginLeft="1em" width="95%">
