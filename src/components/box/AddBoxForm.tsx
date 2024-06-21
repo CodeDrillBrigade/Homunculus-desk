@@ -32,7 +32,7 @@ interface BoxFormValue extends FormValues {
 
 const initialState: BoxFormValue = {
 	material: { value: undefined, isValid: false },
-	shelf: { value: undefined, isValid: false },
+	shelf: { value: undefined, isValid: true },
 	batchNumber: { value: undefined, isValid: true },
 	expirationDate: { value: undefined, isValid: true },
 	quantity: { value: undefined, isValid: false },
@@ -46,7 +46,7 @@ export const AddBoxForm = ({ defaultMaterial, defaultPosition, onDispatchSuccess
 		initialState: {
 			...initialState,
 			material: { value: defaultMaterial, isValid: !!defaultMaterial },
-			shelf: { value: defaultPosition, isValid: !!defaultPosition },
+			shelf: { value: defaultPosition, isValid: true },
 		},
 	})
 	const currentBoxDefinitionId = formState.material.value?.boxDefinition
@@ -68,7 +68,6 @@ export const AddBoxForm = ({ defaultMaterial, defaultPosition, onDispatchSuccess
 	const descriptionControls = useFormControl<string>({ valueConsumer: value => dispatchState('description', value) })
 	const shelfControls = useFormControl<string>({
 		defaultValue: defaultPosition,
-		validator: input => !!input,
 		valueConsumer: value => dispatchState('shelf', value),
 	})
 	const batchNumberControls = useFormControl<string>({
@@ -100,10 +99,6 @@ export const AddBoxForm = ({ defaultMaterial, defaultPosition, onDispatchSuccess
 		if (!isInvalid) {
 			if (!formState.material.isValid || !formState.material.value) {
 				console.error('Material is not valid!')
-				return
-			}
-			if (!formState.shelf.isValid || !formState.shelf.value) {
-				console.error('Shelf is not valid!')
 				return
 			}
 			if (!formState.quantity.isValid || !formState.quantity.value) {

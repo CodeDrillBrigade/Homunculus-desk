@@ -28,6 +28,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { ErrorAlert } from '../errors/ErrorAlert'
 import { useFormControl } from '../../hooks/form-control'
 import { FormValues, useForm } from '../../hooks/form'
+import { MaterialNameSelector } from '../forms/controls/MaterialNameSelector'
 
 interface AddMaterialFormData extends FormValues {
 	name: FormValue<string>
@@ -157,7 +158,7 @@ export const AddMaterialForm = () => {
 						{!!materialError && (
 							<ErrorAlert info={{ label: 'Something went wrong', reason: materialError }} />
 						)}
-						<TextInput
+						<MaterialNameSelector
 							label="Name"
 							placeholder="Material name"
 							controls={nameControls}

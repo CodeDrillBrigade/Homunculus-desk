@@ -47,8 +47,65 @@ export const storageRoomApi = createApi({
 			}),
 			invalidatesTags: [AllStorageRoomsTag],
 		}),
+		modifyStorageRoom: builder.mutation<void, StorageRoom>({
+			query: data => ({
+				url: '',
+				method: 'PUT',
+				body: JSON.stringify(data),
+			}),
+			invalidatesTags: [AllStorageRoomsTag],
+		}),
+		deleteStorageRoom: builder.mutation<void, string>({
+			query: id => ({
+				url: `/${encodeURIComponent(id)}`,
+				method: 'DELETE',
+			}),
+			invalidatesTags: [AllStorageRoomsTag],
+		}),
+		deleteShelf: builder.mutation<void, { roomId: string; cabinetId: string; shelfId: string }>({
+			query: data => ({
+				url: `/${encodeURIComponent(data.roomId)}/cabinet/${encodeURIComponent(
+					data.cabinetId
+				)}/shelf/${encodeURIComponent(data.shelfId)}`,
+				method: 'DELETE',
+			}),
+			invalidatesTags: [AllStorageRoomsTag],
+		}),
+		modifyShelf: builder.mutation<void, { roomId: string; cabinetId: string; shelf: Shelf }>({
+			query: data => ({
+				url: `/${encodeURIComponent(data.roomId)}/cabinet/${encodeURIComponent(data.cabinetId)}/shelf`,
+				method: 'PUT',
+				body: JSON.stringify(data.shelf),
+			}),
+			invalidatesTags: [AllStorageRoomsTag],
+		}),
+		deleteCabinet: builder.mutation<void, { roomId: string; cabinetId: string }>({
+			query: data => ({
+				url: `/${encodeURIComponent(data.roomId)}/cabinet/${encodeURIComponent(data.cabinetId)}`,
+				method: 'DELETE',
+			}),
+			invalidatesTags: [AllStorageRoomsTag],
+		}),
+		modifyCabinet: builder.mutation<void, { roomId: string; cabinet: Cabinet }>({
+			query: data => ({
+				url: `/${encodeURIComponent(data.roomId)}/cabinet`,
+				method: 'PUT',
+				body: JSON.stringify(data.cabinet),
+			}),
+			invalidatesTags: [AllStorageRoomsTag],
+		}),
 	}),
 })
 
-export const { useAddCabinetMutation, useAddShelfMutation, useCreateStorageRoomMutation, useGetStorageRoomsQuery } =
-	storageRoomApi
+export const {
+	useAddCabinetMutation,
+	useAddShelfMutation,
+	useCreateStorageRoomMutation,
+	useDeleteCabinetMutation,
+	useDeleteShelfMutation,
+	useDeleteStorageRoomMutation,
+	useGetStorageRoomsQuery,
+	useModifyCabinetMutation,
+	useModifyShelfMutation,
+	useModifyStorageRoomMutation,
+} = storageRoomApi

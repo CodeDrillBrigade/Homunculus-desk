@@ -27,7 +27,7 @@ import { ElementBox } from '../models/ElementBox'
 import { AddBoxFormModal } from '../modals/AddBoxFormModal'
 import { readableNameFromId } from '../../utils/storage-room-utils'
 import { NoBoxesWarning } from '../errors/NoBoxesWarning'
-import { AddIcon, CloseIcon, DeleteIcon } from '@chakra-ui/icons'
+import { AddIcon, CloseIcon } from '@chakra-ui/icons'
 
 export const ShelvesDisplayMobile = ({ cabinet, room }: ShelvesDisplayProps) => {
 	const { isOpen, onOpen, onClose } = useDisclosure()
@@ -38,15 +38,18 @@ export const ShelvesDisplayMobile = ({ cabinet, room }: ShelvesDisplayProps) => 
 	})
 	return (
 		<>
-			<VStack>
+			<VStack gap={3}>
 				{(cabinet.shelves ?? []).map(it => (
 					<ShelfListItem
 						key={it.id}
+						room={room}
+						cabinet={cabinet}
 						shelf={it}
 						onClick={() => {
 							setSelectedShelf(it)
 							onOpen()
 						}}
+						width="90%"
 					/>
 				))}
 				<AddShelfForm key="add-shlf-frm" cabinetId={cabinet.id!} storageRoomId={room._id} />

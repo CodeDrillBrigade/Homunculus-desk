@@ -2,6 +2,7 @@ import {
 	Alert,
 	AlertIcon,
 	Box,
+	Container,
 	Divider,
 	Flex,
 	FormControl,
@@ -24,22 +25,20 @@ import {
 import { FormValue } from '../../../models/form/FormValue'
 import { FormControls, useFormControl } from '../../../hooks/form-control'
 import React, { useCallback, useEffect, useState } from 'react'
-import { Material } from '../../../models/Material'
-import { useFindMaterialsByFuzzyNameQuery, useGetLastCreatedQuery } from '../../../services/material'
+import { useSearchNamesByNameBrandCodeQuery } from '../../../services/material'
 import { generateSkeletons } from '../../ui/StackedSkeleton'
 import { ErrorAlert } from '../../errors/ErrorAlert'
-import { ElementTag } from '../../models/ElementTag'
 
-interface MaterialSelectorProps extends SpaceProps, LayoutProps {
+interface MaterialNameSelectorProps extends SpaceProps, LayoutProps {
 	label?: string
 	placeholder: string
-	validator?: (input?: Material) => boolean
-	valueConsumer?: (value: FormValue<Material>) => void
+	validator?: (input?: string) => boolean
+	valueConsumer?: (value: FormValue<string>) => void
 	invalidLabel?: string
-	controls?: FormControls<Material>
+	controls?: FormControls<string>
 }
 
-export function MaterialSelector({
+export function MaterialNameSelector({
 	label,
 	placeholder,
 	validator,
@@ -47,21 +46,16 @@ export function MaterialSelector({
 	invalidLabel,
 	controls,
 	...style
-}: MaterialSelectorProps) {
-	const { value, setValue } = useFormControl<Material>({ validator, valueConsumer })
+}: MaterialNameSelectorProps) {
+	const { value, setValue } = useFormControl({ validator, valueConsumer })
 	const innerValue = controls?.value ?? value
 	const innerSetValue = controls?.setValue ?? setValue
 	const [isTyping, setIsTyping] = useState(false)
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
-	const [inputValue, setInputValue] = useState<string | undefined>(controls?.value?.value?.name)
+	const [inputValue, setInputValue] = useState<string | undefined>(controls?.value?.value)
 	const [queryValue, setQueryValue] = useState('')
-	const { data: defaultValues } = useGetLastCreatedQuery(5)
-	const { data, error, isFetching } = useFindMaterialsByFuzzyNameQuery(
-		{ query: queryValue, limit: 10 },
-		{ skip: queryValue.length <= 0 }
-	)
+	const { data, error, isFetching } = useSearchNamesByNameBrandCodeQuery({ query: queryValue, limit: 5 })
 
-	const materials = data ?? defaultValues
 	const handleChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			if (!isOpen) {
@@ -78,31 +72,33 @@ export function MaterialSelector({
 	)
 
 	const handleSelection = useCallback(
-		(id: string | undefined) => {
-			const material = materials?.find(it => it._id === id)
-			innerSetValue(material)
-			if (!!material) {
-				setInputValue(material.name)
+		(name: string | undefined) => {
+			innerSetValue(name ?? inputValue)
+			if (!!name) {
+				setInputValue(name)
 			}
 		},
-		[materials, innerSetValue]
+		[innerSetValue, inputValue]
 	)
-
-	const onInputBlur = useCallback(() => {
-		const firstId = !!materials && materials.length > 0 ? materials[0]._id : undefined
-		handleSelection(firstId)
-		popoverClose()
-	}, [materials, handleSelection, popoverClose])
 
 	const onTabPressed = useCallback(
 		(event: React.KeyboardEvent<HTMLInputElement>) => {
 			if (event.key === 'Tab') {
-				const firstId = !!materials && materials.length > 0 ? materials[0]._id : undefined
-				handleSelection(firstId)
+				const name = !!data && data.length > 0 ? data[0] : undefined
+				console.log(name)
+				handleSelection(name)
 				popoverClose()
 			}
 		},
-		[materials, handleSelection, popoverClose]
+		[data, handleSelection, popoverClose]
+	)
+
+	const onElementClicked = useCallback(
+		(value: string) => {
+			handleSelection(value)
+			popoverClose()
+		},
+		[handleSelection, popoverClose]
 	)
 
 	useEffect(() => {
@@ -136,7 +132,7 @@ export function MaterialSelector({
 							borderWidth={innerValue.isValid ? '' : '2px'}
 							value={inputValue}
 							onChange={handleChange}
-							onBlur={onInputBlur}
+							onBlur={popoverClose}
 							onKeyDown={onTabPressed}
 						/>
 						{isTyping && (
@@ -147,57 +143,31 @@ export function MaterialSelector({
 					</InputGroup>
 				</PopoverTrigger>
 				<PopoverContent width="100%">
-					<PopoverBody width="90vw">
+					<PopoverBody width="70vw">
 						<VStack align="flex-start">
-							{!!materials &&
-								materials.length > 0 &&
+							{!!data &&
+								data.length > 0 &&
 								(!inputValue || inputValue.length > 0) &&
-								materials.map((it, idx) => (
-									<Box key={it._id} width="full">
-										<Flex justifyContent="flex-start" marginLeft="1em" width="full">
-											<Flex
-												_hover={{ cursor: 'pointer' }}
-												onClick={() => {
-													handleSelection(it._id)
-													popoverClose()
-												}}
-												direction="column"
-												width="100%"
-											>
-												<Flex>
-													{idx === 0 && <Kbd marginRight="1em">Tab</Kbd>}
-													<Text>
-														<b>{it.name}</b>, Brand: {it.brand}
-														{!!it.referenceCode && ` - # ${it.referenceCode}`}
-													</Text>
-												</Flex>
-												{!!it.tags && it.tags.length > 0 && (
-													<Flex
-														align="center"
-														justify="start"
-														mt="0.2em"
-														ml={idx === 0 ? '3em' : '0px'}
-													>
-														{it.tags.map(id => (
-															<ElementTag
-																key={id}
-																tagId={id}
-																marginRight="0.4em"
-																compact={!!it.tags && it.tags.length >= 5}
-															/>
-														))}
-													</Flex>
-												)}
-											</Flex>
+								data.map((it, idx) => (
+									<Box key={it} width="full">
+										<Flex
+											justifyContent="flex-start"
+											marginLeft="1em"
+											onClick={() => onElementClicked(it)}
+											width="full"
+											_hover={{ cursor: 'pointer' }}
+										>
+											{idx === 0 && <Kbd marginRight="1em">Tab</Kbd>}
+											<Text>{it}</Text>
 										</Flex>
 										<Divider mt="0.5em" ml="1em" width="98%" />
 									</Box>
 								))}
-							{!!materials && materials.length === 0 && (
+							{!!data && data.length === 0 && (
 								<Flex justifyContent="flex-start" marginLeft="1em" width="95%">
-									<Alert status="warning" borderRadius="md">
+									<Alert status="info" borderRadius="md">
 										<AlertIcon />
-										There are no materials matching your search
+										You are creating a new name: {inputValue}
 									</Alert>
 								</Flex>
 							)}
