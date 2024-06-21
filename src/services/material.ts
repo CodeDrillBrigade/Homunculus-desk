@@ -20,18 +20,7 @@ export const materialApi = createApi({
 	endpoints: builder => ({
 		getMaterials: builder.query<Material[], void>({
 			query: () => '',
-			providesTags: materials =>
-				!!materials
-					? [
-							...materials.map(material => {
-								return { type: MaterialTagType, id: material._id! } as {
-									type: typeof MaterialTagType
-									id: string
-								}
-							}),
-							AllMaterialsTag,
-					  ]
-					: [AllMaterialsTag],
+			providesTags: materials => materialTagProvider(materials),
 		}),
 		getMaterial: builder.query<Material, string>({
 			query: (materialId: string) => `/${encodeURIComponent(materialId)}`,
@@ -85,6 +74,13 @@ export const materialApi = createApi({
 					  ]
 					: [AllMaterialsTag],
 		}),
+		searchNamesByNameBrandCode: builder.query<string[], { query: string; limit: number }>({
+			query: ({ query, limit }) => ({
+				url: `/namesByNameBrandCode?query=${encodeURIComponent(query)}&limit=${limit}`,
+				method: 'GET',
+			}),
+			providesTags: ids => [AllMaterialsTag],
+		}),
 		getMaterialsByIds: builder.query<Material[], string[]>({
 			query: ids => ({
 				url: '/byIds',
@@ -105,6 +101,7 @@ export const {
 	useFindMaterialsByFuzzyNameQuery,
 	useModifyMaterialMutation,
 	useSearchIdsByNameBrandCodeQuery,
+	useSearchNamesByNameBrandCodeQuery,
 } = materialApi
 
 export const useMaterialPrefetch = materialApi.usePrefetch
