@@ -59,6 +59,7 @@ interface LabelInputProps extends SpaceProps {
 	valueConsumer?: (value: FormValue<Tag[]>) => void
 	invalidLabel?: string
 	controls?: FormControls<Tag[]>
+	allowCreation?: boolean
 }
 
 export const TagInput = ({
@@ -69,6 +70,7 @@ export const TagInput = ({
 	invalidLabel,
 	controls,
 	forcedSize,
+	allowCreation,
 	...style
 }: LabelInputProps) => {
 	const { value, setValue } = useFormControl<Tag[]>({ validator, valueConsumer, defaultValue })
@@ -131,7 +133,7 @@ export const TagInput = ({
 	return (
 		<FormControl {...style}>
 			<AddTagModal isOpen={modalIsOpen} onClose={modalClose} />
-			<FormLabel color={selectedTags.isValid ? '' : 'crimson'}>{label}</FormLabel>
+			<FormLabel color={selectedTags.isValid ? '' : 'red'}>{label}</FormLabel>
 			<Popover
 				closeOnBlur={false}
 				closeOnEsc={true}
@@ -146,12 +148,12 @@ export const TagInput = ({
 						value={inputValue}
 						onChange={handleChange}
 						onBlur={popoverClose}
-						borderColor={selectedTags.isValid ? '' : 'crimson'}
+						borderColor={selectedTags.isValid ? '' : 'red'}
 						borderWidth={selectedTags.isValid ? '' : '2px'}
 					/>
 				</PopoverTrigger>
 				{!selectedTags.isValid && !!invalidLabel && (
-					<Text fontSize="sm" color="crimson">
+					<Text fontSize="sm" color="red">
 						{invalidLabel}
 					</Text>
 				)}
@@ -179,13 +181,15 @@ export const TagInput = ({
 						{isFetching && generateSkeletons({ quantity: 5, height: '1.5ex' })}
 						{!!error && <ErrorAlert info={{ label: 'Cannot load labels', reason: error }} />}
 					</PopoverBody>
-					<PopoverFooter>
-						{!!tags && (
-							<Button colorScheme="blue" leftIcon={<Icon as={FaPlus} />} onClick={modalOpen}>
-								Add Tag
-							</Button>
-						)}
-					</PopoverFooter>
+					{(allowCreation === undefined || allowCreation) && (
+						<PopoverFooter>
+							{!!tags && (
+								<Button colorScheme="blue" leftIcon={<Icon as={FaPlus} />} onClick={modalOpen}>
+									Add Tag
+								</Button>
+							)}
+						</PopoverFooter>
+					)}
 				</PopoverContent>
 				<Flex padding="0.6em" margin="0px">
 					<VStack align="stretch">

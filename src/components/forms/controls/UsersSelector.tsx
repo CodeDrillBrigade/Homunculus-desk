@@ -1,15 +1,14 @@
 import {
-	Alert,
-	AlertIcon,
+	Avatar,
 	Box,
 	Divider,
 	Flex,
 	FormControl,
 	FormLabel,
+	IconButton,
 	Input,
 	InputGroup,
 	InputRightElement,
-	Kbd,
 	LayoutProps,
 	Popover,
 	PopoverBody,
@@ -24,36 +23,47 @@ import {
 import { FormValue } from '../../../models/form/FormValue'
 import { FormControls, useFormControl } from '../../../hooks/form-control'
 import React, { useCallback, useEffect, useState } from 'react'
-import { useSearchNamesByNameBrandCodeQuery } from '../../../services/material'
 import { generateSkeletons } from '../../ui/StackedSkeleton'
 import { ErrorAlert } from '../../errors/ErrorAlert'
+import { User } from '../../../models/User'
+import { useGetUsersByUsernameEmailNameQuery } from '../../../services/user'
+import { CloseIcon } from '@chakra-ui/icons'
 
-interface MaterialNameSelectorProps extends SpaceProps, LayoutProps {
+interface UsersSelectorProps extends SpaceProps, LayoutProps {
 	label?: string
 	placeholder: string
-	validator?: (input?: string) => boolean
-	valueConsumer?: (value: FormValue<string>) => void
+	defaultValue?: User[]
+	validator?: (input?: User[]) => boolean
+	valueConsumer?: (value: FormValue<User[]>) => void
 	invalidLabel?: string
-	controls?: FormControls<string>
+	controls?: FormControls<User[]>
 }
 
-export function MaterialNameSelector({
+export function UsersSelector({
 	label,
 	placeholder,
+	defaultValue,
 	validator,
 	valueConsumer,
 	invalidLabel,
 	controls,
 	...style
-}: MaterialNameSelectorProps) {
-	const { value, setValue } = useFormControl({ validator, valueConsumer })
-	const innerValue = controls?.value ?? value
-	const innerSetValue = controls?.setValue ?? setValue
+}: UsersSelectorProps) {
+	const { value, setValue } = useFormControl({ defaultValue, validator, valueConsumer })
+	const users = controls?.value ?? value
+	const setUsers = controls?.setValue ?? setValue
 	const [isTyping, setIsTyping] = useState(false)
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
-	const [inputValue, setInputValue] = useState<string | undefined>(controls?.value?.value)
+	const [inputValue, setInputValue] = useState<string | undefined>(undefined)
 	const [queryValue, setQueryValue] = useState('')
-	const { data, error, isFetching } = useSearchNamesByNameBrandCodeQuery({ query: queryValue, limit: 5 })
+	const { data, error, isFetching } = useGetUsersByUsernameEmailNameQuery(queryValue)
+
+	const handleRemoval = useCallback(
+		(userId: string) => {
+			setUsers(currentValue => [...(currentValue ?? [])].filter(it => it._id !== userId))
+		},
+		[setUsers]
+	)
 
 	const handleChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,29 +81,23 @@ export function MaterialNameSelector({
 	)
 
 	const handleSelection = useCallback(
-		(name: string | undefined) => {
-			innerSetValue(name ?? inputValue)
-			if (!!name) {
-				setInputValue(name)
-			}
+		(userId: string) => {
+			const newUser = data?.find(user => user._id === userId)
+			setUsers(currentValues => {
+				if (!!newUser && !currentValues?.find(user => user._id === newUser._id)) {
+					return [...(currentValues ?? []), newUser]
+				} else {
+					return currentValues ?? []
+				}
+			})
+			setInputValue('')
 		},
-		[innerSetValue, inputValue]
-	)
-
-	const onTabPressed = useCallback(
-		(event: React.KeyboardEvent<HTMLInputElement>) => {
-			if (event.key === 'Tab') {
-				const name = !!data && data.length > 0 ? data[0] : undefined
-				handleSelection(name)
-				popoverClose()
-			}
-		},
-		[data, handleSelection, popoverClose]
+		[data, setUsers]
 	)
 
 	const onElementClicked = useCallback(
-		(value: string) => {
-			handleSelection(value)
+		(userId: string) => {
+			handleSelection(userId)
 			popoverClose()
 		},
 		[handleSelection, popoverClose]
@@ -113,7 +117,7 @@ export function MaterialNameSelector({
 
 	return (
 		<FormControl {...style}>
-			{!!label && <FormLabel color={innerValue.isValid ? '' : 'red'}>{label}</FormLabel>}
+			{!!label && <FormLabel color={users.isValid ? '' : 'red'}>{label}</FormLabel>}
 			<Popover
 				closeOnBlur={false}
 				closeOnEsc={true}
@@ -126,12 +130,11 @@ export function MaterialNameSelector({
 					<InputGroup>
 						<Input
 							placeholder={placeholder}
-							borderColor={innerValue.isValid ? '' : 'red'}
-							borderWidth={innerValue.isValid ? '' : '2px'}
+							borderColor={users.isValid ? '' : 'red'}
+							borderWidth={users.isValid ? '' : '2px'}
 							value={inputValue}
 							onChange={handleChange}
 							onBlur={popoverClose}
-							onKeyDown={onTabPressed}
 						/>
 						{isTyping && (
 							<InputRightElement>
@@ -146,36 +149,55 @@ export function MaterialNameSelector({
 							{!!data &&
 								data.length > 0 &&
 								(!inputValue || inputValue.length > 0) &&
-								data.map((it, idx) => (
-									<Box key={it} width="full">
+								data.map(it => (
+									<Box key={it._id} width="full">
 										<Flex
 											justifyContent="flex-start"
 											marginLeft="1em"
-											onClick={() => onElementClicked(it)}
+											onClick={() => onElementClicked(it._id)}
 											width="full"
 											_hover={{ cursor: 'pointer' }}
 										>
-											{idx === 0 && <Kbd marginRight="1em">Tab</Kbd>}
-											<Text>{it}</Text>
+											<Text>
+												{!!it.name || it.surname
+													? `${it.name + ' ' ?? ''}${it.surname ?? ''}`
+													: it.username}
+											</Text>
 										</Flex>
 										<Divider mt="0.5em" ml="1em" width="98%" />
 									</Box>
 								))}
-							{!!data && data.length === 0 && (
-								<Flex justifyContent="flex-start" marginLeft="1em" width="95%">
-									<Alert status="info" borderRadius="md">
-										<AlertIcon />
-										You are creating a new name: {inputValue}
-									</Alert>
-								</Flex>
-							)}
 							{isFetching && generateSkeletons({ quantity: 5, height: '1.5ex' })}
 							{!!error && <ErrorAlert info={{ label: 'Cannot load materials', reason: error }} />}
 						</VStack>
 					</PopoverBody>
 				</PopoverContent>
 			</Popover>
-			{!innerValue.isValid && !!invalidLabel && (
+			<Flex padding="0.6em" margin="0px" direction="column">
+				{(users.value ?? []).map(user => (
+					<Flex key={user._id}>
+						<IconButton
+							colorScheme="red"
+							aria-label="Exclude material"
+							variant="outline"
+							mr="0.6em"
+							mt="0.2em"
+							size="sm"
+							icon={<CloseIcon />}
+							onClick={() => {
+								handleRemoval(user._id)
+							}}
+						/>
+						<Avatar name={user.name ?? user.username} boxSize={10} backgroundColor="teal" />
+						<Text fontSize="lg" ml="0.6em" mt="0.3em">
+							{!!user.name || user.surname
+								? `${user.name + ' ' ?? ''}${user.surname ?? ''}`
+								: user.username}
+						</Text>
+					</Flex>
+				))}
+			</Flex>
+			{!users.isValid && !!invalidLabel && (
 				<Text fontSize="sm" color="red">
 					{invalidLabel}
 				</Text>

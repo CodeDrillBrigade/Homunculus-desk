@@ -11,6 +11,7 @@ import { PasswordResetPage } from './pages/PasswordResetPage'
 import { RegisterUserPage } from './pages/RegisterUserPage'
 import { SearchMaterialsPage } from './pages/material/SearchMaterialsPage'
 import { SearchBoxPage } from './pages/box/SearchBoxPage'
+import { AlertPage } from './pages/AlertPage'
 
 const router = createBrowserRouter([
 	{
@@ -37,6 +38,13 @@ const router = createBrowserRouter([
 				children: [
 					{ index: true, element: <ManageStoragePage /> },
 					{ path: ':roomId/:cabinetId', element: <CabinetPage /> },
+				],
+			},
+			{
+				path: 'alert',
+				children: [
+					{ index: true, element: <AlertPage /> },
+					{ path: 'search', element: <AlertPage /> },
 				],
 			},
 		],

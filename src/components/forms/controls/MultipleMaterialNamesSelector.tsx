@@ -17,7 +17,10 @@ import {
 	PopoverTrigger,
 	SpaceProps,
 	Spinner,
+	TagCloseButton,
+	TagLabel,
 	Text,
+	useBreakpointValue,
 	useDisclosure,
 	VStack,
 } from '@chakra-ui/react'
@@ -27,17 +30,28 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useSearchNamesByNameBrandCodeQuery } from '../../../services/material'
 import { generateSkeletons } from '../../ui/StackedSkeleton'
 import { ErrorAlert } from '../../errors/ErrorAlert'
+import { Tag as TagComponent } from '@chakra-ui/react'
+import { Size } from './TagInput'
+import { chunkArray } from '../../../utils/array-utils'
 
-interface MaterialNameSelectorProps extends SpaceProps, LayoutProps {
+interface MultipleMaterialNamesSelectorProps extends SpaceProps, LayoutProps {
 	label?: string
 	placeholder: string
-	validator?: (input?: string) => boolean
-	valueConsumer?: (value: FormValue<string>) => void
+	validator?: (input?: string[]) => boolean
+	valueConsumer?: (value: FormValue<string[]>) => void
 	invalidLabel?: string
-	controls?: FormControls<string>
+	controls?: FormControls<string[]>
 }
 
-export function MaterialNameSelector({
+const namesForSize: Record<Size, { names: number }> = {
+	xl: { names: 8 },
+	lg: { names: 8 },
+	md: { names: 6 },
+	sm: { names: 3 },
+	base: { names: 3 },
+}
+
+export function MultipleMaterialNamesSelector({
 	label,
 	placeholder,
 	validator,
@@ -45,15 +59,25 @@ export function MaterialNameSelector({
 	invalidLabel,
 	controls,
 	...style
-}: MaterialNameSelectorProps) {
+}: MultipleMaterialNamesSelectorProps) {
+	const size = useBreakpointValue<{ names: number }>(namesForSize, {
+		fallback: 'md',
+	})
 	const { value, setValue } = useFormControl({ validator, valueConsumer })
 	const innerValue = controls?.value ?? value
 	const innerSetValue = controls?.setValue ?? setValue
 	const [isTyping, setIsTyping] = useState(false)
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
-	const [inputValue, setInputValue] = useState<string | undefined>(controls?.value?.value)
+	const [inputValue, setInputValue] = useState<string | undefined>(undefined)
 	const [queryValue, setQueryValue] = useState('')
 	const { data, error, isFetching } = useSearchNamesByNameBrandCodeQuery({ query: queryValue, limit: 5 })
+
+	const handleRemoval = useCallback(
+		(name: string) => {
+			innerSetValue(currentValue => [...(currentValue ?? [])].filter(it => it !== name))
+		},
+		[innerSetValue]
+	)
 
 	const handleChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,12 +96,16 @@ export function MaterialNameSelector({
 
 	const handleSelection = useCallback(
 		(name: string | undefined) => {
-			innerSetValue(name ?? inputValue)
-			if (!!name) {
-				setInputValue(name)
-			}
+			innerSetValue(currentValues => {
+				if (!!name && currentValues?.includes(name) !== true) {
+					return [...(currentValues ?? []), name]
+				} else {
+					return currentValues ?? []
+				}
+			})
+			setInputValue('')
 		},
-		[innerSetValue, inputValue]
+		[innerSetValue]
 	)
 
 	const onTabPressed = useCallback(
@@ -111,6 +139,7 @@ export function MaterialNameSelector({
 		return () => clearTimeout(timeoutId)
 	}, [inputValue, setQueryValue, setIsTyping])
 
+	const chunkSelected = chunkArray(innerValue?.value ?? [], size?.names ?? 5)
 	return (
 		<FormControl {...style}>
 			{!!label && <FormLabel color={innerValue.isValid ? '' : 'red'}>{label}</FormLabel>}
@@ -175,6 +204,27 @@ export function MaterialNameSelector({
 					</PopoverBody>
 				</PopoverContent>
 			</Popover>
+			<Flex padding="0.6em" margin="0px">
+				<VStack align="stretch">
+					{chunkSelected.map((chunk, idx) => (
+						<Flex key={`names-selected-flex-${idx}`} marginBottom="0.6em" align="center" justify="start">
+							{chunk.map(name => (
+								<TagComponent
+									size="md"
+									key={name}
+									borderRadius="full"
+									variant="solid"
+									bg="#3182ce"
+									marginLeft="0.6em"
+								>
+									<TagLabel>{name}</TagLabel>
+									<TagCloseButton onClick={() => handleRemoval(name)} />
+								</TagComponent>
+							))}
+						</Flex>
+					))}
+				</VStack>
+			</Flex>
 			{!innerValue.isValid && !!invalidLabel && (
 				<Text fontSize="sm" color="red">
 					{invalidLabel}

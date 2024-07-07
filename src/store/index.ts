@@ -10,11 +10,13 @@ import { boxApi } from '../services/box'
 import { userApi } from '../services/user'
 import { processApi } from '../services/process'
 import { UIReducer } from './ui/ui-slice'
+import { alertApi } from '../services/alert'
 
 export const store = configureStore({
 	reducer: {
 		auth: authReducer,
 		ui: UIReducer,
+		[alertApi.reducerPath]: alertApi.reducer,
 		[authAPI.reducerPath]: authAPI.reducer,
 		[boxApi.reducerPath]: boxApi.reducer,
 		[boxDefinitionApi.reducerPath]: boxDefinitionApi.reducer,
@@ -27,6 +29,7 @@ export const store = configureStore({
 	middleware: getDefaultMiddleware =>
 		getDefaultMiddleware()
 			.prepend(authListenerMiddleware.middleware)
+			.prepend(alertApi.middleware)
 			.prepend(authAPI.middleware)
 			.prepend(boxApi.middleware)
 			.prepend(boxDefinitionApi.middleware)
