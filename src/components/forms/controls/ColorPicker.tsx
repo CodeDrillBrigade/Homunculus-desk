@@ -1,54 +1,71 @@
 import {
-	Box,
-	Button, Center,
-	FormControl, FormLabel, Icon, IconButton, Input, InputGroup, InputLeftAddon, InputRightAddon,
+	Button,
+	Center,
+	FormControl,
+	FormLabel,
+	Icon,
+	IconButton,
+	Input,
+	InputGroup,
+	InputLeftAddon,
+	InputRightAddon,
 	Popover,
-	PopoverArrow, PopoverBody,
+	PopoverArrow,
+	PopoverBody,
 	PopoverCloseButton,
-	PopoverContent, PopoverHeader,
-	PopoverTrigger, SimpleGrid, SpaceProps, Text
-} from "@chakra-ui/react";
-import React, {useState} from "react";
-import {FormValue} from "../../../models/form/FormValue";
-import {getRandomDarkHexColor} from "../../../utils/style-utils";
-import {RepeatIcon} from "@chakra-ui/icons";
+	PopoverContent,
+	PopoverHeader,
+	PopoverTrigger,
+	SimpleGrid,
+	SpaceProps,
+	Text,
+} from '@chakra-ui/react'
+import React, { useState } from 'react'
+import { FormValue } from '../../../models/form/FormValue'
+import { getRandomDarkHexColor } from '../../../utils/style-utils'
+import { Repeat } from '@phosphor-icons/react'
 
 interface ColorPickerProps extends SpaceProps {
-	label: string,
-	colors: string[],
-	initialColor?: string,
-	valueConsumer?: (value: FormValue<string>) => void;
+	label: string
+	colors: string[]
+	initialColor?: string
+	valueConsumer?: (value: FormValue<string>) => void
 }
 
 export const ColorPicker = ({ label, colors, valueConsumer, initialColor, ...style }: ColorPickerProps) => {
-	const [color, setColor] = useState<FormValue<string>>({value: initialColor ?? getRandomDarkHexColor(), isValid: true});
+	const [color, setColor] = useState<FormValue<string>>({
+		value: initialColor ?? getRandomDarkHexColor(),
+		isValid: true,
+	})
 
 	const handleChange = (event: string) => {
-		const input = event.trim();
+		const input = event.trim()
 		const newValue = {
 			value: input,
-			isValid: RegExp("^#[a-fA-F0-9]{6}$").test(input),
-		};
-		setColor(newValue);
-		if (!!valueConsumer) {
-			valueConsumer(newValue);
+			isValid: RegExp('^#[a-fA-F0-9]{6}$').test(input),
 		}
-	};
+		setColor(newValue)
+		if (!!valueConsumer) {
+			valueConsumer(newValue)
+		}
+	}
 
 	const setRandomColor = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
 		handleChange(getRandomDarkHexColor())
-		event.stopPropagation();
-	};
+		event.stopPropagation()
+	}
 
 	return (
-		<FormControl {...style} >
-			<FormLabel color={color.isValid ? "" : "crimson"} alignSelf="left">{label}</FormLabel>
+		<FormControl {...style}>
+			<FormLabel color={color.isValid ? '' : 'crimson'} alignSelf="left">
+				{label}
+			</FormLabel>
 			<Popover variant="picker">
 				<PopoverTrigger>
 					<InputGroup>
 						<InputLeftAddon bg={color.value} />
 						<Input
-							variant='filled'
+							variant="filled"
 							value={color.value}
 							width="auto"
 							isReadOnly={true}
@@ -56,11 +73,11 @@ export const ColorPicker = ({ label, colors, valueConsumer, initialColor, ...sty
 						/>
 						<InputRightAddon>
 							<IconButton
-								aria-label='Generate random color'
-								icon={<RepeatIcon />}
+								aria-label="Generate random color"
+								icon={<Icon as={Repeat} weight="bold" boxSize={5} />}
 								onClick={setRandomColor}
 								background="transparent"
-								_hover={{ background: "transparent" }}
+								_hover={{ background: 'transparent' }}
 							/>
 						</InputRightAddon>
 					</InputGroup>
@@ -79,7 +96,7 @@ export const ColorPicker = ({ label, colors, valueConsumer, initialColor, ...sty
 					</PopoverHeader>
 					<PopoverBody height="120px">
 						<SimpleGrid columns={5} spacing={2}>
-							{colors.map((c) => (
+							{colors.map(c => (
 								<Button
 									key={c}
 									aria-label={c}
@@ -90,7 +107,9 @@ export const ColorPicker = ({ label, colors, valueConsumer, initialColor, ...sty
 									minWidth="unset"
 									borderRadius={3}
 									_hover={{ background: c }}
-									onClick={() => {handleChange(c);}}
+									onClick={() => {
+										handleChange(c)
+									}}
 								></Button>
 							))}
 						</SimpleGrid>
@@ -100,14 +119,18 @@ export const ColorPicker = ({ label, colors, valueConsumer, initialColor, ...sty
 							placeholder="red.100"
 							size="sm"
 							value={color.value}
-							onChange={(e) => {
-								handleChange(e.target.value);
+							onChange={e => {
+								handleChange(e.target.value)
 							}}
 						/>
 					</PopoverBody>
 				</PopoverContent>
 			</Popover>
-			{!color.isValid && <Text fontSize='sm' color="crimson">Not a valid HEX color.</Text>}
+			{!color.isValid && (
+				<Text fontSize="sm" color="crimson">
+					Not a valid HEX color.
+				</Text>
+			)}
 		</FormControl>
-	);
+	)
 }

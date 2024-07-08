@@ -2,7 +2,6 @@ import { ShelvesDisplayProps } from './ShelvesDisplayBig'
 import {
 	Drawer,
 	DrawerBody,
-	DrawerCloseButton,
 	DrawerContent,
 	DrawerHeader,
 	DrawerOverlay,
@@ -11,7 +10,7 @@ import {
 	VStack,
 	Text,
 	IconButton,
-	Spacer,
+	Icon,
 } from '@chakra-ui/react'
 import { ShelfListItem } from './ShelfListItem'
 import { AddShelfForm } from '../forms/AddShelfForm'
@@ -27,7 +26,7 @@ import { ElementBox } from '../models/ElementBox'
 import { AddBoxFormModal } from '../modals/AddBoxFormModal'
 import { readableNameFromId } from '../../utils/storage-room-utils'
 import { NoBoxesWarning } from '../errors/NoBoxesWarning'
-import { AddIcon, CloseIcon } from '@chakra-ui/icons'
+import { Plus, X } from '@phosphor-icons/react'
 
 export const ShelvesDisplayMobile = ({ cabinet, room }: ShelvesDisplayProps) => {
 	const { isOpen, onOpen, onClose } = useDisclosure()
@@ -102,13 +101,18 @@ const BoxesDrawer = ({ shelfName, isOpen, onClose, boxes, boxesLoading, boxesErr
 							<IconButton
 								onClick={onAddClick}
 								aria-label="add box"
-								icon={<AddIcon />}
+								icon={<Icon as={Plus} weight="bold" boxSize={5} />}
 								colorScheme="green"
 								borderRadius="full"
 							/>
 						)}
 						<Text pt="0.3em">{shelfName}</Text>
-						<IconButton onClick={onClose} aria-label="close drawer" icon={<CloseIcon />} variant="ghost" />
+						<IconButton
+							onClick={onClose}
+							aria-label="close drawer"
+							icon={<Icon as={X} weight="bold" boxSize={5} />}
+							variant="ghost"
+						/>
 					</Flex>
 				</DrawerHeader>
 

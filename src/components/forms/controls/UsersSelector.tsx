@@ -5,6 +5,7 @@ import {
 	Flex,
 	FormControl,
 	FormLabel,
+	Icon,
 	IconButton,
 	Input,
 	InputGroup,
@@ -27,7 +28,7 @@ import { generateSkeletons } from '../../ui/StackedSkeleton'
 import { ErrorAlert } from '../../errors/ErrorAlert'
 import { User } from '../../../models/User'
 import { useGetUsersByUsernameEmailNameQuery } from '../../../services/user'
-import { CloseIcon } from '@chakra-ui/icons'
+import { X } from '@phosphor-icons/react'
 
 interface UsersSelectorProps extends SpaceProps, LayoutProps {
 	label?: string
@@ -183,7 +184,7 @@ export function UsersSelector({
 							mr="0.6em"
 							mt="0.2em"
 							size="sm"
-							icon={<CloseIcon />}
+							icon={<Icon as={X} weight="bold" boxSize={5} />}
 							onClick={() => {
 								handleRemoval(user._id)
 							}}

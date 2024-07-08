@@ -1,7 +1,18 @@
-import { Box, Divider, Flex, FormControl, FormLabel, IconButton, LayoutProps, SpaceProps, Text } from '@chakra-ui/react'
+import {
+	Box,
+	Divider,
+	Flex,
+	FormControl,
+	FormLabel,
+	Icon,
+	IconButton,
+	LayoutProps,
+	SpaceProps,
+	Text,
+} from '@chakra-ui/react'
 import { Filter } from '../../../models/filter/Filter'
 import { FormValue } from '../../../models/form/FormValue'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { TagInput } from './TagInput'
 import { Material } from '../../../models/Material'
 import { FormControls, useFormControl } from '../../../hooks/form-control'
@@ -13,7 +24,7 @@ import { OrFilter } from '../../../models/filter/OrFilter'
 import { generateSkeletons } from '../../ui/StackedSkeleton'
 import { ErrorAlert } from '../../errors/ErrorAlert'
 import { ElementTag } from '../../models/ElementTag'
-import { AddIcon, CloseIcon } from '@chakra-ui/icons'
+import { Plus, X } from '@phosphor-icons/react'
 import { NotificationFilter } from '../../../models/form/NotificationFilter'
 import { ByIdFilter } from '../../../models/filter/ByIdFilter'
 
@@ -272,7 +283,7 @@ const MaterialDisplay = ({ material, actionType, onButtonClick }: MaterialDispla
 					variant="outline"
 					mr="0.6em"
 					mt="0.2em"
-					icon={actionType === 'add' ? <AddIcon /> : <CloseIcon />}
+					icon={<Icon as={actionType === 'add' ? Plus : X} weight="bold" boxSize={6} />}
 					onClick={onButtonClick}
 				/>
 				<Flex _hover={{ cursor: 'pointer' }} direction="column" width="100%">

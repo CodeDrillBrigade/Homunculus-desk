@@ -40,7 +40,6 @@ import { useGetBoxDefinitionQuery } from '../../services/boxDefinition'
 import { FormValue } from '../../models/form/FormValue'
 import { Tag } from '../../models/embed/Tag'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
-import { CheckCircleIcon, DeleteIcon, WarningIcon } from '@chakra-ui/icons'
 import { useModifyMaterialMutation } from '../../services/material'
 import { extractErrorMessage } from '../../utils/error-utils'
 import { useDeleteBoxMutation, useGetBoxWithMaterialQuery } from '../../services/box'
@@ -48,8 +47,8 @@ import { QuantityCounter } from './QuantityCounter'
 import { useGetStorageRoomsQuery } from '../../services/storageRoom'
 import { readableNameFromId } from '../../utils/storage-room-utils'
 import { UpdateBoxFormModal } from '../modals/UpdateBoxFormModal'
-import { FiUpload } from 'react-icons/fi'
 import { ConfirmModal } from '../modals/ConfirmModal'
+import { CheckCircle, Trash, UploadSimple, Warning } from '@phosphor-icons/react'
 
 interface UpdateMaterialFormValues extends FormValues {
 	name: FormValue<string>
@@ -256,7 +255,9 @@ export const DetailedMaterialModal = ({ material, isOpen, onClose }: DetailedMat
 													<Flex width="full" justifyContent="space-between">
 														<Button
 															colorScheme="blue"
-															leftIcon={<Icon as={FiUpload} />}
+															leftIcon={
+																<Icon as={UploadSimple} weight="bold" boxSize={6} />
+															}
 															onClick={() => {
 																setSelectedBox(box)
 																updateModalOpen()
@@ -267,7 +268,7 @@ export const DetailedMaterialModal = ({ material, isOpen, onClose }: DetailedMat
 														</Button>
 														<Button
 															colorScheme="red"
-															leftIcon={<DeleteIcon />}
+															leftIcon={<Icon as={Trash} weight="bold" boxSize={6} />}
 															onClick={() => {
 																setBoxToDelete(box)
 																deleteBoxModalOpen()
@@ -299,10 +300,26 @@ export const DetailedMaterialModal = ({ material, isOpen, onClose }: DetailedMat
 							>
 								Update Material
 							</Button>
-							{modifySuccess && <CheckCircleIcon boxSize={6} color="green.400" mt="0.5em" ml="0.5em" />}
+							{modifySuccess && (
+								<Icon
+									as={CheckCircle}
+									weight="fill"
+									boxSize={6}
+									color="green.400"
+									mt="0.5em"
+									ml="0.5em"
+								/>
+							)}
 							{!!modifyError && (
 								<Tooltip label={extractErrorMessage(modifyError)} fontSize="md">
-									<WarningIcon boxSize={6} color="red.400" mt="0.5em" ml="0.5em" />
+									<Icon
+										as={Warning}
+										weight="fill"
+										boxSize={6}
+										color="red.400"
+										mt="0.5em"
+										ml="0.5em"
+									/>
 								</Tooltip>
 							)}
 						</Flex>

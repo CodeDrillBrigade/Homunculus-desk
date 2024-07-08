@@ -1,9 +1,14 @@
-import {Container, Skeleton, VStack} from "@chakra-ui/react";
+import { Container, Skeleton, SkeletonCircle, VStack } from '@chakra-ui/react'
 
 interface StackedSkeletonProps {
-	quantity: number;
-	height: string;
-	minWidth?: string;
+	quantity: number
+	height: string
+	minWidth?: string
+}
+
+interface StackedSkeletonAvatarProps {
+	quantity: number
+	size: string
 }
 
 export const StackedSkeleton = ({ quantity, minWidth, height }: StackedSkeletonProps) => {
@@ -11,8 +16,11 @@ export const StackedSkeleton = ({ quantity, minWidth, height }: StackedSkeletonP
 }
 
 export const generateSkeletons = ({ quantity, minWidth, height }: StackedSkeletonProps) =>
-	[...Array.from({length: quantity}, (_, i) => i)].map((it) => (
-		<Container key={it} minWidth={minWidth ?? "100%"}>
+	[...Array.from({ length: quantity }, (_, i) => i)].map(it => (
+		<Container key={it} minWidth={minWidth ?? '100%'}>
 			<Skeleton height={height} />
 		</Container>
 	))
+
+export const generateSkeletonAvatars = ({ quantity, size }: StackedSkeletonAvatarProps) =>
+	[...Array.from({ length: quantity }, (_, i) => i)].map(it => <SkeletonCircle size={size} mr="0.5em" />)

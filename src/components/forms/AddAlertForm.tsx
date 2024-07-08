@@ -21,9 +21,11 @@ import { NumberInput } from './controls/NumberInput'
 import { MaterialFilterInput } from './controls/MaterialFilterInput'
 import { NotificationFilter } from '../../models/form/NotificationFilter'
 import { UsersSelector } from './controls/UsersSelector'
-import { useCreateAlertMutation } from '../../services/alert'
 import { useFormControl } from '../../hooks/form-control'
 import { ErrorAlert } from '../errors/ErrorAlert'
+import { Alert as AlertModel } from '../../models/Alert'
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query'
+import { SerializedError } from '@reduxjs/toolkit'
 
 interface AlertFormValues extends FormValues {
 	name: FormValue<string>
@@ -41,33 +43,52 @@ const initialState: AlertFormValues = {
 	recipients: { value: undefined, isValid: false },
 }
 
-export const AddAlertForm = () => {
+interface AddAlertFormProps {
+	submitAction: (alert: Partial<AlertModel>) => void
+	submitError: FetchBaseQueryError | SerializedError | undefined
+	submitIsLoading: boolean
+	submitSuccess: boolean
+	reset: () => void
+	state?: AlertFormValues
+}
+
+export const AddAlertForm = ({
+	submitAction,
+	submitError,
+	submitIsLoading,
+	submitSuccess,
+	reset,
+	state,
+}: AddAlertFormProps) => {
 	const [isFormReset, setIsFormReset] = useState<boolean>(false)
 	const { isOpen, onOpen, onClose } = useDisclosure()
-	const [createAlert, { error, isLoading, isSuccess, reset: resetMutation }] = useCreateAlertMutation()
-	const { formState, dispatchState, isInvalid } = useForm({ initialState })
+	const { formState, dispatchState, isInvalid } = useForm({ initialState: state ?? initialState })
 
 	const nameControls = useFormControl<string>({
+		defaultValue: state?.name?.value ?? initialState?.name?.value,
 		validator: input => !!input && input.length <= 50,
 		valueConsumer: data => dispatchState('name', data),
 	})
 
 	const descriptionControls = useFormControl<string>({
+		defaultValue: state?.description?.value ?? initialState?.description?.value,
 		valueConsumer: data => dispatchState('description', data),
 	})
 
 	const thresholdControls = useFormControl<number>({
-		defaultValue: 0,
+		defaultValue: state?.threshold?.value ?? initialState?.threshold?.value ?? 0,
 		validator: input => !!input && input > 0,
 		valueConsumer: data => dispatchState('threshold', data),
 	})
 
 	const recipientControls = useFormControl<User[]>({
+		defaultValue: state?.recipients?.value ?? initialState?.recipients?.value,
 		validator: input => !!input && input.length > 0,
 		valueConsumer: data => dispatchState('recipients', data),
 	})
 
 	const filterControls = useFormControl<NotificationFilter>({
+		defaultValue: state?.filters?.value ?? initialState?.filters?.value,
 		validator: input => !!input,
 		valueConsumer: data => dispatchState('filters', data),
 	})
@@ -91,7 +112,7 @@ export const AddAlertForm = () => {
 				return
 			}
 			setIsFormReset(false)
-			createAlert({
+			submitAction({
 				name: formState.name.value,
 				description: formState.description.value,
 				threshold: formState.threshold.value,
@@ -103,7 +124,7 @@ export const AddAlertForm = () => {
 	}
 
 	useEffect(() => {
-		if (isSuccess && !isFormReset) {
+		if (submitSuccess && !isFormReset) {
 			setIsFormReset(true)
 			nameControls.resetValue()
 			descriptionControls.resetValue()
@@ -111,7 +132,7 @@ export const AddAlertForm = () => {
 			recipientControls.resetValue()
 			filterControls.resetValue()
 			dispatchState('reset')
-			resetMutation()
+			reset()
 			onOpen()
 		}
 	}, [
@@ -119,11 +140,11 @@ export const AddAlertForm = () => {
 		dispatchState,
 		filterControls,
 		isFormReset,
-		isSuccess,
+		submitSuccess,
 		nameControls,
 		onOpen,
 		recipientControls,
-		resetMutation,
+		reset,
 		thresholdControls,
 	])
 
@@ -131,7 +152,7 @@ export const AddAlertForm = () => {
 		<Card mt="2em" mr="2em" ml="2em">
 			<CardBody>
 				<VStack>
-					{!!error && <ErrorAlert info={{ label: 'Something went wrong', reason: error }} />}
+					{!!submitError && <ErrorAlert info={{ label: 'Something went wrong', reason: submitError }} />}
 					<TextInput
 						label="Name"
 						placeholder="Alert name"
@@ -160,7 +181,13 @@ export const AddAlertForm = () => {
 						controls={filterControls}
 						invalidLabel="You must specify at least one material."
 					/>
-					<Button colorScheme="blue" mr={3} onClick={onSubmit} isDisabled={isInvalid} isLoading={isLoading}>
+					<Button
+						colorScheme="blue"
+						mr={3}
+						onClick={onSubmit}
+						isDisabled={isInvalid}
+						isLoading={submitIsLoading}
+					>
 						Create
 					</Button>
 				</VStack>

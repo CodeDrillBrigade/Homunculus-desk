@@ -1,4 +1,4 @@
-import { Flex, Spacer } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { useAppDispatch, useAppSelector } from '../../hooks/redux'
 import { resetPageTitle } from '../../store/ui/ui-slice'
 import { useEffect } from 'react'
@@ -73,6 +73,7 @@ export const HomePage = () => {
 							title="Alerts"
 							elements={{
 								'Add a new Alert': '/alert',
+								'Search alerts': '/alert/search',
 							}}
 							width={menuItemWidth}
 							showLastDivider={false}

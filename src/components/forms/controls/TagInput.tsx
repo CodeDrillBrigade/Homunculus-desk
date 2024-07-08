@@ -38,8 +38,8 @@ import { ColorPicker } from './ColorPicker'
 import { tagColors } from '../../../styles/colors'
 import { getRandomDarkHexColor, makeDarker } from '../../../utils/style-utils'
 import { chunkArray } from '../../../utils/array-utils'
-import { FaPlus } from 'react-icons/fa6'
 import { FormControls, useFormControl } from '../../../hooks/form-control'
+import { Plus } from '@phosphor-icons/react'
 
 export type Size = 'sm' | 'md' | 'lg' | 'xl' | 'base'
 
@@ -184,7 +184,11 @@ export const TagInput = ({
 					{(allowCreation === undefined || allowCreation) && (
 						<PopoverFooter>
 							{!!tags && (
-								<Button colorScheme="blue" leftIcon={<Icon as={FaPlus} />} onClick={modalOpen}>
+								<Button
+									colorScheme="blue"
+									leftIcon={<Icon as={Plus} weight="bold" boxSize={6} />}
+									onClick={modalOpen}
+								>
 									Add Tag
 								</Button>
 							)}

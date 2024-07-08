@@ -1,5 +1,6 @@
 import {
 	Button,
+	Icon,
 	Modal,
 	ModalBody,
 	ModalCloseButton,
@@ -10,8 +11,9 @@ import {
 	Text,
 	VStack,
 } from '@chakra-ui/react'
-import { DeleteIcon } from '@chakra-ui/icons'
 import { ErrorAlert } from '../errors/ErrorAlert'
+import { Trash } from '@phosphor-icons/react'
+import React from 'react'
 
 interface ConfirmModalProps {
 	onClose: () => void
@@ -40,7 +42,7 @@ export const ConfirmModal = ({ onClose, isOpen, isLoading, flavour, error, onCon
 					{flavour === 'delete' && (
 						<Button
 							colorScheme="red"
-							leftIcon={<DeleteIcon />}
+							leftIcon={<Icon as={Trash} weight="bold" boxSize={6} />}
 							mr={3}
 							onClick={onConfirm}
 							isLoading={isLoading}

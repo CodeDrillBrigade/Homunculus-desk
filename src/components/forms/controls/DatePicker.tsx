@@ -3,8 +3,7 @@ import { FormValue } from '../../../models/form/FormValue'
 import { FormControls, useFormControl } from '../../../hooks/form-control'
 import { SingleDatepicker } from 'chakra-dayzed-datepicker'
 import React from 'react'
-import { FaRegCalendarAlt } from 'react-icons/fa'
-import { MdOutlineClose } from 'react-icons/md'
+import { CalendarDots, X } from '@phosphor-icons/react'
 
 interface DatePickerProps extends LayoutProps, SpaceProps {
 	label: string
@@ -32,13 +31,13 @@ export const DatePicker = ({
 		<FormControl {...style}>
 			<FormLabel color={value.isValid ? '' : 'crimson'}>{label}</FormLabel>
 			<Flex>
-				<Icon as={FaRegCalendarAlt} boxSize={9} mr="0.5em" />
+				<Icon as={CalendarDots} weight="bold" boxSize={10} mr="0.5em" />
 				<SingleDatepicker name="date-input" date={innerValue.value} onDateChange={innerSetValue} />
 				{!!innerValue.value && (
 					<IconButton
 						aria-label="Clear date"
 						colorScheme="red"
-						icon={<Icon as={MdOutlineClose} boxSize={8} />}
+						icon={<Icon as={X} weight="bold" boxSize={8} />}
 						ml="0.5em"
 						onClick={() => innerSetValue(undefined)}
 					/>

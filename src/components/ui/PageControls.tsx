@@ -1,6 +1,5 @@
-import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { Button, HStack, Icon } from '@chakra-ui/react'
-import { HiOutlineDotsHorizontal } from 'react-icons/hi'
+import { DotsThree, CaretLeft, CaretRight } from '@phosphor-icons/react'
 
 interface PageControlsProps {
 	hasNext: boolean
@@ -25,12 +24,12 @@ export const PageControls = ({ hasNext, currentPage, increasePage, decreasePage,
 				<HStack>
 					{currentPage > 1 && (
 						<Button onClick={previousPage}>
-							<ChevronLeftIcon />
+							<Icon as={CaretLeft} weight="bold" />
 						</Button>
 					)}
 					{currentPage >= 3 && (
 						<Button isDisabled={true} _hover={{ cursor: 'default' }}>
-							<Icon as={HiOutlineDotsHorizontal} />
+							<Icon as={DotsThree} weight="bold" />
 						</Button>
 					)}
 					{currentPage >= 2 && <Button onClick={previousPage}>{currentPage - 1}</Button>}
@@ -42,12 +41,12 @@ export const PageControls = ({ hasNext, currentPage, increasePage, decreasePage,
 					)}
 					{hasNext && (
 						<Button isDisabled={true} _hover={{ cursor: 'default' }}>
-							<Icon as={HiOutlineDotsHorizontal} />
+							<Icon as={DotsThree} weight="bold" />
 						</Button>
 					)}
 					{hasNext && (
 						<Button onClick={nextPage} onMouseEnter={onNextEnter}>
-							<ChevronRightIcon />
+							<Icon as={CaretRight} weight="bold" />
 						</Button>
 					)}
 				</HStack>

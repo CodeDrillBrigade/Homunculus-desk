@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Grid, GridItem, Heading, IconButton, useDisclosure, VStack } from '@chakra-ui/react'
+import { Box, Button, Grid, GridItem, Heading, Icon, useDisclosure, VStack } from '@chakra-ui/react'
 import { Cabinet } from '../../models/embed/storage/Cabinet'
 import React, { useState } from 'react'
 import { useGetBoxByPositionQuery } from '../../services/box'
@@ -11,7 +11,7 @@ import { NoBoxesWarning } from '../errors/NoBoxesWarning'
 import { AddBoxFormModal } from '../modals/AddBoxFormModal'
 import { StorageRoom } from '../../models/StorageRoom'
 import { readableNameFromId } from '../../utils/storage-room-utils'
-import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons'
+import { Plus } from '@phosphor-icons/react'
 
 export interface ShelvesDisplayProps {
 	cabinet: Cabinet
@@ -46,7 +46,12 @@ export const ShelvesDisplayBig = ({ cabinet, room }: ShelvesDisplayProps) => {
 				<GridItem colSpan={3}>
 					<VStack width="100%">
 						{!!data && data.length > 0 && (
-							<Button width="full" colorScheme="green" leftIcon={<AddIcon />} onClick={onOpenAddBox}>
+							<Button
+								width="full"
+								colorScheme="green"
+								leftIcon={<Icon as={Plus} weight="bold" boxSize={5} />}
+								onClick={onOpenAddBox}
+							>
 								Add a Box
 							</Button>
 						)}

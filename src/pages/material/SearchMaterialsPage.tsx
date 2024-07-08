@@ -15,7 +15,6 @@ import {
 	Skeleton,
 	Spinner,
 	Stack,
-	useDisclosure,
 	VStack,
 } from '@chakra-ui/react'
 import { useGetTagsQuery } from '../../services/tag'
@@ -31,11 +30,7 @@ import { ErrorAlert } from '../../components/errors/ErrorAlert'
 import { StackedSkeleton } from '../../components/ui/StackedSkeleton'
 import { MaterialCard } from '../../components/models/MaterialCard'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
-import { Material } from '../../models/Material'
-import { DetailedMaterialModal } from '../../components/models/DetailedMaterialModal'
-
-export const getIdsInPage = (ids: string[] | undefined, pageIdx: number, pageSize: number) =>
-	ids?.slice(pageIdx * pageSize, (pageIdx + 1) * pageSize) ?? []
+import { getIdsInPage } from '../../utils/array-utils'
 
 export const SearchMaterialsPage = () => {
 	const isMobile = useIsMobileLayout()

@@ -3,6 +3,7 @@ import { useIsMobileLayout } from '../../hooks/responsive-size'
 import {
 	Button,
 	Flex,
+	Icon,
 	Modal,
 	ModalBody,
 	ModalCloseButton,
@@ -18,9 +19,9 @@ import React, { useCallback, useState } from 'react'
 import { EditableTextInput } from '../forms/controls/EditableTextInput'
 import { ShelfSelector } from '../forms/controls/ShelfSelector'
 import { DatePicker } from '../forms/controls/DatePicker'
-import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { extractErrorMessage } from '../../utils/error-utils'
 import { useModifyBoxMutation } from '../../services/box'
+import { CheckCircle, Warning } from '@phosphor-icons/react'
 
 interface EditBoxModalProps {
 	onClose: () => void
@@ -120,10 +121,26 @@ export const EditBoxModal = ({ isOpen, onClose, box }: EditBoxModalProps) => {
 							>
 								Update Material
 							</Button>
-							{modifySuccess && <CheckCircleIcon boxSize={6} color="green.400" mt="0.5em" ml="0.5em" />}
+							{modifySuccess && (
+								<Icon
+									as={CheckCircle}
+									weight="fill"
+									boxSize={6}
+									color="green.400"
+									mt="0.5em"
+									ml="0.5em"
+								/>
+							)}
 							{!!modifyError && (
 								<Tooltip label={extractErrorMessage(modifyError)} fontSize="md">
-									<WarningIcon boxSize={6} color="red.400" mt="0.5em" ml="0.5em" />
+									<Icon
+										as={Warning}
+										weight="fill"
+										boxSize={6}
+										color="red.400"
+										mt="0.5em"
+										ml="0.5em"
+									/>
 								</Tooltip>
 							)}
 						</Flex>
