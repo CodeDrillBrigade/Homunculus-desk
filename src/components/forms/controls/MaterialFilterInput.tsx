@@ -125,9 +125,11 @@ export const MaterialFilterInput = ({
 	const { setValue } = useFormControl({ defaultValue, validator, valueConsumer })
 	const setNotificationFilter = controls?.setValue ?? setValue
 
-	const [selectedNames, setSelectedNames] = useState<string[]>(extractNames(defaultValue))
-	const [selectedTags, setSelectedTags] = useState<string[]>(extractTags(defaultValue))
-	const [excludedMaterials, setExcludedMaterials] = useState<string[]>(extractExclusions(defaultValue))
+	const [selectedNames, setSelectedNames] = useState<string[]>(extractNames(controls?.value?.value ?? defaultValue))
+	const [selectedTags, setSelectedTags] = useState<string[]>(extractTags(controls?.value?.value ?? defaultValue))
+	const [excludedMaterials, setExcludedMaterials] = useState<string[]>(
+		extractExclusions(controls?.value?.value ?? defaultValue)
+	)
 	const {
 		data,
 		error: filterError,
@@ -186,6 +188,7 @@ export const MaterialFilterInput = ({
 			<FormLabel>{label}</FormLabel>
 			<MultipleMaterialNamesSelector
 				placeholder="Search by material"
+				defaultValue={selectedNames}
 				valueConsumer={data => {
 					if (!!data.value) {
 						setSelectedNames(data.value)
@@ -203,6 +206,7 @@ export const MaterialFilterInput = ({
 						updateTags(data.value.map(it => it._id))
 					}
 				}}
+				defaultIds={selectedTags}
 			/>
 			<Flex width="full" justifyContent="space-between">
 				{filterLoading && (

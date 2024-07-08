@@ -9,6 +9,12 @@ import {
 	Flex,
 	Heading,
 	Icon,
+	Modal,
+	ModalBody,
+	ModalCloseButton,
+	ModalContent,
+	ModalHeader,
+	ModalOverlay,
 	Switch,
 	Text,
 	useDisclosure,
@@ -16,13 +22,14 @@ import {
 import { Alert as AlertModel } from '../../models/Alert'
 import { AlertStatus } from '../../models/embed/AlertStatus'
 import React, { ChangeEvent, useCallback, useEffect } from 'react'
-import { useDeleteAlertMutation, useSetAlertStatusMutation } from '../../services/alert'
-import { Power, Trash, UploadSimple } from '@phosphor-icons/react'
+import { useDeleteAlertMutation, useModifyAlertMutation, useSetAlertStatusMutation } from '../../services/alert'
+import { PencilSimple, Power, Trash } from '@phosphor-icons/react'
 import { useGetUsersByIdsQuery } from '../../services/user'
 import { generateSkeletonAvatars } from '../ui/StackedSkeleton'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
 import { ErrorAlert } from '../errors/ErrorAlert'
 import { ConfirmModal } from '../modals/ConfirmModal'
+import { AddAlertForm } from '../forms/AddAlertForm'
 
 interface AlertCardProps {
 	alert: AlertModel
@@ -32,11 +39,14 @@ export const AlertCard = ({ alert }: AlertCardProps) => {
 	const isMobile = useIsMobileLayout()
 
 	const { onOpen: deleteModalOpen, onClose: deleteModalClose, isOpen: deleteModalIsOpen } = useDisclosure()
+	const { onOpen: modifyModalOpen, onClose: modifyModalClose, isOpen: modifyModalIsOpen } = useDisclosure()
 
 	const [setAlertStatus, { isLoading: changeStatusLoading }] = useSetAlertStatusMutation()
 	const { data: users, isLoading: usersLoading, error: usersError } = useGetUsersByIdsQuery(alert.recipients)
 	const [deleteAlert, { error: deleteError, isLoading: deleteLoading, isSuccess: deleteSuccess }] =
 		useDeleteAlertMutation()
+	const [modifyAlert, { error: modifyError, isLoading: modifyLoading, isSuccess: modifySuccess }] =
+		useModifyAlertMutation()
 
 	const onToggleStatus = useCallback(
 		(event: ChangeEvent<HTMLInputElement>) => {
@@ -107,11 +117,11 @@ export const AlertCard = ({ alert }: AlertCardProps) => {
 				<Flex width="full" justifyContent="space-between">
 					<Button
 						colorScheme="blue"
-						leftIcon={<Icon as={UploadSimple} weight="bold" boxSize={6} />}
-						// onClick={updateModalOpen}
+						leftIcon={<Icon as={PencilSimple} weight="bold" boxSize={6} />}
+						onClick={modifyModalOpen}
 						// isDisabled={!data || !boxDefinition?.boxUnit}
 					>
-						Use/Add
+						Edit
 					</Button>
 					<Button
 						colorScheme="red"
@@ -132,6 +142,36 @@ export const AlertCard = ({ alert }: AlertCardProps) => {
 					deleteAlert(alert._id)
 				}}
 			/>
+			<Modal isOpen={modifyModalIsOpen} onClose={modifyModalClose} size="full">
+				<ModalOverlay />
+				<ModalContent>
+					<ModalHeader>Update Alert {alert.name}</ModalHeader>
+					<ModalCloseButton />
+					<ModalBody paddingBottom="1em">
+						<AddAlertForm
+							submitAction={updates => {
+								modifyAlert({
+									...alert,
+									...updates,
+								})
+							}}
+							submitError={modifyError}
+							submitIsLoading={modifyLoading}
+							submitSuccess={modifySuccess}
+							reset={() => {}}
+							buttonLabel="Update Alert"
+							state={{
+								name: alert.name,
+								description: alert.description,
+								filters: { includeFilter: alert.materialFilter, excludeFilter: alert.excludeFilter },
+								threshold: alert.threshold,
+								recipients: users ?? [],
+							}}
+							closeButtonAction={modifyModalClose}
+						/>
+					</ModalBody>
+				</ModalContent>
+			</Modal>
 		</Card>
 	)
 }

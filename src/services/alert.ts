@@ -34,7 +34,7 @@ export const alertApi = createApi({
 			}),
 			invalidatesTags: [AllAlertsTag],
 		}),
-		modifyAlert: builder.mutation<void, Alert>({
+		modifyAlert: builder.mutation<void, Partial<Alert>>({
 			query: data => ({
 				url: '',
 				method: 'PUT',

@@ -4,6 +4,8 @@ import {
 	Button,
 	Card,
 	CardBody,
+	CardFooter,
+	Flex,
 	Modal,
 	ModalBody,
 	ModalContent,
@@ -35,12 +37,12 @@ interface AlertFormValues extends FormValues {
 	recipients: FormValue<User[]>
 }
 
-const initialState: AlertFormValues = {
-	name: { value: undefined, isValid: false },
-	description: { value: undefined, isValid: true },
-	filters: { value: undefined, isValid: false },
-	threshold: { value: undefined, isValid: false },
-	recipients: { value: undefined, isValid: false },
+interface AlertFormInitialState {
+	name?: string
+	description?: string
+	filters?: NotificationFilter
+	threshold?: number
+	recipients?: User[]
 }
 
 interface AddAlertFormProps {
@@ -49,7 +51,9 @@ interface AddAlertFormProps {
 	submitIsLoading: boolean
 	submitSuccess: boolean
 	reset: () => void
-	state?: AlertFormValues
+	state?: AlertFormInitialState
+	buttonLabel: string
+	closeButtonAction?: () => void
 }
 
 export const AddAlertForm = ({
@@ -59,36 +63,46 @@ export const AddAlertForm = ({
 	submitSuccess,
 	reset,
 	state,
+	buttonLabel,
+	closeButtonAction,
 }: AddAlertFormProps) => {
 	const [isFormReset, setIsFormReset] = useState<boolean>(false)
 	const { isOpen, onOpen, onClose } = useDisclosure()
-	const { formState, dispatchState, isInvalid } = useForm({ initialState: state ?? initialState })
+	const { formState, dispatchState, isInvalid } = useForm<AlertFormValues>({
+		initialState: {
+			name: { value: state?.name, isValid: !!state?.name },
+			description: { value: state?.description, isValid: true },
+			filters: { value: state?.filters, isValid: !!state?.filters },
+			threshold: { value: state?.threshold, isValid: true },
+			recipients: { value: state?.recipients, isValid: !!state?.recipients },
+		},
+	})
 
 	const nameControls = useFormControl<string>({
-		defaultValue: state?.name?.value ?? initialState?.name?.value,
+		defaultValue: state?.name,
 		validator: input => !!input && input.length <= 50,
 		valueConsumer: data => dispatchState('name', data),
 	})
 
 	const descriptionControls = useFormControl<string>({
-		defaultValue: state?.description?.value ?? initialState?.description?.value,
+		defaultValue: state?.description,
 		valueConsumer: data => dispatchState('description', data),
 	})
 
 	const thresholdControls = useFormControl<number>({
-		defaultValue: state?.threshold?.value ?? initialState?.threshold?.value ?? 0,
+		defaultValue: state?.threshold ?? 0,
 		validator: input => !!input && input > 0,
 		valueConsumer: data => dispatchState('threshold', data),
 	})
 
 	const recipientControls = useFormControl<User[]>({
-		defaultValue: state?.recipients?.value ?? initialState?.recipients?.value,
+		defaultValue: state?.recipients,
 		validator: input => !!input && input.length > 0,
 		valueConsumer: data => dispatchState('recipients', data),
 	})
 
 	const filterControls = useFormControl<NotificationFilter>({
-		defaultValue: state?.filters?.value ?? initialState?.filters?.value,
+		defaultValue: state?.filters,
 		validator: input => !!input,
 		valueConsumer: data => dispatchState('filters', data),
 	})
@@ -181,6 +195,10 @@ export const AddAlertForm = ({
 						controls={filterControls}
 						invalidLabel="You must specify at least one material."
 					/>
+				</VStack>
+			</CardBody>
+			<CardFooter>
+				<Flex width="full" justifyContent="space-between">
 					<Button
 						colorScheme="blue"
 						mr={3}
@@ -188,10 +206,15 @@ export const AddAlertForm = ({
 						isDisabled={isInvalid}
 						isLoading={submitIsLoading}
 					>
-						Create
+						{buttonLabel}
 					</Button>
-				</VStack>
-			</CardBody>
+					{!!closeButtonAction && (
+						<Button colorScheme="red" mr={3} onClick={closeButtonAction}>
+							Close
+						</Button>
+					)}
+				</Flex>
+			</CardFooter>
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent>

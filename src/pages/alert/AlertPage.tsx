@@ -19,6 +19,7 @@ export const AlertPage = () => {
 			submitIsLoading={isLoading}
 			submitSuccess={isSuccess}
 			reset={resetMutation}
+			buttonLabel="Create"
 		/>
 	)
 }

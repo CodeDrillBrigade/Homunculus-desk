@@ -23,4 +23,4 @@ export const generateSkeletons = ({ quantity, minWidth, height }: StackedSkeleto
 	))
 
 export const generateSkeletonAvatars = ({ quantity, size }: StackedSkeletonAvatarProps) =>
-	[...Array.from({ length: quantity }, (_, i) => i)].map(it => <SkeletonCircle size={size} mr="0.5em" />)
+	[...Array.from({ length: quantity }, (_, i) => i)].map(it => <SkeletonCircle key={it} size={size} mr="0.5em" />)

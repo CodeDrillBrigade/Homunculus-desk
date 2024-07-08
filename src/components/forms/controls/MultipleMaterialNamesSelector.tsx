@@ -39,6 +39,7 @@ interface MultipleMaterialNamesSelectorProps extends SpaceProps, LayoutProps {
 	placeholder: string
 	validator?: (input?: string[]) => boolean
 	valueConsumer?: (value: FormValue<string[]>) => void
+	defaultValue?: string[]
 	invalidLabel?: string
 	controls?: FormControls<string[]>
 }
@@ -56,6 +57,7 @@ export function MultipleMaterialNamesSelector({
 	placeholder,
 	validator,
 	valueConsumer,
+	defaultValue,
 	invalidLabel,
 	controls,
 	...style
@@ -63,7 +65,7 @@ export function MultipleMaterialNamesSelector({
 	const size = useBreakpointValue<{ names: number }>(namesForSize, {
 		fallback: 'md',
 	})
-	const { value, setValue } = useFormControl({ validator, valueConsumer })
+	const { value, setValue } = useFormControl({ validator, valueConsumer, defaultValue })
 	const innerValue = controls?.value ?? value
 	const innerSetValue = controls?.setValue ?? setValue
 	const [isTyping, setIsTyping] = useState(false)
