@@ -4,7 +4,7 @@ export type AlertTag = { type: typeof AlertTagType; id: string }
 export const AlertTagType = 'Alert'
 export const AllAlertsTag = { type: 'Alert' as const, id: 'All' }
 
-export const alertTagProvider: (materials: Alert[] | undefined) => AlertTag[] = alerts =>
+export const alertTagProvider: (alerts: Alert[] | undefined) => AlertTag[] = alerts =>
 	!!alerts
 		? [
 				...alerts.map(alert => {

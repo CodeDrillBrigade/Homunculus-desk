@@ -25,38 +25,42 @@ import { NotificationFilter } from '../../models/form/NotificationFilter'
 import { UsersSelector } from './controls/UsersSelector'
 import { useFormControl } from '../../hooks/form-control'
 import { ErrorAlert } from '../errors/ErrorAlert'
-import { Alert as AlertModel } from '../../models/Alert'
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query'
 import { SerializedError } from '@reduxjs/toolkit'
+import { ActivationMoment } from '../../models/embed/ActivationMoment'
+import { Report } from '../../models/Report'
+import { MultipleActivationMomentsSelector } from './controls/MultipleActivationMomentsSelector'
 
-interface AlertFormValues extends FormValues {
+interface ReportFormValues extends FormValues {
 	name: FormValue<string>
 	description: FormValue<string>
+	repeatAt: FormValue<ActivationMoment[]>
 	filters: FormValue<NotificationFilter>
 	threshold: FormValue<number>
 	recipients: FormValue<User[]>
 }
 
-interface AlertFormInitialState {
+interface ReportFormInitialState {
 	name?: string
 	description?: string
+	repeatAt?: ActivationMoment[]
 	filters?: NotificationFilter
 	threshold?: number
 	recipients?: User[]
 }
 
 interface AddAlertFormProps {
-	submitAction: (alert: Partial<AlertModel>) => void
+	submitAction: (report: Partial<Report>) => void
 	submitError: FetchBaseQueryError | SerializedError | undefined
 	submitIsLoading: boolean
 	submitSuccess: boolean
 	reset: () => void
-	state?: AlertFormInitialState
+	state?: ReportFormInitialState
 	buttonLabel: string
 	closeButtonAction?: () => void
 }
 
-export const AddAlertForm = ({
+export const AddReportForm = ({
 	submitAction,
 	submitError,
 	submitIsLoading,
@@ -68,10 +72,11 @@ export const AddAlertForm = ({
 }: AddAlertFormProps) => {
 	const [isFormReset, setIsFormReset] = useState<boolean>(false)
 	const { isOpen, onOpen, onClose } = useDisclosure()
-	const { formState, dispatchState, isInvalid } = useForm<AlertFormValues>({
+	const { formState, dispatchState, isInvalid } = useForm<ReportFormValues>({
 		initialState: {
 			name: { value: state?.name, isValid: !!state?.name },
 			description: { value: state?.description, isValid: true },
+			repeatAt: { value: state?.repeatAt, isValid: !!state?.repeatAt },
 			filters: { value: state?.filters, isValid: !!state?.filters },
 			threshold: { value: state?.threshold, isValid: true },
 			recipients: { value: state?.recipients, isValid: !!state?.recipients },
@@ -101,6 +106,12 @@ export const AddAlertForm = ({
 		valueConsumer: data => dispatchState('recipients', data),
 	})
 
+	const activationControls = useFormControl<ActivationMoment[]>({
+		defaultValue: state?.repeatAt,
+		validator: input => !!input && input.length > 0,
+		valueConsumer: data => dispatchState('repeatAt', data),
+	})
+
 	const filterControls = useFormControl<NotificationFilter>({
 		defaultValue: state?.filters,
 		validator: input => !!input,
@@ -111,6 +122,10 @@ export const AddAlertForm = ({
 		if (!isInvalid) {
 			if (!formState.name.isValid || !formState.name.value) {
 				console.error('Name is not valid!')
+				return
+			}
+			if (!formState.repeatAt.isValid || !formState.repeatAt.value) {
+				console.error('RepeatAt is not valid!')
 				return
 			}
 			if (!formState.threshold.isValid || !formState.threshold.value) {
@@ -129,10 +144,12 @@ export const AddAlertForm = ({
 			submitAction({
 				name: formState.name.value,
 				description: formState.description.value,
+				repeatAt: formState.repeatAt.value,
 				threshold: formState.threshold.value,
 				recipients: formState.recipients.value.map(it => it._id),
 				materialFilter: formState.filters.value.includeFilter,
 				excludeFilter: formState.filters.value.excludeFilter,
+				timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 			})
 		}
 	}
@@ -144,6 +161,7 @@ export const AddAlertForm = ({
 			descriptionControls.resetValue()
 			thresholdControls.resetValue()
 			recipientControls.resetValue()
+			activationControls.resetValue()
 			filterControls.resetValue()
 			dispatchState('reset')
 			reset()
@@ -160,6 +178,7 @@ export const AddAlertForm = ({
 		recipientControls,
 		reset,
 		thresholdControls,
+		activationControls,
 	])
 
 	return (
@@ -169,13 +188,13 @@ export const AddAlertForm = ({
 					{!!submitError && <ErrorAlert info={{ label: 'Something went wrong', reason: submitError }} />}
 					<TextInput
 						label="Name"
-						placeholder="Alert name"
+						placeholder="Report name"
 						controls={nameControls}
 						invalidLabel="Name cannot be empty or greater than 50 characters."
 					/>
 					<TextInput
 						label="Description"
-						placeholder="Alert description (optional)"
+						placeholder="Report description (optional)"
 						controls={descriptionControls}
 					/>
 					<NumberInput
@@ -185,9 +204,14 @@ export const AddAlertForm = ({
 					/>
 					<UsersSelector
 						label="Recipient users"
-						placeholder="Select the recipients for the alert"
+						placeholder="Select the recipients for the report"
 						controls={recipientControls}
 						invalidLabel="You must specify at least one recipient."
+					/>
+					<MultipleActivationMomentsSelector
+						label="Sent at"
+						controls={activationControls}
+						invalidLabel="You must specify at least one valid send date."
 					/>
 					<MaterialFilterInput
 						mt="2em"

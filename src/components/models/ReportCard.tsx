@@ -1,4 +1,5 @@
 import {
+	Box,
 	Button,
 	Card,
 	CardBody,
@@ -18,40 +19,41 @@ import {
 	Text,
 	useDisclosure,
 } from '@chakra-ui/react'
-import { Alert as AlertModel } from '../../models/Alert'
-import { AlertStatus } from '../../models/embed/AlertStatus'
 import React, { ChangeEvent, useCallback, useEffect } from 'react'
-import { useDeleteAlertMutation, useModifyAlertMutation, useSetAlertStatusMutation } from '../../services/alert'
 import { PencilSimple, Power, Trash } from '@phosphor-icons/react'
 import { useGetUsersByIdsQuery } from '../../services/user'
 import { ConfirmModal } from '../modals/ConfirmModal'
-import { AddAlertForm } from '../forms/AddAlertForm'
+import { Report } from '../../models/Report'
+import { useDeleteReportMutation, useModifyReportMutation, useSetReportStatusMutation } from '../../services/report'
+import { ReportStatus } from '../../models/embed/ReportStatus'
+import { AddReportForm } from '../forms/AddReportForm'
 import { RecipientsList } from './RecipientsList'
+import { capitalize } from '../../utils/string-utils'
 
-interface AlertCardProps {
-	alert: AlertModel
+interface ReportCardProps {
+	report: Report
 }
 
-export const AlertCard = ({ alert }: AlertCardProps) => {
+export const ReportCard = ({ report }: ReportCardProps) => {
 	const { onOpen: deleteModalOpen, onClose: deleteModalClose, isOpen: deleteModalIsOpen } = useDisclosure()
 	const { onOpen: modifyModalOpen, onClose: modifyModalClose, isOpen: modifyModalIsOpen } = useDisclosure()
 
-	const [setAlertStatus, { isLoading: changeStatusLoading }] = useSetAlertStatusMutation()
-	const { data: users } = useGetUsersByIdsQuery(alert.recipients)
-	const [deleteAlert, { error: deleteError, isLoading: deleteLoading, isSuccess: deleteSuccess }] =
-		useDeleteAlertMutation()
-	const [modifyAlert, { error: modifyError, isLoading: modifyLoading, isSuccess: modifySuccess, reset }] =
-		useModifyAlertMutation()
+	const [setReportStatus, { isLoading: changeStatusLoading }] = useSetReportStatusMutation()
+	const { data: users } = useGetUsersByIdsQuery(report.recipients)
+	const [deleteReport, { error: deleteError, isLoading: deleteLoading, isSuccess: deleteSuccess }] =
+		useDeleteReportMutation()
+	const [modifyReport, { error: modifyError, isLoading: modifyLoading, isSuccess: modifySuccess, reset }] =
+		useModifyReportMutation()
 
 	const onToggleStatus = useCallback(
 		(event: ChangeEvent<HTMLInputElement>) => {
 			if (event.target.checked) {
-				setAlertStatus({ alertId: alert._id, status: AlertStatus.ACTIVE })
+				setReportStatus({ reportId: report._id, status: ReportStatus.ACTIVE })
 			} else {
-				setAlertStatus({ alertId: alert._id, status: AlertStatus.INACTIVE })
+				setReportStatus({ reportId: report._id, status: ReportStatus.INACTIVE })
 			}
 		},
-		[alert._id, setAlertStatus]
+		[report._id, setReportStatus]
 	)
 
 	useEffect(() => {
@@ -68,20 +70,26 @@ export const AlertCard = ({ alert }: AlertCardProps) => {
 						as={Power}
 						boxSize={5}
 						weight="bold"
-						color={alert.status === AlertStatus.INACTIVE ? 'gray' : 'white'}
+						color={report.status === ReportStatus.INACTIVE ? 'gray' : 'white'}
 					/>
 					<Switch
-						isChecked={alert.status !== AlertStatus.INACTIVE}
+						isChecked={report.status !== ReportStatus.INACTIVE}
 						isDisabled={changeStatusLoading}
 						onChange={onToggleStatus}
 						ml="0.5em"
 					/>
 				</Flex>
-				<Heading size="md">{alert.name}</Heading>
+				<Heading size="md">{report.name}</Heading>
 			</CardHeader>
 			<CardBody pt="0px">
-				{!!alert.description && <Text fontSize="lg">{alert.description}</Text>}
-				<RecipientsList recipients={alert.recipients} />
+				{!!report.description && <Text fontSize="lg">{report.description}</Text>}
+				<RecipientsList recipients={report.recipients} />
+				<Box mt="0.5em">
+					<Text fontSize="lg" as="b">
+						Sent at
+					</Text>
+					<Text>{report.repeatAt.map(it => `${capitalize(it.day)} ${it.hour}:00`).join(', ')}</Text>
+				</Box>
 			</CardBody>
 			<CardFooter>
 				<Flex width="full" justifyContent="space-between">
@@ -108,7 +116,7 @@ export const AlertCard = ({ alert }: AlertCardProps) => {
 				flavour="delete"
 				error={deleteError}
 				onConfirm={() => {
-					deleteAlert(alert._id)
+					deleteReport(report._id)
 				}}
 			/>
 			<Modal isOpen={modifyModalIsOpen} onClose={modifyModalClose} size="full">
@@ -116,15 +124,15 @@ export const AlertCard = ({ alert }: AlertCardProps) => {
 				<ModalContent>
 					<ModalHeader pb="0px">
 						<Center>
-							<Heading size={'lg'}>Update Alert: {alert.name}</Heading>
+							<Heading size={'lg'}>Update Report: {report.name}</Heading>
 						</Center>
 					</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody paddingBottom="1em">
-						<AddAlertForm
+						<AddReportForm
 							submitAction={updates => {
-								modifyAlert({
-									...alert,
+								modifyReport({
+									...report,
 									...updates,
 								})
 							}}
@@ -132,12 +140,13 @@ export const AlertCard = ({ alert }: AlertCardProps) => {
 							submitIsLoading={modifyLoading}
 							submitSuccess={modifySuccess}
 							reset={reset}
-							buttonLabel="Update Alert"
+							buttonLabel="Update Report"
 							state={{
-								name: alert.name,
-								description: alert.description,
-								filters: { includeFilter: alert.materialFilter, excludeFilter: alert.excludeFilter },
-								threshold: alert.threshold,
+								name: report.name,
+								description: report.description,
+								filters: { includeFilter: report.materialFilter, excludeFilter: report.excludeFilter },
+								threshold: report.threshold,
+								repeatAt: report.repeatAt,
 								recipients: users ?? [],
 							}}
 							closeButtonAction={modifyModalClose}

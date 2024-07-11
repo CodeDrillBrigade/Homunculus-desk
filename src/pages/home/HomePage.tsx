@@ -79,6 +79,19 @@ export const HomePage = () => {
 							showLastDivider={false}
 						/>
 					)}
+				{!!permissions &&
+					(permissions.includes(PERMISSIONS.ADMIN) ||
+						permissions.includes(PERMISSIONS.MANAGE_NOTIFICATIONS)) && (
+						<MainMenuItem
+							title="Reports"
+							elements={{
+								'Add a new Report': '/report',
+								'Search reports': '/report/search',
+							}}
+							width={menuItemWidth}
+							showLastDivider={false}
+						/>
+					)}
 			</Flex>
 		</Flex>
 	)

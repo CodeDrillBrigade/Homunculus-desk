@@ -11,6 +11,7 @@ import { userApi } from '../services/user'
 import { processApi } from '../services/process'
 import { UIReducer } from './ui/ui-slice'
 import { alertApi } from '../services/alert'
+import { reportApi } from '../services/report'
 
 export const store = configureStore({
 	reducer: {
@@ -23,6 +24,7 @@ export const store = configureStore({
 		[materialApi.reducerPath]: materialApi.reducer,
 		[metaTagApi.reducerPath]: metaTagApi.reducer,
 		[processApi.reducerPath]: processApi.reducer,
+		[reportApi.reducerPath]: reportApi.reducer,
 		[storageRoomApi.reducerPath]: storageRoomApi.reducer,
 		[userApi.reducerPath]: userApi.reducer,
 	},
@@ -36,6 +38,7 @@ export const store = configureStore({
 			.prepend(metaTagApi.middleware)
 			.prepend(materialApi.middleware)
 			.prepend(processApi.middleware)
+			.prepend(reportApi.middleware)
 			.prepend(storageRoomApi.middleware)
 			.prepend(userApi.middleware),
 })

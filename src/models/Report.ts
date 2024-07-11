@@ -1,14 +1,13 @@
 import { ReportStatus } from './embed/ReportStatus'
-import { WeekDay } from './embed/WeekDay'
 import { Filter } from './filter/Filter'
+import { ActivationMoment } from './embed/ActivationMoment'
 
 export interface Report {
 	_id: string
 	name: string
 	description?: string
 	status: ReportStatus
-	repeatOnDays: WeekDay[]
-	repeatAtTime: number
+	repeatAt: ActivationMoment[]
 	timezone: string
 	materialFilter: Filter
 	excludeFilter?: Filter

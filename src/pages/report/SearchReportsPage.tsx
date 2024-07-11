@@ -16,43 +16,43 @@ import {
 import { ErrorAlert } from '../../components/errors/ErrorAlert'
 import { StackedSkeleton } from '../../components/ui/StackedSkeleton'
 import { SearchIcon } from '@chakra-ui/icons'
-import { useAlertPrefetch, useGetAlertsByIdsQuery, useSearchIdsByNameQuery } from '../../services/alert'
 import { getIdsInPage } from '../../utils/array-utils'
 import { PageControls } from '../../components/ui/PageControls'
-import { AlertCard } from '../../components/models/AlertCard'
+import { useGetReportsByIdsQuery, useReportPrefetch, useSearchReportIdsByNameQuery } from '../../services/report'
+import { ReportCard } from '../../components/models/ReportCard'
 
-export const SearchAlertsPage = () => {
+export const SearchReportsPage = () => {
 	const isMobile = useIsMobileLayout()
 	const dispatch = useAppDispatch()
 	useEffect(() => {
-		dispatch(setPageTitle('Search Alerts'))
+		dispatch(setPageTitle('Search Reports'))
 	}, [dispatch])
 
 	const pageSize = 10
 	const sideMargin = isMobile ? '0.5em' : '2em'
 
-	const prefetchAlertsByIds = useAlertPrefetch('getAlertsByIds')
+	const prefetchReportsByIds = useReportPrefetch('getReportsByIds')
 	const [currentPage, setCurrentPage] = useState<number>(0)
 	const [isTyping, setIsTyping] = useState<boolean>(false)
 	const [rawQuery, setRawQuery] = useState<string>('')
 	const [query, setQuery] = useState<string>('')
 
-	const { data: alertIds, error: idsError, isLoading: idsLoading } = useSearchIdsByNameQuery(query)
+	const { data: reportIds, error: idsError, isLoading: idsLoading } = useSearchReportIdsByNameQuery(query)
 
 	const {
-		data: alerts,
-		error: alertsError,
-		isLoading: alertsLoading,
-	} = useGetAlertsByIdsQuery(getIdsInPage(alertIds, currentPage, pageSize), {
-		skip: !alertIds || getIdsInPage(alertIds, currentPage, pageSize).length === 0,
+		data: reports,
+		error: reportsError,
+		isLoading: reportsLoading,
+	} = useGetReportsByIdsQuery(getIdsInPage(reportIds, currentPage, pageSize), {
+		skip: !reportIds || getIdsInPage(reportIds, currentPage, pageSize).length === 0,
 	})
 
 	const prefetchNextPage = useCallback(() => {
-		const nextIds = getIdsInPage(alertIds, currentPage + 1, pageSize)
+		const nextIds = getIdsInPage(reportIds, currentPage + 1, pageSize)
 		if (nextIds.length > 0) {
-			prefetchAlertsByIds(nextIds)
+			prefetchReportsByIds(nextIds)
 		}
-	}, [alertIds, currentPage, prefetchAlertsByIds])
+	}, [reportIds, currentPage, prefetchReportsByIds])
 
 	const onSearchBarChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.value.trim().length > 0) {
@@ -80,8 +80,8 @@ export const SearchAlertsPage = () => {
 					<SearchIcon />
 				</InputLeftAddon>
 				<Input
-					id="material-search-bar"
-					placeholder="Search alerts by name"
+					id="report-search-bar"
+					placeholder="Search reports by name"
 					minWidth="75vw"
 					onChange={onSearchBarChange}
 				/>
@@ -93,33 +93,33 @@ export const SearchAlertsPage = () => {
 			</InputGroup>
 			{!!idsError && (
 				<ErrorAlert
-					info={{ label: 'An error occurred while retrieving the alerts', reason: idsError }}
+					info={{ label: 'An error occurred while retrieving the reports', reason: idsError }}
 					w="50%"
 				/>
 			)}
-			{!idsError && !!alertIds && alertIds.length === 0 && (
+			{!idsError && !!reportIds && reportIds.length === 0 && (
 				<Center>
 					<Alert status="warning" w="50%">
 						<AlertIcon />
-						There are no alerts matching your search
+						There are no reports matching your search
 					</Alert>
 				</Center>
 			)}
-			{!!alertsError && (
+			{!!reportsError && (
 				<ErrorAlert
-					info={{ label: 'An error occurred while retrieving the alerts', reason: alertsError }}
+					info={{ label: 'An error occurred while retrieving the reports', reason: reportsError }}
 					w="50%"
 				/>
 			)}
-			{(idsLoading || alertsLoading) && <StackedSkeleton quantity={5} height="3em" />}
-			{!!alerts &&
-				alerts.length > 0 &&
-				!!alertIds &&
-				alertIds.length > 0 &&
-				alerts.map(it => <AlertCard key={it._id} alert={it} />)}
+			{(idsLoading || reportsLoading) && <StackedSkeleton quantity={5} height="3em" />}
+			{!!reports &&
+				reports.length > 0 &&
+				!!reportIds &&
+				reportIds.length > 0 &&
+				reports.map(it => <ReportCard key={it._id} report={it} />)}
 			<Center>
 				<PageControls
-					hasNext={getIdsInPage(alertIds, currentPage, pageSize).length >= pageSize}
+					hasNext={getIdsInPage(reportIds, currentPage, pageSize).length >= pageSize}
 					currentPage={currentPage + 1}
 					increasePage={() => setCurrentPage(currentPage + 1)}
 					decreasePage={() => setCurrentPage(currentPage - 1)}
