@@ -67,13 +67,13 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 						)}
 					</Flex>
 				</CardHeader>
-				{!!material.description && (
+				{(!!material.description || !!material.tags) && (
 					<CardBody
 						paddingTop="0px"
 						_hover={{ cursor: !isMobile ? 'pointer' : 'default' }}
 						onClick={!isMobile ? openDetails : undefined}
 					>
-						<Text>{material.description}</Text>
+						{!!material.description && <Text>{material.description}</Text>}
 						{!!material.tags && material.tags.length > 0 && (
 							<Flex align="center" justify="start" mt="1em">
 								{material.tags.map(id => (

@@ -3,6 +3,7 @@ import { AuthState } from '../store/auth/auth-slice'
 import { AllReportsTag, reportTagProvider, ReportTagType } from './tags/report'
 import { Report } from '../models/Report'
 import { ReportStatus } from '../models/embed/ReportStatus'
+import { NotificationStub } from '../models/dto/NotificationStub'
 
 export const reportApi = createApi({
 	reducerPath: 'report',
@@ -78,15 +79,40 @@ export const reportApi = createApi({
 			}),
 			invalidatesTags: (_, __, reportId) => [{ type: ReportTagType, id: reportId }],
 		}),
+		getReportsByActivationMaterial: builder.query<NotificationStub[], string>({
+			query: materialId => `/byActivationMaterial?materialId=${materialId}`,
+			providesTags: stubs =>
+				!!stubs
+					? [
+							...stubs.map(
+								it => ({ type: ReportTagType, id: it.id } as { type: typeof ReportTagType; id: string })
+							),
+							AllReportsTag,
+					  ]
+					: [],
+		}),
+		addMaterialToReportsExclusions: builder.mutation<Report[], { materialId: string; reportIds: string[] }>({
+			query: ({ materialId, reportIds }) => ({
+				url: `/addToExclusions?materialId=${materialId}`,
+				method: 'POST',
+				body: JSON.stringify(reportIds),
+			}),
+			invalidatesTags: (_, __, { reportIds }) =>
+				!!reportIds
+					? reportIds.map(
+							it => ({ type: ReportTagType, id: it } as { type: typeof ReportTagType; id: string })
+					  )
+					: [],
+		}),
 	}),
 })
 
 export const {
+	useAddMaterialToReportsExclusionsMutation,
 	useCreateReportMutation,
 	useDeleteReportMutation,
+	useLazyGetReportsByActivationMaterialQuery,
 	useGetReportsByIdsQuery,
-	useGetReportQuery,
-	useGetReportsQuery,
 	useModifyReportMutation,
 	useSearchReportIdsByNameQuery,
 	useSetReportStatusMutation,

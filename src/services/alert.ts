@@ -3,6 +3,7 @@ import { AuthState } from '../store/auth/auth-slice'
 import { alertTagProvider, AlertTagType, AllAlertsTag } from './tags/alert'
 import { Alert } from '../models/Alert'
 import { AlertStatus } from '../models/embed/AlertStatus'
+import { NotificationStub } from '../models/dto/NotificationStub'
 
 export const alertApi = createApi({
 	reducerPath: 'alert',
@@ -78,15 +79,38 @@ export const alertApi = createApi({
 			}),
 			invalidatesTags: (_, __, alertId) => [{ type: AlertTagType, id: alertId }],
 		}),
+		getAlertsByActivationMaterial: builder.query<NotificationStub[], string>({
+			query: materialId => `/byActivationMaterial?materialId=${materialId}`,
+			providesTags: stubs =>
+				!!stubs
+					? [
+							...stubs.map(
+								it => ({ type: AlertTagType, id: it.id } as { type: typeof AlertTagType; id: string })
+							),
+							AllAlertsTag,
+					  ]
+					: [],
+		}),
+		addMaterialToAlertsExclusions: builder.mutation<Alert[], { materialId: string; alertIds: string[] }>({
+			query: ({ materialId, alertIds }) => ({
+				url: `/addToExclusions?materialId=${materialId}`,
+				method: 'POST',
+				body: JSON.stringify(alertIds),
+			}),
+			invalidatesTags: (_, __, { alertIds }) =>
+				!!alertIds
+					? alertIds.map(it => ({ type: AlertTagType, id: it } as { type: typeof AlertTagType; id: string }))
+					: [],
+		}),
 	}),
 })
 
 export const {
+	useAddMaterialToAlertsExclusionsMutation,
 	useCreateAlertMutation,
 	useDeleteAlertMutation,
+	useLazyGetAlertsByActivationMaterialQuery,
 	useGetAlertsByIdsQuery,
-	useGetAlertQuery,
-	useGetAlertsQuery,
 	useModifyAlertMutation,
 	useSearchIdsByNameQuery,
 	useSetAlertStatusMutation,
