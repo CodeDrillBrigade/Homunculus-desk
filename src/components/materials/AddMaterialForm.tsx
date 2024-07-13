@@ -8,10 +8,8 @@ import {
 	Heading,
 	Modal,
 	ModalBody,
-	ModalCloseButton,
 	ModalContent,
 	ModalFooter,
-	ModalHeader,
 	ModalOverlay,
 	useDisclosure,
 	VStack,
@@ -29,6 +27,10 @@ import { ErrorAlert } from '../errors/ErrorAlert'
 import { useFormControl } from '../../hooks/form-control'
 import { FormValues, useForm } from '../../hooks/form'
 import { MaterialNameSelector } from '../forms/controls/MaterialNameSelector'
+import { useLazyGetAlertsByActivationMaterialQuery } from '../../services/alert'
+import { NotificationStub } from '../../models/dto/NotificationStub'
+import { useLazyGetReportsByActivationMaterialQuery } from '../../services/report'
+import { UpdateNotificationsModal } from '../modals/UpdateNotificationsModal'
 
 interface AddMaterialFormData extends FormValues {
 	name: FormValue<string>
@@ -49,14 +51,21 @@ const initialState: AddMaterialFormData = {
 }
 
 export const AddMaterialForm = () => {
-	const [isFormReset, setIsFormReset] = useState(false)
+	const [isFormReset, setIsFormReset] = useState(true)
+	const [lastMaterialCreated, setLastMaterialCreated] = useState<string | null>(null)
 	const { isOpen, onOpen, onClose } = useDisclosure()
+	const {
+		isOpen: isUpdateNotificationsOpen,
+		onOpen: openUpdateNotifications,
+		onClose: closeUpdateNotifications,
+	} = useDisclosure()
 	const [
 		createBoxDefinition,
 		{ data: createdBoxId, error: boxError, isSuccess: boxSuccess, isLoading: boxLoading, reset: resetBoxMutation },
 	] = useCreateBoxDefinitionMutation()
-	const [createMaterial, { error: materialError, isLoading: materialLoading, isSuccess: materialSuccess }] =
-		useCreateMaterialMutation()
+	const [createMaterial, { error: materialError, isLoading: materialLoading }] = useCreateMaterialMutation()
+	const [getAlertsToUpdate, { data: alertsToUpdate }] = useLazyGetAlertsByActivationMaterialQuery()
+	const [getReportsToUpdate, { data: reportsToUpdate }] = useLazyGetReportsByActivationMaterialQuery()
 	const { formState, dispatchState, isInvalid: isFormInvalid } = useForm({ initialState })
 	const nameControls = useFormControl<string>({
 		validator: (value: string | undefined) => !!value && value.trim().length <= 50,
@@ -88,6 +97,13 @@ export const AddMaterialForm = () => {
 		},
 	})
 
+	const consumeBoxDefinition = useCallback(
+		(payload: FormValue<BoxDefinition>) => {
+			dispatchState('boxDefinition', payload)
+		},
+		[dispatchState]
+	)
+
 	useEffect(() => {
 		if (!!createdBoxId && boxSuccess && !isFormInvalid) {
 			if (!formState.name.isValid || !formState.name.value) {
@@ -102,49 +118,75 @@ export const AddMaterialForm = () => {
 				console.error('Box is not valid!')
 				return
 			}
-			setIsFormReset(false)
-			createMaterial({
-				name: formState.name.value,
-				brand: formState.brand.value,
-				description: formState.description.value,
-				referenceCode: formState.referenceCode.value,
-				tags: formState.tags?.value?.map(it => it._id!) ?? [],
-				boxDefinition: createdBoxId,
-			})
-		}
-	}, [boxSuccess, createMaterial, createdBoxId, formState, isFormInvalid])
+			if (isFormReset) {
+				setIsFormReset(false)
+				const createMaterialAndVerifyFilters = async () => {
+					const createdId = await createMaterial({
+						name: formState.name.value,
+						brand: formState.brand.value,
+						description: formState.description.value,
+						referenceCode: formState.referenceCode.value,
+						tags: formState.tags?.value?.map(it => it._id!) ?? [],
+						boxDefinition: createdBoxId,
+					}).unwrap()
+					resetBoxMutation()
+					nameControls.resetValue()
+					brandControls.resetValue()
+					descriptionControls.resetValue()
+					referenceCodeControls.resetValue()
+					tagControls.resetValue()
+					dispatchState('reset', undefined)
+					consumeBoxDefinition(formState.boxDefinition)
+					setIsFormReset(true)
+					setLastMaterialCreated(createdId)
 
-	useEffect(() => {
-		if (materialSuccess && !isFormReset) {
-			setIsFormReset(true)
-			onOpen()
-			resetBoxMutation()
-			nameControls.resetValue()
-			brandControls.resetValue()
-			descriptionControls.resetValue()
-			referenceCodeControls.resetValue()
-			tagControls.resetValue()
-			dispatchState('reset', undefined)
+					const alertsToUpdate = await getAlertsToUpdate(createdId)
+						.unwrap()
+						.then(
+							ids => ids,
+							e => {
+								console.error(e)
+								return [] as NotificationStub[]
+							}
+						)
+					const reportsToUpdate = await getReportsToUpdate(createdId)
+						.unwrap()
+						.then(
+							ids => ids,
+							e => {
+								console.error(e)
+								return [] as NotificationStub[]
+							}
+						)
+					if (alertsToUpdate.length > 0 || reportsToUpdate.length > 0) {
+						openUpdateNotifications()
+					} else {
+						onOpen()
+					}
+				}
+				createMaterialAndVerifyFilters()
+			}
 		}
 	}, [
+		boxSuccess,
 		brandControls,
+		consumeBoxDefinition,
+		createMaterial,
+		createdBoxId,
 		descriptionControls,
 		dispatchState,
+		formState,
+		getAlertsToUpdate,
+		getReportsToUpdate,
+		isFormInvalid,
 		isFormReset,
-		materialSuccess,
 		nameControls,
 		onOpen,
+		openUpdateNotifications,
 		referenceCodeControls,
 		resetBoxMutation,
 		tagControls,
 	])
-
-	const consumeBoxDefinition = useCallback(
-		(payload: FormValue<BoxDefinition>) => {
-			dispatchState('boxDefinition', payload)
-		},
-		[dispatchState]
-	)
 
 	return (
 		<>
@@ -216,6 +258,15 @@ export const AddMaterialForm = () => {
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
+			{!!lastMaterialCreated && (
+				<UpdateNotificationsModal
+					materialId={lastMaterialCreated}
+					isOpen={isUpdateNotificationsOpen}
+					onClose={closeUpdateNotifications}
+					alerts={alertsToUpdate}
+					reports={reportsToUpdate}
+				/>
+			)}
 		</>
 	)
 }

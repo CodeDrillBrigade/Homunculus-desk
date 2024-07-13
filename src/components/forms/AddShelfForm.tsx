@@ -1,11 +1,11 @@
 import { useAddShelfMutation } from '../../services/storageRoom'
 import { useState } from 'react'
 import { FormValue } from '../../models/form/FormValue'
-import { Button, Card, CardBody, CardHeader, Center, Grid, GridItem, Heading, Tooltip } from '@chakra-ui/react'
+import { Button, Card, CardBody, CardHeader, Center, Grid, GridItem, Heading, Icon, Tooltip } from '@chakra-ui/react'
 import { TextInput } from './controls/TextInput'
 import { QueryStatus } from '@reduxjs/toolkit/query'
-import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { extractErrorMessage } from '../../utils/error-utils'
+import { CheckCircle, Warning } from '@phosphor-icons/react'
 
 export const AddShelfForm = ({ cabinetId, storageRoomId }: { cabinetId: string; storageRoomId: string }) => {
 	const [addShelf, { status, error }] = useAddShelfMutation()
@@ -29,13 +29,13 @@ export const AddShelfForm = ({ cabinetId, storageRoomId }: { cabinetId: string; 
 						/>
 					</GridItem>
 					<GridItem colSpan={1}>
-						<Center paddingTop="0.5em">
+						<Center paddingTop="0.3em">
 							{status === QueryStatus.fulfilled && !error && (
-								<CheckCircleIcon boxSize={6} color="green.400" />
+								<Icon as={CheckCircle} weight="fill" boxSize={8} color="green.400" />
 							)}
 							{!!error && (
 								<Tooltip label={extractErrorMessage(error)} fontSize="md">
-									<WarningIcon boxSize={6} color="red.400" />
+									<Icon as={Warning} weight="fill" boxSize={8} color="red.400" />
 								</Tooltip>
 							)}
 						</Center>

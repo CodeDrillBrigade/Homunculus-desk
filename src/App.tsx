@@ -11,6 +11,10 @@ import { PasswordResetPage } from './pages/PasswordResetPage'
 import { RegisterUserPage } from './pages/RegisterUserPage'
 import { SearchMaterialsPage } from './pages/material/SearchMaterialsPage'
 import { SearchBoxPage } from './pages/box/SearchBoxPage'
+import { AlertPage } from './pages/alert/AlertPage'
+import { SearchAlertsPage } from './pages/alert/SearchAlertsPage'
+import { AddReportPage } from './pages/report/AddReportPage'
+import { SearchReportsPage } from './pages/report/SearchReportsPage'
 
 const router = createBrowserRouter([
 	{
@@ -37,6 +41,20 @@ const router = createBrowserRouter([
 				children: [
 					{ index: true, element: <ManageStoragePage /> },
 					{ path: ':roomId/:cabinetId', element: <CabinetPage /> },
+				],
+			},
+			{
+				path: 'alert',
+				children: [
+					{ index: true, element: <AlertPage /> },
+					{ path: 'search', element: <SearchAlertsPage /> },
+				],
+			},
+			{
+				path: 'report',
+				children: [
+					{ index: true, element: <AddReportPage /> },
+					{ path: 'search', element: <SearchReportsPage /> },
 				],
 			},
 		],

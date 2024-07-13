@@ -29,7 +29,7 @@ import {
 import { FormValue } from '../../../models/form/FormValue'
 import { Tag } from '../../../models/embed/Tag'
 import { generateSkeletons } from '../../ui/StackedSkeleton'
-import { useCreateTagMutation, useGetTagsQuery } from '../../../services/tag'
+import { useCreateTagMutation, useGetTagsByIdsQuery, useGetTagsQuery } from '../../../services/tag'
 import React, { useEffect, useReducer, useState } from 'react'
 import { ErrorAlert } from '../../errors/ErrorAlert'
 import { TextInput } from './TextInput'
@@ -38,8 +38,8 @@ import { ColorPicker } from './ColorPicker'
 import { tagColors } from '../../../styles/colors'
 import { getRandomDarkHexColor, makeDarker } from '../../../utils/style-utils'
 import { chunkArray } from '../../../utils/array-utils'
-import { FaPlus } from 'react-icons/fa6'
 import { FormControls, useFormControl } from '../../../hooks/form-control'
+import { Plus } from '@phosphor-icons/react'
 
 export type Size = 'sm' | 'md' | 'lg' | 'xl' | 'base'
 
@@ -54,21 +54,25 @@ const tagsForSize: Record<Size, { tags: number }> = {
 interface LabelInputProps extends SpaceProps {
 	label: string
 	defaultValue?: Tag[]
+	defaultIds?: string[]
 	forcedSize?: number
 	validator?: (input?: Tag[]) => boolean
 	valueConsumer?: (value: FormValue<Tag[]>) => void
 	invalidLabel?: string
 	controls?: FormControls<Tag[]>
+	allowCreation?: boolean
 }
 
 export const TagInput = ({
 	label,
 	defaultValue,
+	defaultIds,
 	validator,
 	valueConsumer,
 	invalidLabel,
 	controls,
 	forcedSize,
+	allowCreation,
 	...style
 }: LabelInputProps) => {
 	const { value, setValue } = useFormControl<Tag[]>({ validator, valueConsumer, defaultValue })
@@ -78,6 +82,7 @@ export const TagInput = ({
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
 	const { isOpen: modalIsOpen, onOpen: modalOpen, onClose: modalClose } = useDisclosure()
 	const { data: tags, error, isFetching } = useGetTagsQuery()
+	const { data: tagsByIds } = useGetTagsByIdsQuery(defaultIds ?? [], { skip: !defaultIds || defaultIds.length === 0 })
 	const [filteredTags, setFilteredTags] = useState<Tag[]>([])
 	const [inputValue, setInputValue] = useState<string>('')
 	const [darkColors, setDarkColors] = useState<{ [key: string]: string }>({})
@@ -91,6 +96,12 @@ export const TagInput = ({
 			setDarkColors(Object.fromEntries(tags.map(it => [it.color, makeDarker(it.color)])))
 		}
 	}, [tags])
+
+	useEffect(() => {
+		if (!!tagsByIds) {
+			setSelectedTags(tagsByIds)
+		}
+	}, [setSelectedTags, tagsByIds])
 
 	const filterEntities = (value: string) => {
 		const query = value.toLowerCase().trim()
@@ -131,7 +142,7 @@ export const TagInput = ({
 	return (
 		<FormControl {...style}>
 			<AddTagModal isOpen={modalIsOpen} onClose={modalClose} />
-			<FormLabel color={selectedTags.isValid ? '' : 'crimson'}>{label}</FormLabel>
+			<FormLabel color={selectedTags.isValid ? '' : 'red'}>{label}</FormLabel>
 			<Popover
 				closeOnBlur={false}
 				closeOnEsc={true}
@@ -146,12 +157,12 @@ export const TagInput = ({
 						value={inputValue}
 						onChange={handleChange}
 						onBlur={popoverClose}
-						borderColor={selectedTags.isValid ? '' : 'crimson'}
+						borderColor={selectedTags.isValid ? '' : 'red'}
 						borderWidth={selectedTags.isValid ? '' : '2px'}
 					/>
 				</PopoverTrigger>
 				{!selectedTags.isValid && !!invalidLabel && (
-					<Text fontSize="sm" color="crimson">
+					<Text fontSize="sm" color="red">
 						{invalidLabel}
 					</Text>
 				)}
@@ -179,13 +190,19 @@ export const TagInput = ({
 						{isFetching && generateSkeletons({ quantity: 5, height: '1.5ex' })}
 						{!!error && <ErrorAlert info={{ label: 'Cannot load labels', reason: error }} />}
 					</PopoverBody>
-					<PopoverFooter>
-						{!!tags && (
-							<Button colorScheme="blue" leftIcon={<Icon as={FaPlus} />} onClick={modalOpen}>
-								Add Tag
-							</Button>
-						)}
-					</PopoverFooter>
+					{(allowCreation === undefined || allowCreation) && (
+						<PopoverFooter>
+							{!!tags && (
+								<Button
+									colorScheme="blue"
+									leftIcon={<Icon as={Plus} weight="bold" boxSize={6} />}
+									onClick={modalOpen}
+								>
+									Add Tag
+								</Button>
+							)}
+						</PopoverFooter>
+					)}
 				</PopoverContent>
 				<Flex padding="0.6em" margin="0px">
 					<VStack align="stretch">

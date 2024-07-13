@@ -22,8 +22,6 @@ import { DarkMode } from './DarkMode'
 import { resetToken } from '../../store/auth/auth-thunk'
 import { useAppDispatch, useAppSelector } from '../../hooks/redux'
 import { useGetCurrentUserQuery, useGetPermissionsQuery } from '../../services/user'
-import { BsExclamationLg } from 'react-icons/bs'
-import { TbLogout, TbHome } from 'react-icons/tb'
 import { PERMISSIONS } from '../../models/security/Permissions'
 import { ChangePasswordModal } from '../modals/ChangePasswordModal'
 import React, { useEffect } from 'react'
@@ -34,7 +32,7 @@ import { UserStatus } from '../../models/embed/UserStatus'
 import { pageTitleSelector } from '../../store/ui/ui-slice'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { IoArrowBack } from 'react-icons/io5'
+import { ArrowLeft, ExclamationMark, House, SignOut } from '@phosphor-icons/react'
 
 export const TopMenu = () => {
 	const isMobile = useIsMobileLayout()
@@ -86,7 +84,7 @@ export const TopMenu = () => {
 									variant="clear"
 									aria-label="Go back"
 									fontSize="25px"
-									icon={<Icon as={IoArrowBack} />}
+									icon={<Icon as={ArrowLeft} weight="bold" />}
 									onClick={() => navigate(-1)}
 								/>
 							)}
@@ -95,7 +93,7 @@ export const TopMenu = () => {
 									<Avatar name={user.name ?? user.username}>
 										{(!user.passwordHash || user.status === UserStatus.REGISTERING) && (
 											<AvatarBadge boxSize="1.25em" bg="red.400">
-												<Icon as={BsExclamationLg} boxSize="0.6em" />
+												<Icon as={ExclamationMark} weight="bold" boxSize="0.6em" />
 											</AvatarBadge>
 										)}
 									</Avatar>
@@ -109,7 +107,10 @@ export const TopMenu = () => {
 											<MenuDivider />
 										</>
 									)}
-									<MenuItem onClick={() => navigate('/')} icon={<Icon as={TbHome} boxSize={5} />}>
+									<MenuItem
+										onClick={() => navigate('/')}
+										icon={<Icon as={House} weight="bold" boxSize={5} />}
+									>
 										Home
 									</MenuItem>
 									<MenuDivider />
@@ -118,7 +119,7 @@ export const TopMenu = () => {
 											icon={
 												!user.passwordHash ? (
 													<Icon
-														as={BsExclamationLg}
+														as={ExclamationMark}
 														boxSize={5}
 														borderRadius="full"
 														backgroundColor="red.400"
@@ -135,7 +136,8 @@ export const TopMenu = () => {
 											onClick={openCompleteRegistration}
 											icon={
 												<Icon
-													as={BsExclamationLg}
+													as={ExclamationMark}
+													weight="bold"
 													boxSize={5}
 													borderRadius="full"
 													backgroundColor="red.400"
@@ -153,7 +155,7 @@ export const TopMenu = () => {
 											onClick={() => {
 												dispatch(resetToken())
 											}}
-											icon={<Icon as={TbLogout} boxSize={5} />}
+											icon={<Icon as={SignOut} weight="bold" boxSize={5} />}
 										>
 											Logout
 										</MenuItem>
@@ -172,7 +174,7 @@ export const TopMenu = () => {
 							label={`Cannot load the user: ${JSON.stringify(error ?? permissionsError)}`}
 							aria-label="Error tooltip"
 						>
-							<Avatar bg="red.400" icon={<Icon as={BsExclamationLg} boxSize={9} />} />
+							<Avatar bg="red.400" icon={<Icon as={ExclamationMark} weight="bold" boxSize={9} />} />
 						</Tooltip>
 					)}
 				</HStack>
@@ -185,7 +187,7 @@ export const TopMenu = () => {
 						onClick={() => {
 							dispatch(resetToken())
 						}}
-						rightIcon={<Icon as={TbLogout} boxSize={7} />}
+						rightIcon={<Icon as={SignOut} weight="bold" boxSize={7} />}
 					>
 						Logout
 					</Button>

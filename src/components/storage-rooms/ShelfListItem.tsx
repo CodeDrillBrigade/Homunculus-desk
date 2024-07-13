@@ -10,14 +10,13 @@ import {
 	StyleProps,
 	useDisclosure,
 } from '@chakra-ui/react'
-import { BsInboxes } from 'react-icons/bs'
-import { DeleteIcon, EditIcon } from '@chakra-ui/icons'
 import React, { useCallback } from 'react'
 import { StorageRoom } from '../../models/StorageRoom'
 import { useDeleteShelfMutation, useModifyShelfMutation } from '../../services/storageRoom'
 import { ConfirmModal } from '../modals/ConfirmModal'
 import { Cabinet } from '../../models/embed/storage/Cabinet'
 import { ChangeStorageNameModal } from '../modals/ChangeStorageNameModal'
+import { Dresser, PencilSimple, Trash } from '@phosphor-icons/react'
 
 interface ShelfListItemProps extends StyleProps, SpaceProps {
 	room: StorageRoom
@@ -51,10 +50,14 @@ export const ShelfListItem = ({ room, shelf, cabinet, onClick, ...style }: Shelf
 	return (
 		<Flex {...style}>
 			<Flex direction="column" mr={3} height="100%" gap={2}>
-				<IconButton aria-label="Edit shelf name" icon={<EditIcon />} onClick={onUpdateModalOpen} />
+				<IconButton
+					aria-label="Edit shelf name"
+					icon={<Icon as={PencilSimple} weight="bold" boxSize={5} />}
+					onClick={onUpdateModalOpen}
+				/>
 				<IconButton
 					aria-label="Delete shelf"
-					icon={<DeleteIcon />}
+					icon={<Icon as={Trash} weight="bold" boxSize={5} />}
 					colorScheme="red"
 					onClick={onDeleteModalOpen}
 				/>
@@ -62,7 +65,7 @@ export const ShelfListItem = ({ room, shelf, cabinet, onClick, ...style }: Shelf
 			<Card boxShadow={0} borderWidth="2px" _hover={{ cursor: 'pointer' }} onClick={onClick} {...style}>
 				<CardHeader>
 					<Flex alignItems="center" gap="2">
-						<Icon as={BsInboxes} boxSize={6} />
+						<Icon as={Dresser} weight="bold" boxSize={6} />
 						<Heading size="md">{shelf.name}</Heading>
 					</Flex>
 				</CardHeader>

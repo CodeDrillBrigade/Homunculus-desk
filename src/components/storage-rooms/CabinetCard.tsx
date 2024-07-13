@@ -13,13 +13,12 @@ import {
 	Text,
 	useDisclosure,
 } from '@chakra-ui/react'
-import { BiCabinet } from 'react-icons/bi'
 import { useNavigate } from 'react-router-dom'
 import React, { useCallback } from 'react'
-import { DeleteIcon, EditIcon } from '@chakra-ui/icons'
 import { useDeleteCabinetMutation, useModifyCabinetMutation } from '../../services/storageRoom'
 import { ConfirmModal } from '../modals/ConfirmModal'
 import { ChangeStorageNameModal } from '../modals/ChangeStorageNameModal'
+import { Lockers, PencilSimple, Trash } from '@phosphor-icons/react'
 
 interface CabinetCardProps extends SpaceProps, LayoutProps {
 	cabinet: Cabinet
@@ -57,7 +56,7 @@ export const CabinetCard = ({ cabinet, roomId, ...style }: CabinetCardProps) => 
 			<Card {...style}>
 				<CardHeader pb="0px" onClick={onCardClick} _hover={{ cursor: 'pointer' }}>
 					<Flex alignItems="center" gap="2">
-						<Icon as={BiCabinet} boxSize={6} />
+						<Icon as={Lockers} boxSize={6} />
 						<Heading size="md">{cabinet.name}</Heading>
 					</Flex>
 					<Text>{cabinet.description ?? 'No description'}</Text>
@@ -67,10 +66,18 @@ export const CabinetCard = ({ cabinet, roomId, ...style }: CabinetCardProps) => 
 				</CardBody>
 				<CardFooter>
 					<Flex width="full" justifyContent="space-between">
-						<Button colorScheme="blue" leftIcon={<EditIcon />} onClick={onUpdateModalOpen}>
+						<Button
+							colorScheme="blue"
+							leftIcon={<Icon as={PencilSimple} weight="bold" boxSize={6} />}
+							onClick={onUpdateModalOpen}
+						>
 							Edit
 						</Button>
-						<Button colorScheme="red" leftIcon={<DeleteIcon />} onClick={onDeleteModalOpen}>
+						<Button
+							colorScheme="red"
+							leftIcon={<Icon as={Trash} weight="bold" boxSize={6} />}
+							onClick={onDeleteModalOpen}
+						>
 							Delete
 						</Button>
 					</Flex>

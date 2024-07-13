@@ -63,6 +63,18 @@ export const userApi = createApi({
 			}),
 			invalidatesTags: (result, _, user) => (!!result ? [{ type: UserTagType, id: user._id }] : []),
 		}),
+		getUsersByUsernameEmailName: builder.query<User[], string>({
+			query: query => `/byUsernameEmailName?query=${encodeURIComponent(query)}`,
+			providesTags: users => (!!users ? users.map(user => ({ type: UserTagType, id: user._id })) : []),
+		}),
+		getUsersByIds: builder.query<User[], string[]>({
+			query: userIds => ({
+				url: '/byIds',
+				method: 'POST',
+				body: JSON.stringify(userIds),
+			}),
+			providesTags: users => (!!users ? users.map(user => ({ type: UserTagType, id: user._id })) : []),
+		}),
 	}),
 })
 
@@ -71,6 +83,8 @@ export const {
 	useGetCurrentUserQuery,
 	useGetPermissionsQuery,
 	useGetUserByIdQuery,
+	useGetUsersByIdsQuery,
+	useGetUsersByUsernameEmailNameQuery,
 	useInviteUserMutation,
 	useLazyGetUserByEmailQuery,
 	useLazyGetUserByUsernameQuery,

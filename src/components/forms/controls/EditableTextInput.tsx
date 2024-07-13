@@ -6,6 +6,7 @@ import {
 	Flex,
 	FormControl,
 	FormLabel,
+	Icon,
 	IconButton,
 	LayoutProps,
 	SpaceProps,
@@ -15,7 +16,7 @@ import {
 import { FormValue } from '../../../models/form/FormValue'
 import React from 'react'
 import { FormControls, useFormControl } from '../../../hooks/form-control'
-import { CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons'
+import { PencilSimple, X, Check } from '@phosphor-icons/react'
 
 interface EditableTextInputProps extends LayoutProps, SpaceProps {
 	label: string
@@ -48,7 +49,7 @@ export const EditableTextInput = ({
 			<>
 				{!isEditing && (
 					<IconButton
-						icon={<EditIcon />}
+						icon={<Icon as={PencilSimple} weight="bold" />}
 						aria-label="edit"
 						position="absolute"
 						right="0.5rem"
@@ -58,8 +59,16 @@ export const EditableTextInput = ({
 				)}
 				{isEditing && (
 					<ButtonGroup justifyContent="center" size="sm" ml="0.5rem">
-						<IconButton aria-label="confirm" icon={<CheckIcon />} {...getSubmitButtonProps()} />
-						<IconButton aria-label="cancel" icon={<CloseIcon />} {...getCancelButtonProps()} />
+						<IconButton
+							aria-label="confirm"
+							icon={<Icon as={Check} weight="bold" boxSize={5} />}
+							{...getSubmitButtonProps()}
+						/>
+						<IconButton
+							aria-label="cancel"
+							icon={<Icon as={X} weight="bold" boxSize={5} />}
+							{...getCancelButtonProps()}
+						/>
 					</ButtonGroup>
 				)}
 			</>

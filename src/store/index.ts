@@ -10,29 +10,35 @@ import { boxApi } from '../services/box'
 import { userApi } from '../services/user'
 import { processApi } from '../services/process'
 import { UIReducer } from './ui/ui-slice'
+import { alertApi } from '../services/alert'
+import { reportApi } from '../services/report'
 
 export const store = configureStore({
 	reducer: {
 		auth: authReducer,
 		ui: UIReducer,
+		[alertApi.reducerPath]: alertApi.reducer,
 		[authAPI.reducerPath]: authAPI.reducer,
 		[boxApi.reducerPath]: boxApi.reducer,
 		[boxDefinitionApi.reducerPath]: boxDefinitionApi.reducer,
 		[materialApi.reducerPath]: materialApi.reducer,
 		[metaTagApi.reducerPath]: metaTagApi.reducer,
 		[processApi.reducerPath]: processApi.reducer,
+		[reportApi.reducerPath]: reportApi.reducer,
 		[storageRoomApi.reducerPath]: storageRoomApi.reducer,
 		[userApi.reducerPath]: userApi.reducer,
 	},
 	middleware: getDefaultMiddleware =>
 		getDefaultMiddleware()
 			.prepend(authListenerMiddleware.middleware)
+			.prepend(alertApi.middleware)
 			.prepend(authAPI.middleware)
 			.prepend(boxApi.middleware)
 			.prepend(boxDefinitionApi.middleware)
 			.prepend(metaTagApi.middleware)
 			.prepend(materialApi.middleware)
 			.prepend(processApi.middleware)
+			.prepend(reportApi.middleware)
 			.prepend(storageRoomApi.middleware)
 			.prepend(userApi.middleware),
 })

@@ -15,13 +15,12 @@ import {
 import { ElementTag } from './ElementTag'
 import { Material } from '../../models/Material'
 import React from 'react'
-import { AddIcon, DeleteIcon } from '@chakra-ui/icons'
 import { useDeleteMaterialMutation } from '../../services/material'
 import { ConfirmModal } from '../modals/ConfirmModal'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
 import { DetailedMaterialModal } from './DetailedMaterialModal'
-import { MdEdit } from 'react-icons/md'
 import { AddBoxFormModal } from '../modals/AddBoxFormModal'
+import { PencilSimple, Plus, Trash } from '@phosphor-icons/react'
 
 interface MaterialCardProps {
 	material: Material
@@ -41,8 +40,8 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 		<>
 			<Card boxShadow="none" width="100%">
 				<CardHeader
-					_hover={{ cursor: !isMobile ? 'pointer' : 'default' }}
-					onClick={!isMobile ? openDetails : undefined}
+					_hover={{ cursor: !isMobile && !isCompact ? 'pointer' : 'default' }}
+					onClick={!isMobile && !isCompact ? openDetails : undefined}
 				>
 					<Flex justifyContent="space-between">
 						<Box>
@@ -53,7 +52,7 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 							<IconButton
 								onClick={deleteModalOpen}
 								aria-label="delete material"
-								icon={<DeleteIcon />}
+								icon={<Icon as={Trash} weight="fill" boxSize={5} />}
 								colorScheme="red"
 								variant="ghost"
 							/>
@@ -62,19 +61,19 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 							<IconButton
 								onClick={openDetails}
 								aria-label="material settings"
-								icon={<Icon as={MdEdit} boxSize={6} />}
+								icon={<Icon as={PencilSimple} weight="bold" boxSize={6} />}
 								variant="ghost"
 							/>
 						)}
 					</Flex>
 				</CardHeader>
-				{!!material.description && (
+				{(!!material.description || !!material.tags) && (
 					<CardBody
 						paddingTop="0px"
 						_hover={{ cursor: !isMobile ? 'pointer' : 'default' }}
 						onClick={!isMobile ? openDetails : undefined}
 					>
-						<Text>{material.description}</Text>
+						{!!material.description && <Text>{material.description}</Text>}
 						{!!material.tags && material.tags.length > 0 && (
 							<Flex align="center" justify="start" mt="1em">
 								{material.tags.map(id => (
@@ -92,10 +91,18 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 				{!isCompact && (
 					<CardFooter paddingTop="0px">
 						<Flex width="full" justifyContent="space-between">
-							<Button colorScheme="green" leftIcon={<AddIcon />} onClick={onOpenAddBox}>
+							<Button
+								colorScheme="green"
+								leftIcon={<Icon as={Plus} weight="bold" boxSize={6} />}
+								onClick={onOpenAddBox}
+							>
 								Add a Box
 							</Button>
-							<Button colorScheme="red" leftIcon={<DeleteIcon />} onClick={deleteModalOpen}>
+							<Button
+								colorScheme="red"
+								leftIcon={<Icon as={Trash} weight="bold" boxSize={6} />}
+								onClick={deleteModalOpen}
+							>
 								Delete
 							</Button>
 						</Flex>

@@ -5,7 +5,6 @@ import { DatePicker } from './controls/DatePicker'
 import { BoxUnitSelector } from './controls/BoxUnitSelector'
 import { BoxUnit } from '../../models/embed/BoxUnit'
 import { ErrorAlert } from '../errors/ErrorAlert'
-import { FiMinusCircle, FiPlusCircle } from 'react-icons/fi'
 import { FormValue } from '../../models/form/FormValue'
 import { FormValues, useForm } from '../../hooks/form'
 import { useUpdateQuantityMutation } from '../../services/box'
@@ -13,6 +12,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { Operation } from '../../models/embed/Operation'
 import { unitToStepsList } from '../../models/embed/UnitStep'
 import { computeTotal } from '../../utils/box-utils'
+import { MinusCircle, PlusCircle } from '@phosphor-icons/react'
 
 interface UpdateQuantityFormProps {
 	box: Box
@@ -106,7 +106,7 @@ export const UpdateQuantityForm = ({ box, boxDefinition, onDispatched }: UpdateQ
 			<Flex width="full" justifyContent="space-between" marginTop="1em">
 				<Button
 					colorScheme="blue"
-					leftIcon={<Icon as={FiPlusCircle} />}
+					leftIcon={<Icon as={PlusCircle} weight="bold" boxSize={5} />}
 					isDisabled={isInvalid || !currentUser}
 					isLoading={isLoading}
 					onClick={() => {
@@ -117,7 +117,7 @@ export const UpdateQuantityForm = ({ box, boxDefinition, onDispatched }: UpdateQ
 				</Button>
 				<Button
 					colorScheme="red"
-					leftIcon={<Icon as={FiMinusCircle} />}
+					leftIcon={<Icon as={MinusCircle} weight="bold" boxSize={5} />}
 					isDisabled={isInvalid || !currentUser}
 					isLoading={isLoading}
 					onClick={() => {

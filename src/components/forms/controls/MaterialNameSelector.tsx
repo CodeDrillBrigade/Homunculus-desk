@@ -2,7 +2,6 @@ import {
 	Alert,
 	AlertIcon,
 	Box,
-	Container,
 	Divider,
 	Flex,
 	FormControl,
@@ -85,7 +84,6 @@ export function MaterialNameSelector({
 		(event: React.KeyboardEvent<HTMLInputElement>) => {
 			if (event.key === 'Tab') {
 				const name = !!data && data.length > 0 ? data[0] : undefined
-				console.log(name)
 				handleSelection(name)
 				popoverClose()
 			}
@@ -100,6 +98,11 @@ export function MaterialNameSelector({
 		},
 		[handleSelection, popoverClose]
 	)
+
+	const onBlur = useCallback(() => {
+		popoverClose()
+		handleSelection(undefined)
+	}, [handleSelection, popoverClose])
 
 	useEffect(() => {
 		setIsTyping(true)
@@ -132,7 +135,7 @@ export function MaterialNameSelector({
 							borderWidth={innerValue.isValid ? '' : '2px'}
 							value={inputValue}
 							onChange={handleChange}
-							onBlur={popoverClose}
+							onBlur={onBlur}
 							onKeyDown={onTabPressed}
 						/>
 						{isTyping && (

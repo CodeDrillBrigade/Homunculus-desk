@@ -29,12 +29,12 @@ import {
 import { TextWithDescriptionFormData, TextWithDescriptionModal } from '../forms/TextWithDescriptionModal'
 import { QueryStatus } from '@reduxjs/toolkit/query'
 import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons'
-import { MdOutlineMeetingRoom } from 'react-icons/md'
 import { borderDark, borderLight } from '../../styles/theme'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
 import React, { useCallback } from 'react'
 import { ConfirmModal } from '../modals/ConfirmModal'
 import { ChangeStorageNameModal } from '../modals/ChangeStorageNameModal'
+import { Door } from '@phosphor-icons/react'
 
 interface StorageRoomCardProps extends SpaceProps, LayoutProps {
 	storageRoom: StorageRoom
@@ -71,7 +71,7 @@ export const StorageRoomCard = ({ storageRoom, ...style }: StorageRoomCardProps)
 			<CardHeader paddingBottom="0px">
 				<Flex width="full" justifyContent="space-between">
 					<Flex gap={2}>
-						<Icon as={MdOutlineMeetingRoom} boxSize={9} />
+						<Icon as={Door} boxSize={9} />
 						<Heading size="lg"> {storageRoom.name}</Heading>
 					</Flex>
 					<Menu isLazy={true}>

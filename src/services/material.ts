@@ -3,6 +3,7 @@ import { AuthState } from '../store/auth/auth-slice'
 import { AllMaterialsTag, MaterialTag, materialTagProvider, MaterialTagType } from './tags/material'
 import { Material } from '../models/Material'
 import { Tag } from '../models/embed/Tag'
+import { Filter } from '../models/filter/Filter'
 
 export const materialApi = createApi({
 	reducerPath: 'material',
@@ -79,12 +80,20 @@ export const materialApi = createApi({
 				url: `/namesByNameBrandCode?query=${encodeURIComponent(query)}&limit=${limit}`,
 				method: 'GET',
 			}),
-			providesTags: ids => [AllMaterialsTag],
+			providesTags: [AllMaterialsTag],
 		}),
 		getMaterialsByIds: builder.query<Material[], string[]>({
 			query: ids => ({
 				url: '/byIds',
 				body: JSON.stringify(ids),
+				method: 'POST',
+			}),
+			providesTags: materialTagProvider,
+		}),
+		filterMaterials: builder.query<Material[], Filter>({
+			query: filter => ({
+				url: '/filter',
+				body: JSON.stringify(filter),
 				method: 'POST',
 			}),
 			providesTags: materialTagProvider,
@@ -98,6 +107,7 @@ export const {
 	useGetLastCreatedQuery,
 	useGetMaterialsByIdsQuery,
 	useGetMaterialQuery,
+	useFilterMaterialsQuery,
 	useFindMaterialsByFuzzyNameQuery,
 	useModifyMaterialMutation,
 	useSearchIdsByNameBrandCodeQuery,

@@ -38,7 +38,7 @@ export const NumberInput = ({
 	controls,
 	...style
 }: NumberInputProps) => {
-	const { value, setValue } = useFormControl<number>({ validator, valueConsumer })
+	const { value, setValue } = useFormControl<number>({ validator, valueConsumer, defaultValue })
 	const innerValue = controls?.value ?? value
 	const innerSetValue = controls?.setValue ?? setValue
 	const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } = useNumberInput({
@@ -46,7 +46,7 @@ export const NumberInput = ({
 		min,
 		max,
 		precision,
-		defaultValue,
+		defaultValue: controls?.value?.value ?? defaultValue,
 		onChange: (_: string, valueAsNumber: number) => innerSetValue(valueAsNumber),
 		onInvalid: (_: string, _value: string, valueAsNumber: number) => {
 			if (!!valueConsumer && !!min && valueAsNumber < min) {
