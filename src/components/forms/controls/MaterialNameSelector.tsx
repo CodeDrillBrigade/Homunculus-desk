@@ -99,6 +99,11 @@ export function MaterialNameSelector({
 		[handleSelection, popoverClose]
 	)
 
+	const onBlur = useCallback(() => {
+		popoverClose()
+		handleSelection(undefined)
+	}, [handleSelection, popoverClose])
+
 	useEffect(() => {
 		setIsTyping(true)
 		const timeoutId = setTimeout(() => {
@@ -130,7 +135,7 @@ export function MaterialNameSelector({
 							borderWidth={innerValue.isValid ? '' : '2px'}
 							value={inputValue}
 							onChange={handleChange}
-							onBlur={popoverClose}
+							onBlur={onBlur}
 							onKeyDown={onTabPressed}
 						/>
 						{isTyping && (

@@ -40,8 +40,8 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 		<>
 			<Card boxShadow="none" width="100%">
 				<CardHeader
-					_hover={{ cursor: !isMobile ? 'pointer' : 'default' }}
-					onClick={!isMobile ? openDetails : undefined}
+					_hover={{ cursor: !isMobile && !isCompact ? 'pointer' : 'default' }}
+					onClick={!isMobile && !isCompact ? openDetails : undefined}
 				>
 					<Flex justifyContent="space-between">
 						<Box>

@@ -43,7 +43,7 @@ export const MultipleActivationMomentsSelector = ({
 	}, [])
 
 	const onAddMoment = useCallback(() => {
-		if (selectedHour >= 0 && selectedHour < 23) {
+		if (selectedHour >= 0 && selectedHour <= 23) {
 			setMoments(currentMoments =>
 				!!currentMoments && !currentMoments.find(it => it.day === selectedDay && it.hour === selectedHour)
 					? [...currentMoments, { day: selectedDay, hour: selectedHour }]

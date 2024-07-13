@@ -47,14 +47,13 @@ const initialState: AddMaterialFormData = {
 }
 
 export const AddMaterialForm = () => {
-	const [isFormReset, setIsFormReset] = useState(false)
+	const [isFormReset, setIsFormReset] = useState(true)
 	const { isOpen, onOpen, onClose } = useDisclosure()
 	const [
 		createBoxDefinition,
 		{ data: createdBoxId, error: boxError, isSuccess: boxSuccess, isLoading: boxLoading, reset: resetBoxMutation },
 	] = useCreateBoxDefinitionMutation()
-	const [createMaterial, { error: materialError, isLoading: materialLoading, isSuccess: materialSuccess }] =
-		useCreateMaterialMutation()
+	const [createMaterial, { error: materialError, isLoading: materialLoading }] = useCreateMaterialMutation()
 	const { formState, dispatchState, isInvalid: isFormInvalid } = useForm({ initialState })
 	const nameControls = useFormControl<string>({
 		validator: (value: string | undefined) => !!value && value.trim().length <= 50,
@@ -86,6 +85,13 @@ export const AddMaterialForm = () => {
 		},
 	})
 
+	const consumeBoxDefinition = useCallback(
+		(payload: FormValue<BoxDefinition>) => {
+			dispatchState('boxDefinition', payload)
+		},
+		[dispatchState]
+	)
+
 	useEffect(() => {
 		if (!!createdBoxId && boxSuccess && !isFormInvalid) {
 			if (!formState.name.isValid || !formState.name.value) {
@@ -100,49 +106,48 @@ export const AddMaterialForm = () => {
 				console.error('Box is not valid!')
 				return
 			}
-			setIsFormReset(false)
-			createMaterial({
-				name: formState.name.value,
-				brand: formState.brand.value,
-				description: formState.description.value,
-				referenceCode: formState.referenceCode.value,
-				tags: formState.tags?.value?.map(it => it._id!) ?? [],
-				boxDefinition: createdBoxId,
-			})
-		}
-	}, [boxSuccess, createMaterial, createdBoxId, formState, isFormInvalid])
-
-	useEffect(() => {
-		if (materialSuccess && !isFormReset) {
-			setIsFormReset(true)
-			onOpen()
-			resetBoxMutation()
-			nameControls.resetValue()
-			brandControls.resetValue()
-			descriptionControls.resetValue()
-			referenceCodeControls.resetValue()
-			tagControls.resetValue()
-			dispatchState('reset', undefined)
+			if (isFormReset) {
+				setIsFormReset(false)
+				const createMaterialAndVerifyFilters = async () => {
+					const createdId = await createMaterial({
+						name: formState.name.value,
+						brand: formState.brand.value,
+						description: formState.description.value,
+						referenceCode: formState.referenceCode.value,
+						tags: formState.tags?.value?.map(it => it._id!) ?? [],
+						boxDefinition: createdBoxId,
+					}).unwrap()
+					onOpen()
+					resetBoxMutation()
+					nameControls.resetValue()
+					brandControls.resetValue()
+					descriptionControls.resetValue()
+					referenceCodeControls.resetValue()
+					tagControls.resetValue()
+					dispatchState('reset', undefined)
+					consumeBoxDefinition(formState.boxDefinition)
+					setIsFormReset(true)
+				}
+				createMaterialAndVerifyFilters()
+			}
 		}
 	}, [
+		boxSuccess,
 		brandControls,
+		consumeBoxDefinition,
+		createMaterial,
+		createdBoxId,
 		descriptionControls,
 		dispatchState,
+		formState,
+		isFormInvalid,
 		isFormReset,
-		materialSuccess,
 		nameControls,
 		onOpen,
 		referenceCodeControls,
 		resetBoxMutation,
 		tagControls,
 	])
-
-	const consumeBoxDefinition = useCallback(
-		(payload: FormValue<BoxDefinition>) => {
-			dispatchState('boxDefinition', payload)
-		},
-		[dispatchState]
-	)
 
 	return (
 		<>
