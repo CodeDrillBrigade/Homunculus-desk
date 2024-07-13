@@ -12,10 +12,12 @@ It supports:
 
 ### Roadmap
 
--   [x] First bare, working version (0.0.2)
+-   [x] First bare, working version (0.2.0)
 -   [ ] Improving roles and permissions
--   [ ] Improving search
--   [ ] Add alerts
+-   [x] Improving search
+-   [x] Add alerts and reports
+-   [ ] Manage Users
+-   [ ] Manage current Users
 
 ## :warning: Running Homunculus
 
