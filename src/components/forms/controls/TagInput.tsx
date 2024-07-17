@@ -12,13 +12,6 @@ import {
 	TagLabel,
 	TagCloseButton,
 	Text,
-	Modal,
-	ModalOverlay,
-	ModalContent,
-	ModalHeader,
-	ModalCloseButton,
-	ModalBody,
-	ModalFooter,
 	Button,
 	Flex,
 	PopoverFooter,
@@ -30,16 +23,13 @@ import { FormValue } from '../../../models/form/FormValue'
 import { Tag } from '../../../models/embed/Tag'
 import { generateSkeletons } from '../../ui/StackedSkeleton'
 import { useCreateTagMutation, useGetTagsByIdsQuery, useGetTagsQuery } from '../../../services/tag'
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ErrorAlert } from '../../errors/ErrorAlert'
-import { TextInput } from './TextInput'
-import { QueryStatus } from '@reduxjs/toolkit/query'
-import { ColorPicker } from './ColorPicker'
-import { tagColors } from '../../../styles/colors'
-import { getRandomDarkHexColor, makeDarker } from '../../../utils/style-utils'
+import { makeDarker } from '../../../utils/style-utils'
 import { chunkArray } from '../../../utils/array-utils'
 import { FormControls, useFormControl } from '../../../hooks/form-control'
 import { Plus } from '@phosphor-icons/react'
+import { AddTagModal } from '../../modals/AddTagModal'
 
 export type Size = 'sm' | 'md' | 'lg' | 'xl' | 'base'
 
@@ -79,6 +69,10 @@ export const TagInput = ({
 	const size = useBreakpointValue<{ tags: number }>(tagsForSize, {
 		fallback: 'md',
 	})
+
+	const [createTag, { isLoading: createLoading, error: createError, isSuccess: createSuccess, reset: createReset }] =
+		useCreateTagMutation()
+
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
 	const { isOpen: modalIsOpen, onOpen: modalOpen, onClose: modalClose } = useDisclosure()
 	const { data: tags, error, isFetching } = useGetTagsQuery()
@@ -141,7 +135,15 @@ export const TagInput = ({
 	const chunkSelected = chunkArray(selectedTags?.value ?? [], forcedSize ?? size?.tags ?? 5)
 	return (
 		<FormControl {...style}>
-			<AddTagModal isOpen={modalIsOpen} onClose={modalClose} />
+			<AddTagModal
+				action={tag => createTag(tag)}
+				isSuccessful={createSuccess}
+				isLoading={createLoading}
+				reset={createReset}
+				error={createError}
+				isOpen={modalIsOpen}
+				onClose={modalClose}
+			/>
 			<FormLabel color={selectedTags.isValid ? '' : 'red'}>{label}</FormLabel>
 			<Popover
 				closeOnBlur={false}
@@ -227,119 +229,5 @@ export const TagInput = ({
 				</Flex>
 			</Popover>
 		</FormControl>
-	)
-}
-
-interface AddTagModalProps {
-	isOpen: boolean
-	onClose: () => void
-}
-
-interface AddTagFormData {
-	name: FormValue<string>
-	color: FormValue<string>
-}
-
-const initialState: AddTagFormData = {
-	name: { value: undefined, isValid: false },
-	color: { value: getRandomDarkHexColor(), isValid: true },
-}
-
-enum FormUpdateAction {
-	SET_NAME,
-	SET_COLOR,
-	RESET_STATE,
-}
-
-function formStateReducer(
-	state: AddTagFormData,
-	action: { type: FormUpdateAction; payload?: FormValue<string> }
-): AddTagFormData {
-	switch (action.type) {
-		case FormUpdateAction.SET_NAME:
-			return {
-				...state,
-				name: action.payload!,
-			}
-		case FormUpdateAction.SET_COLOR:
-			return {
-				...state,
-				color: action.payload!,
-			}
-		case FormUpdateAction.RESET_STATE:
-			return initialState
-	}
-}
-
-const AddTagModal = ({ isOpen, onClose }: AddTagModalProps) => {
-	const [createTag, { status, error }] = useCreateTagMutation()
-	const [formState, dispatchFormState] = useReducer(formStateReducer, initialState)
-	const isFormInvalid = Object.values(formState).some(it => !it.isValid)
-
-	useEffect(() => {
-		if (status === QueryStatus.fulfilled && !error) {
-			onClose()
-		}
-	}, [onClose, status, error])
-
-	const onSubmit = (formData: AddTagFormData) => {
-		const name = formData.name.value
-		const color = formData.color.value
-		if (!name) {
-			throw Error('Cabinet name is not valid')
-		}
-		if (!color) {
-			throw Error('Color is not valid')
-		}
-		createTag({ name, color })
-		dispatchFormState({ type: FormUpdateAction.RESET_STATE })
-	}
-
-	return (
-		<Modal isOpen={isOpen} onClose={onClose}>
-			<ModalOverlay />
-			<ModalContent>
-				<ModalHeader>Add a new tag</ModalHeader>
-				<ModalCloseButton />
-
-				<ModalBody>
-					{!!error && <ErrorAlert info={{ label: 'Cannot create the Tag', reason: error }} />}
-					<TextInput
-						label="Name"
-						placeholder="Name (max. 50 characters)"
-						validator={input => !!input && input.trim().length <= 50}
-						valueConsumer={value => {
-							dispatchFormState({ type: FormUpdateAction.SET_NAME, payload: value })
-						}}
-					/>
-					<ColorPicker
-						marginTop="2em"
-						initialColor={initialState.color.value}
-						colors={tagColors}
-						label="Tag color"
-						valueConsumer={value => {
-							dispatchFormState({ type: FormUpdateAction.SET_COLOR, payload: value })
-						}}
-					/>
-				</ModalBody>
-
-				<ModalFooter>
-					<Button
-						colorScheme="blue"
-						mr={3}
-						isDisabled={isFormInvalid}
-						isLoading={status === QueryStatus.pending}
-						onClick={() => {
-							onSubmit(formState)
-						}}
-					>
-						Create
-					</Button>
-					<Button variant="ghost" onClick={onClose}>
-						Close
-					</Button>
-				</ModalFooter>
-			</ModalContent>
-		</Modal>
 	)
 }

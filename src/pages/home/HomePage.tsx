@@ -20,6 +20,7 @@ export const HomePage = () => {
 
 	const menuItemWidth = isMobile ? '100%' : '31vw'
 
+	// @ts-ignore
 	return (
 		<Flex width="full" justifyContent="center" alignItems="top" direction="column" padding="0px" margin="0px">
 			<Flex
@@ -88,6 +89,22 @@ export const HomePage = () => {
 								'Add a new Report': '/report',
 								'Search reports': '/report/search',
 							}}
+							width={menuItemWidth}
+							showLastDivider={false}
+						/>
+					)}
+				{!!permissions &&
+					(permissions.includes(PERMISSIONS.ADMIN) || permissions.includes(PERMISSIONS.MANAGE_METADATA)) && (
+						<MainMenuItem
+							title="Lab Management"
+							elements={Object.fromEntries(
+								([] as string[][]).concat(
+									permissions.includes(PERMISSIONS.ADMIN) ||
+										permissions.includes(PERMISSIONS.MANAGE_METADATA)
+										? [['Manage Tags', '/tag']]
+										: []
+								)
+							)}
 							width={menuItemWidth}
 							showLastDivider={false}
 						/>

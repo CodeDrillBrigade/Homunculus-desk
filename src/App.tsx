@@ -15,6 +15,7 @@ import { AlertPage } from './pages/alert/AlertPage'
 import { SearchAlertsPage } from './pages/alert/SearchAlertsPage'
 import { AddReportPage } from './pages/report/AddReportPage'
 import { SearchReportsPage } from './pages/report/SearchReportsPage'
+import { SearchTagsPage } from './pages/tag/SearchTagsPage'
 
 const router = createBrowserRouter([
 	{
@@ -57,6 +58,7 @@ const router = createBrowserRouter([
 					{ path: 'search', element: <SearchReportsPage /> },
 				],
 			},
+			{ path: 'tag', element: <SearchTagsPage /> },
 		],
 	},
 	{ path: 'login', element: <LoginPage /> },
