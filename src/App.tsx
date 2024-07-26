@@ -16,6 +16,7 @@ import { SearchAlertsPage } from './pages/alert/SearchAlertsPage'
 import { AddReportPage } from './pages/report/AddReportPage'
 import { SearchReportsPage } from './pages/report/SearchReportsPage'
 import { SearchTagsPage } from './pages/tag/SearchTagsPage'
+import { UpdateUserPage } from './pages/user/UpdateUserPage'
 
 const router = createBrowserRouter([
 	{
@@ -59,6 +60,7 @@ const router = createBrowserRouter([
 				],
 			},
 			{ path: 'tag', element: <SearchTagsPage /> },
+			{ path: 'user', children: [{ index: true, element: <UpdateUserPage /> }] },
 		],
 	},
 	{ path: 'login', element: <LoginPage /> },

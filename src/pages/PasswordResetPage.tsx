@@ -126,6 +126,7 @@ export const PasswordResetPage = () => {
 				<VStack>
 					<ChangePasswordForm
 						user={user}
+						canBeNull={false}
 						passwordConsumer={payload => {
 							dispatchState('password', payload)
 						}}

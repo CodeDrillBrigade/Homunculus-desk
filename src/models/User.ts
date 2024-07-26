@@ -10,5 +10,6 @@ export interface User {
 	surname?: string
 	roles: string[]
 	email?: string
+	profilePicture?: string
 	authenticationTokens: { [key: string]: AuthToken }
 }

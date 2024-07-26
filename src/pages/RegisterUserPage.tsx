@@ -113,6 +113,10 @@ export const RegisterUserPage = () => {
 						user={user}
 						onUpdateSuccess={onUpdateSuccess}
 						onUpdateError={onUpdateError}
+						forceNewPassword={true}
+						forceNewUsername={true}
+						canChangeEmail={false}
+						buttonLabel="Register"
 						pl="10vw"
 						pr="10vw"
 						mb="1em"

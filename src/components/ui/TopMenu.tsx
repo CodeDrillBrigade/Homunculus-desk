@@ -1,6 +1,5 @@
 import {
 	Avatar,
-	AvatarBadge,
 	Button,
 	Flex,
 	Heading,
@@ -33,6 +32,7 @@ import { pageTitleSelector } from '../../store/ui/ui-slice'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ExclamationMark, House, SignOut } from '@phosphor-icons/react'
+import { UserAvatar } from './UserAvatar'
 
 export const TopMenu = () => {
 	const isMobile = useIsMobileLayout()
@@ -90,13 +90,7 @@ export const TopMenu = () => {
 							)}
 							<Menu>
 								<MenuButton>
-									<Avatar name={user.name ?? user.username}>
-										{(!user.passwordHash || user.status === UserStatus.REGISTERING) && (
-											<AvatarBadge boxSize="1.25em" bg="red.400">
-												<Icon as={ExclamationMark} weight="bold" boxSize="0.6em" />
-											</AvatarBadge>
-										)}
-									</Avatar>
+									<UserAvatar user={user} showWarning={true} />
 								</MenuButton>
 								<MenuList>
 									{isMobile && (
@@ -130,6 +124,9 @@ export const TopMenu = () => {
 										>
 											Change Password
 										</MenuItem>
+									)}
+									{user.status === UserStatus.ACTIVE && (
+										<MenuItem onClick={() => navigate('/user')}>Modify User Details</MenuItem>
 									)}
 									{user.status === UserStatus.REGISTERING && (
 										<MenuItem

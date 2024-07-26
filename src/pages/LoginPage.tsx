@@ -2,7 +2,6 @@ import {
 	Alert,
 	AlertIcon,
 	Button,
-	Center,
 	Image,
 	Heading,
 	Input,
