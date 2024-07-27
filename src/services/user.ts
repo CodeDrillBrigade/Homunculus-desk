@@ -3,7 +3,6 @@ import { AuthState } from '../store/auth/auth-slice'
 import { UserTagType } from './tags/user'
 import { User } from '../models/User'
 import { PasswordDto } from '../models/dto/PasswordDto'
-import { PERMISSIONS } from '../models/security/Permissions'
 
 export const userApi = createApi({
 	reducerPath: 'userApi',
@@ -23,11 +22,9 @@ export const userApi = createApi({
 			query: userId => `/${userId}`,
 			providesTags: user => (!!user ? [{ type: UserTagType, id: user._id }] : []),
 		}),
-		getPermissions: builder.query<PERMISSIONS[], void>({
-			query: () => '/permissions',
-		}),
-		getUserByEmail: builder.query<User, string>({
-			query: email => `/byEmail/${email}`,
+		getUserByEmail: builder.query<User, { email: string; excludeRegistering?: boolean }>({
+			query: ({ email, excludeRegistering }) =>
+				`/byEmail/${email}${!!excludeRegistering ? `&excludeRegistering=${excludeRegistering}` : ''}`,
 			providesTags: user => (!!user ? [{ type: UserTagType, id: user._id }] : []),
 		}),
 		getUserByUsername: builder.query<User, string>({
@@ -63,6 +60,13 @@ export const userApi = createApi({
 			}),
 			invalidatesTags: (result, _, user) => (!!result ? [{ type: UserTagType, id: user._id }] : []),
 		}),
+		modifyUserRole: builder.mutation<void, { userId: string; roleId: string }>({
+			query: ({ userId, roleId }) => ({
+				url: `/${encodeURIComponent(userId)}/role/${encodeURIComponent(roleId)}`,
+				method: 'PUT',
+			}),
+			invalidatesTags: (_, __, { userId }) => [{ type: UserTagType, id: userId }],
+		}),
 		getUsersByUsernameEmailName: builder.query<User[], string>({
 			query: query => `/byUsernameEmailName?query=${encodeURIComponent(query)}`,
 			providesTags: users => (!!users ? users.map(user => ({ type: UserTagType, id: user._id })) : []),
@@ -81,7 +85,6 @@ export const userApi = createApi({
 export const {
 	useChangePasswordMutation,
 	useGetCurrentUserQuery,
-	useGetPermissionsQuery,
 	useGetUserByIdQuery,
 	useGetUsersByIdsQuery,
 	useGetUsersByUsernameEmailNameQuery,
@@ -89,4 +92,5 @@ export const {
 	useLazyGetUserByEmailQuery,
 	useLazyGetUserByUsernameQuery,
 	useModifyUserMutation,
+	useModifyUserRoleMutation,
 } = userApi

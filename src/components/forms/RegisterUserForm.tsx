@@ -82,7 +82,7 @@ export const RegisterUserForm = ({
 	useEffect(() => {
 		const timeoutId = setTimeout(() => {
 			if (formState.email.isValid && !!formState.email.value) {
-				getUserByEmail(formState.email.value)
+				getUserByEmail({ email: formState.email.value })
 			}
 		}, 1000)
 

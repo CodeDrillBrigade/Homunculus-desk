@@ -13,6 +13,7 @@ import { UIReducer } from './ui/ui-slice'
 import { alertApi } from '../services/alert'
 import { reportApi } from '../services/report'
 import { profilePictureApi } from '../services/profilePicture'
+import { roleApi } from '../services/role'
 
 export const store = configureStore({
 	reducer: {
@@ -27,6 +28,7 @@ export const store = configureStore({
 		[metaTagApi.reducerPath]: metaTagApi.reducer,
 		[processApi.reducerPath]: processApi.reducer,
 		[reportApi.reducerPath]: reportApi.reducer,
+		[roleApi.reducerPath]: roleApi.reducer,
 		[storageRoomApi.reducerPath]: storageRoomApi.reducer,
 		[userApi.reducerPath]: userApi.reducer,
 	},
@@ -42,6 +44,7 @@ export const store = configureStore({
 			.prepend(materialApi.middleware)
 			.prepend(processApi.middleware)
 			.prepend(reportApi.middleware)
+			.prepend(roleApi.middleware)
 			.prepend(storageRoomApi.middleware)
 			.prepend(userApi.middleware),
 })
