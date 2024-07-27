@@ -12,6 +12,8 @@ import { AddBoxFormModal } from '../modals/AddBoxFormModal'
 import { StorageRoom } from '../../models/StorageRoom'
 import { readableNameFromId } from '../../utils/storage-room-utils'
 import { Plus } from '@phosphor-icons/react'
+import { useHasPermission } from '../../hooks/permissions'
+import { Permissions } from '../../models/security/Permissions'
 
 export interface ShelvesDisplayProps {
 	cabinet: Cabinet
@@ -19,6 +21,8 @@ export interface ShelvesDisplayProps {
 }
 
 export const ShelvesDisplayBig = ({ cabinet, room }: ShelvesDisplayProps) => {
+	const hasPermission = useHasPermission()
+
 	const [selectedShelf, setSelectedShelf] = useState<string | undefined>(undefined)
 	const { data, error, isLoading } = useGetBoxByPositionQuery(selectedShelf ?? '', { skip: !selectedShelf })
 	const { isOpen: addBoxIsOpen, onOpen: onOpenAddBox, onClose: onCloseAddBox } = useDisclosure()
@@ -37,15 +41,18 @@ export const ShelvesDisplayBig = ({ cabinet, room }: ShelvesDisplayProps) => {
 								onClick={() => {
 									setSelectedShelf(`${room._id}|${cabinet.id}|${it.id}`)
 								}}
-								width="90%"
+								width={hasPermission(Permissions.MANAGE_STORAGE) ? '90%' : '94.5%'}
+								ml={hasPermission(Permissions.MANAGE_STORAGE) ? undefined : '0.5em'}
 							/>
 						))}
-						<AddShelfForm key="add-shlf-frm" cabinetId={cabinet.id!} storageRoomId={room._id} />
+						{hasPermission(Permissions.MANAGE_STORAGE) && (
+							<AddShelfForm key="add-shlf-frm" cabinetId={cabinet.id!} storageRoomId={room._id} />
+						)}
 					</VStack>
 				</GridItem>
 				<GridItem colSpan={3}>
 					<VStack width="100%">
-						{!!data && data.length > 0 && (
+						{!!data && data.length > 0 && hasPermission(Permissions.MANAGE_STORAGE) && (
 							<Button
 								width="full"
 								colorScheme="green"

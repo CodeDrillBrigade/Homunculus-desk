@@ -20,8 +20,8 @@ import {
 import { DarkMode } from './DarkMode'
 import { resetToken } from '../../store/auth/auth-thunk'
 import { useAppDispatch, useAppSelector } from '../../hooks/redux'
-import { useGetCurrentUserQuery, useGetPermissionsQuery } from '../../services/user'
-import { PERMISSIONS } from '../../models/security/Permissions'
+import { useGetCurrentUserQuery } from '../../services/user'
+import { Permissions } from '../../models/security/Permissions'
 import { ChangePasswordModal } from '../modals/ChangePasswordModal'
 import React, { useEffect } from 'react'
 import { InviteModal } from '../modals/InviteModal'
@@ -33,12 +33,15 @@ import { useIsMobileLayout } from '../../hooks/responsive-size'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ExclamationMark, House, SignOut } from '@phosphor-icons/react'
 import { UserAvatar } from './UserAvatar'
+import { useHasPermission } from '../../hooks/permissions'
 
 export const TopMenu = () => {
 	const isMobile = useIsMobileLayout()
 	const dispatch = useAppDispatch()
 	const navigate = useNavigate()
 	const { pathname } = useLocation()
+	const hasPermission = useHasPermission()
+
 	const jwt = useAppSelector(jwtSelector)
 	const pageTitle = useAppSelector(pageTitleSelector)
 	const { isOpen: passwordChangeIsOpen, onOpen: openPasswordChange, onClose: closePasswordChange } = useDisclosure()
@@ -49,11 +52,6 @@ export const TopMenu = () => {
 		onClose: closeCompleteRegistration,
 	} = useDisclosure()
 	const { data: user, error, isLoading } = useGetCurrentUserQuery(undefined, { skip: !jwt })
-	const {
-		data: permissions,
-		error: permissionsError,
-		isLoading: permissionsLoading,
-	} = useGetPermissionsQuery(undefined, { skip: !jwt })
 
 	useEffect(() => {
 		if (!!user && user.status === UserStatus.REGISTERING) {
@@ -77,7 +75,7 @@ export const TopMenu = () => {
 				backdropFilter="saturate(100%) blur(10px)"
 			>
 				<HStack>
-					{!!user && !!permissions && (
+					{!!user && (
 						<>
 							{pathname !== '/' && (
 								<IconButton
@@ -144,7 +142,7 @@ export const TopMenu = () => {
 											Complete Registration
 										</MenuItem>
 									)}
-									{user.status === UserStatus.ACTIVE && permissions.includes(PERMISSIONS.ADMIN) && (
+									{user.status === UserStatus.ACTIVE && hasPermission(Permissions.ADMIN) && (
 										<MenuItem onClick={openInvite}>Invite User</MenuItem>
 									)}
 									{isMobile && (
@@ -165,12 +163,9 @@ export const TopMenu = () => {
 							{!isMobile && <Text>{user.name ?? user.username}</Text>}
 						</>
 					)}
-					{(isLoading || permissionsLoading || !jwt) && <SkeletonCircle size="12" />}
-					{(!!error || !!permissionsError) && (
-						<Tooltip
-							label={`Cannot load the user: ${JSON.stringify(error ?? permissionsError)}`}
-							aria-label="Error tooltip"
-						>
+					{(isLoading || !jwt) && <SkeletonCircle size="12" />}
+					{!!error && (
+						<Tooltip label={`Cannot load the user: ${JSON.stringify(error)}`} aria-label="Error tooltip">
 							<Avatar bg="red.400" icon={<Icon as={ExclamationMark} weight="bold" boxSize={9} />} />
 						</Tooltip>
 					)}

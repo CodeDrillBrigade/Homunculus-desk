@@ -1,18 +1,16 @@
 import { Flex } from '@chakra-ui/react'
-import { useAppDispatch, useAppSelector } from '../../hooks/redux'
+import { useAppDispatch } from '../../hooks/redux'
 import { resetPageTitle } from '../../store/ui/ui-slice'
 import { useEffect } from 'react'
 import { MainMenuItem } from '../../components/ui/MainMenuItem'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
-import { jwtSelector } from '../../store/auth/auth-slice'
-import { useGetPermissionsQuery } from '../../services/user'
-import { PERMISSIONS } from '../../models/security/Permissions'
+import { Permissions } from '../../models/security/Permissions'
+import { useHasPermission } from '../../hooks/permissions'
 
 export const HomePage = () => {
 	const isMobile = useIsMobileLayout()
 	const dispatch = useAppDispatch()
-	const jwt = useAppSelector(jwtSelector)
-	const { data: permissions } = useGetPermissionsQuery(undefined, { skip: !jwt })
+	const hasPermission = useHasPermission()
 
 	useEffect(() => {
 		dispatch(resetPageTitle())
@@ -35,26 +33,30 @@ export const HomePage = () => {
 				<MainMenuItem
 					title="Storage"
 					elements={{ 'Browse rooms': '/storage' }}
-					showLastDivider={true}
+					showLastDivider={hasPermission(Permissions.MANAGE_MATERIALS)}
 					width={menuItemWidth}
 				/>
 				<MainMenuItem
-					title="Material"
-					elements={{
-						'Add a new Material': '/material',
-						'Search Materials': '/material/search',
-					}}
+					title="Catalog"
+					elements={Object.fromEntries(
+						([] as string[][])
+							.concat(
+								hasPermission(Permissions.MANAGE_MATERIALS) ? [['Add a new Material', '/material']] : []
+							)
+							.concat([['Search Materials', '/material/search']])
+					)}
 					showLastDivider={false}
 					width={menuItemWidth}
 				/>
 				<MainMenuItem
-					title="Box"
-					elements={{
-						'Add a new Box': '/box',
-						'Search Boxes': '/box/search',
-					}}
-					width={menuItemWidth}
+					title="Inventory"
+					elements={Object.fromEntries(
+						([] as string[][])
+							.concat(hasPermission(Permissions.MANAGE_MATERIALS) ? [['Add a new Box', '/box']] : [])
+							.concat([['Search Boxes', '/box/search']])
+					)}
 					showLastDivider={false}
+					width={menuItemWidth}
 				/>
 			</Flex>
 			<Flex
@@ -67,48 +69,40 @@ export const HomePage = () => {
 				pr={isMobile ? '1em' : undefined}
 				mt={'1em'}
 			>
-				{!!permissions &&
-					(permissions.includes(PERMISSIONS.ADMIN) ||
-						permissions.includes(PERMISSIONS.MANAGE_NOTIFICATIONS)) && (
-						<MainMenuItem
-							title="Alerts"
-							elements={{
-								'Add a new Alert': '/alert',
-								'Search alerts': '/alert/search',
-							}}
-							width={menuItemWidth}
-							showLastDivider={false}
-						/>
-					)}
-				{!!permissions &&
-					(permissions.includes(PERMISSIONS.ADMIN) ||
-						permissions.includes(PERMISSIONS.MANAGE_NOTIFICATIONS)) && (
-						<MainMenuItem
-							title="Reports"
-							elements={{
-								'Add a new Report': '/report',
-								'Search reports': '/report/search',
-							}}
-							width={menuItemWidth}
-							showLastDivider={false}
-						/>
-					)}
-				{!!permissions &&
-					(permissions.includes(PERMISSIONS.ADMIN) || permissions.includes(PERMISSIONS.MANAGE_METADATA)) && (
-						<MainMenuItem
-							title="Lab Management"
-							elements={Object.fromEntries(
-								([] as string[][]).concat(
-									permissions.includes(PERMISSIONS.ADMIN) ||
-										permissions.includes(PERMISSIONS.MANAGE_METADATA)
-										? [['Manage Tags', '/tag']]
-										: []
-								)
-							)}
-							width={menuItemWidth}
-							showLastDivider={false}
-						/>
-					)}
+				{hasPermission(Permissions.MANAGE_NOTIFICATIONS) && (
+					<MainMenuItem
+						title="Alerts"
+						elements={{
+							'Add a new Alert': '/alert',
+							'Search alerts': '/alert/search',
+						}}
+						width={menuItemWidth}
+						showLastDivider={false}
+					/>
+				)}
+				{hasPermission(Permissions.MANAGE_NOTIFICATIONS) && (
+					<MainMenuItem
+						title="Reports"
+						elements={{
+							'Add a new Report': '/report',
+							'Search reports': '/report/search',
+						}}
+						width={menuItemWidth}
+						showLastDivider={false}
+					/>
+				)}
+				{hasPermission(Permissions.MANAGE_METADATA) && (
+					<MainMenuItem
+						title="Lab Management"
+						elements={Object.fromEntries(
+							([] as string[][]).concat(
+								hasPermission(Permissions.MANAGE_METADATA) ? [['Manage Tags', '/tag']] : []
+							)
+						)}
+						width={menuItemWidth}
+						showLastDivider={false}
+					/>
+				)}
 			</Flex>
 		</Flex>
 	)

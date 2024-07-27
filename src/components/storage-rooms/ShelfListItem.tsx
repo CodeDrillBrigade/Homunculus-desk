@@ -17,6 +17,8 @@ import { ConfirmModal } from '../modals/ConfirmModal'
 import { Cabinet } from '../../models/embed/storage/Cabinet'
 import { ChangeStorageNameModal } from '../modals/ChangeStorageNameModal'
 import { Dresser, PencilSimple, Trash } from '@phosphor-icons/react'
+import { useHasPermission } from '../../hooks/permissions'
+import { Permissions } from '../../models/security/Permissions'
 
 interface ShelfListItemProps extends StyleProps, SpaceProps {
 	room: StorageRoom
@@ -26,6 +28,7 @@ interface ShelfListItemProps extends StyleProps, SpaceProps {
 }
 
 export const ShelfListItem = ({ room, shelf, cabinet, onClick, ...style }: ShelfListItemProps) => {
+	const hasPermission = useHasPermission()
 	const [deleteShelf, { isLoading: deleteIsLoading, error: deleteError }] = useDeleteShelfMutation()
 	const [modifyShelf, { isLoading: modifyIsLoading, error: modifyError, isSuccess: modifySuccess }] =
 		useModifyShelfMutation()
@@ -49,19 +52,21 @@ export const ShelfListItem = ({ room, shelf, cabinet, onClick, ...style }: Shelf
 
 	return (
 		<Flex {...style}>
-			<Flex direction="column" mr={3} height="100%" gap={2}>
-				<IconButton
-					aria-label="Edit shelf name"
-					icon={<Icon as={PencilSimple} weight="bold" boxSize={5} />}
-					onClick={onUpdateModalOpen}
-				/>
-				<IconButton
-					aria-label="Delete shelf"
-					icon={<Icon as={Trash} weight="bold" boxSize={5} />}
-					colorScheme="red"
-					onClick={onDeleteModalOpen}
-				/>
-			</Flex>
+			{hasPermission(Permissions.MANAGE_STORAGE) && (
+				<Flex direction="column" mr={3} height="100%" gap={2}>
+					<IconButton
+						aria-label="Edit shelf name"
+						icon={<Icon as={PencilSimple} weight="bold" boxSize={5} />}
+						onClick={onUpdateModalOpen}
+					/>
+					<IconButton
+						aria-label="Delete shelf"
+						icon={<Icon as={Trash} weight="bold" boxSize={5} />}
+						colorScheme="red"
+						onClick={onDeleteModalOpen}
+					/>
+				</Flex>
+			)}
 			<Card boxShadow={0} borderWidth="2px" _hover={{ cursor: 'pointer' }} onClick={onClick} {...style}>
 				<CardHeader>
 					<Flex alignItems="center" gap="2">

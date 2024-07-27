@@ -1,27 +1,27 @@
 import {
+	Accordion,
+	AccordionButton,
+	AccordionIcon,
+	AccordionItem,
+	AccordionPanel,
+	Box,
+	Button,
 	Card,
 	CardBody,
+	CardFooter,
 	CardHeader,
 	Container,
+	Divider,
 	Flex,
 	Heading,
 	Icon,
+	IconButton,
 	LayoutProps,
 	Skeleton,
 	SpaceProps,
-	Box,
 	Text,
-	CardFooter,
-	Button,
 	useDisclosure,
-	Accordion,
-	AccordionItem,
-	AccordionButton,
-	AccordionIcon,
-	AccordionPanel,
 	VStack,
-	Divider,
-	IconButton,
 } from '@chakra-ui/react'
 import { Box as BoxModel } from '../../models/Box'
 import { useGetMaterialQuery } from '../../services/material'
@@ -36,7 +36,9 @@ import { UsageLogDisplay } from './UsageLogDisplay'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
 import { UpdateBoxFormModal } from '../modals/UpdateBoxFormModal'
 import { EditBoxModal } from '../modals/EditBoxModal'
-import { Package, Trash, UploadSimple, Icon as PhosphorIcon, CalendarX, PencilSimple } from '@phosphor-icons/react'
+import { CalendarX, Icon as PhosphorIcon, Package, PencilSimple, Trash, UploadSimple } from '@phosphor-icons/react'
+import { useHasPermission } from '../../hooks/permissions'
+import { Permissions } from '../../models/security/Permissions'
 
 interface ElementBoxProps extends SpaceProps, LayoutProps {
 	box: BoxModel
@@ -44,6 +46,8 @@ interface ElementBoxProps extends SpaceProps, LayoutProps {
 
 export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 	const isMobile = useIsMobileLayout()
+	const hasPermission = useHasPermission()
+
 	const [deleteBox, { error: deleteError, isLoading: deleteLoading, isSuccess: deleteSuccess }] =
 		useDeleteBoxMutation()
 	const { onOpen: deleteModalOpen, onClose: deleteModalClose, isOpen: deleteModalIsOpen } = useDisclosure()
@@ -94,12 +98,14 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 							{!!daysToExpiration && daysToExpiration <= 0 && (
 								<WarningIcon icon={CalendarX} text={toDayMonthYear(box.expirationDate)} color="red" />
 							)}
-							<IconButton
-								onClick={editModalOpen}
-								aria-label="material settings"
-								icon={<Icon as={PencilSimple} boxSize={6} weight="bold" />}
-								variant="ghost"
-							/>
+							{hasPermission(Permissions.MANAGE_MATERIALS) && (
+								<IconButton
+									onClick={editModalOpen}
+									aria-label="material settings"
+									icon={<Icon as={PencilSimple} boxSize={6} weight="bold" />}
+									variant="ghost"
+								/>
+							)}
 						</Flex>
 					</Flex>
 				</CardHeader>
@@ -153,13 +159,15 @@ export const ElementBox = ({ box, ...style }: ElementBoxProps) => {
 						>
 							Use/Add
 						</Button>
-						<Button
-							colorScheme="red"
-							leftIcon={<Icon as={Trash} weight="bold" boxSize={6} />}
-							onClick={deleteModalOpen}
-						>
-							Delete
-						</Button>
+						{hasPermission(Permissions.MANAGE_MATERIALS) && (
+							<Button
+								colorScheme="red"
+								leftIcon={<Icon as={Trash} weight="bold" boxSize={6} />}
+								onClick={deleteModalOpen}
+							>
+								Delete
+							</Button>
+						)}
 					</Flex>
 				</CardFooter>
 			</Card>

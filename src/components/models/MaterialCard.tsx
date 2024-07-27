@@ -21,6 +21,8 @@ import { useIsMobileLayout } from '../../hooks/responsive-size'
 import { DetailedMaterialModal } from './DetailedMaterialModal'
 import { AddBoxFormModal } from '../modals/AddBoxFormModal'
 import { PencilSimple, Plus, Trash } from '@phosphor-icons/react'
+import { useHasPermission } from '../../hooks/permissions'
+import { Permissions } from '../../models/security/Permissions'
 
 interface MaterialCardProps {
 	material: Material
@@ -29,6 +31,8 @@ interface MaterialCardProps {
 
 export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 	const isMobile = useIsMobileLayout()
+	const hasPermission = useHasPermission()
+
 	const [deleteMaterial, { error: deleteError, isLoading: deleteIsLoading }] = useDeleteMaterialMutation()
 	const { onOpen: deleteModalOpen, onClose: deleteModalClose, isOpen: deleteModalIsOpen } = useDisclosure()
 	const { isOpen: detailsOpen, onOpen: openDetails, onClose: detailsClose } = useDisclosure()
@@ -48,7 +52,7 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 							<Heading size="md">{material.name}</Heading>
 							{!!material.referenceCode && <Text>RefCode: {material.referenceCode}</Text>}
 						</Box>
-						{isCompact && (
+						{isCompact && hasPermission(Permissions.MANAGE_MATERIALS) && (
 							<IconButton
 								onClick={deleteModalOpen}
 								aria-label="delete material"
@@ -88,7 +92,7 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 						)}
 					</CardBody>
 				)}
-				{!isCompact && (
+				{!isCompact && hasPermission(Permissions.MANAGE_MATERIALS) && (
 					<CardFooter paddingTop="0px">
 						<Flex width="full" justifyContent="space-between">
 							<Button
