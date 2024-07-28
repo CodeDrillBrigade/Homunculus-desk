@@ -83,16 +83,16 @@ export const AddBoxForm = ({ defaultMaterial, defaultPosition, onDispatchSuccess
 		valueConsumer: value => dispatchState('material', value),
 	})
 	const quantityControls = useFormControl<number>({
+		defaultValue: 0,
 		validator: input => !!totalInBox && !!input && input >= 1,
 		valueConsumer: value => {
-			if (!!totalInBox && !!lastStep && !!value.value) {
+			if (!!totalInBox && !!lastStep && value.value !== undefined) {
 				dispatchState('quantity', {
 					value: { quantity: value.value * totalInBox, metric: lastStep.type },
 					isValid: value.isValid,
 				})
 			}
 		},
-		defaultValue: 1,
 	})
 
 	const onSubmit = () => {

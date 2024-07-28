@@ -1,4 +1,4 @@
-export enum PERMISSIONS {
+export enum Permissions {
 	ADMIN = 'ADMIN',
 	MANAGE_STORAGE = 'MANAGE_STORAGE',
 	MANAGE_MATERIALS = 'MANAGE_MATERIALS',

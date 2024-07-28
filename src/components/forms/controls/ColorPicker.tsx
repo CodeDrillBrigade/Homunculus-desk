@@ -20,34 +20,32 @@ import {
 	SpaceProps,
 	Text,
 } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import React from 'react'
 import { FormValue } from '../../../models/form/FormValue'
 import { getRandomDarkHexColor } from '../../../utils/style-utils'
 import { Repeat } from '@phosphor-icons/react'
+import { FormControls, useFormControl } from '../../../hooks/form-control'
 
 interface ColorPickerProps extends SpaceProps {
 	label: string
 	colors: string[]
 	initialColor?: string
 	valueConsumer?: (value: FormValue<string>) => void
+	controls?: FormControls<string>
 }
 
-export const ColorPicker = ({ label, colors, valueConsumer, initialColor, ...style }: ColorPickerProps) => {
-	const [color, setColor] = useState<FormValue<string>>({
-		value: initialColor ?? getRandomDarkHexColor(),
-		isValid: true,
+export const ColorPicker = ({ label, colors, valueConsumer, initialColor, controls, ...style }: ColorPickerProps) => {
+	const { value, setValue } = useFormControl<string>({
+		validator: input => !!input && RegExp('^#[a-fA-F0-9]{6}$').test(input),
+		valueConsumer,
+		defaultValue: initialColor ?? getRandomDarkHexColor(),
 	})
 
+	const color = controls?.value ?? value
+	const setColor = controls?.setValue ?? setValue
+
 	const handleChange = (event: string) => {
-		const input = event.trim()
-		const newValue = {
-			value: input,
-			isValid: RegExp('^#[a-fA-F0-9]{6}$').test(input),
-		}
-		setColor(newValue)
-		if (!!valueConsumer) {
-			valueConsumer(newValue)
-		}
+		setColor(event.trim())
 	}
 
 	const setRandomColor = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -76,7 +74,7 @@ export const ColorPicker = ({ label, colors, valueConsumer, initialColor, ...sty
 								aria-label="Generate random color"
 								icon={<Icon as={Repeat} weight="bold" boxSize={5} />}
 								onClick={setRandomColor}
-								background="transparent"
+								background="unset"
 								_hover={{ background: 'transparent' }}
 							/>
 						</InputRightAddon>

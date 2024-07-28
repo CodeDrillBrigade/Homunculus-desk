@@ -49,6 +49,8 @@ import { readableNameFromId } from '../../utils/storage-room-utils'
 import { UpdateBoxFormModal } from '../modals/UpdateBoxFormModal'
 import { ConfirmModal } from '../modals/ConfirmModal'
 import { CheckCircle, Trash, UploadSimple, Warning } from '@phosphor-icons/react'
+import { useHasPermission } from '../../hooks/permissions'
+import { Permissions } from '../../models/security/Permissions'
 
 interface UpdateMaterialFormValues extends FormValues {
 	name: FormValue<string>
@@ -74,6 +76,8 @@ interface DetailedMaterialModalProps {
 
 export const DetailedMaterialModal = ({ material, isOpen, onClose }: DetailedMaterialModalProps) => {
 	const isMobile = useIsMobileLayout()
+	const hasPermission = useHasPermission()
+
 	const { colorMode } = useColorMode()
 	const { formState, dispatchState, isInvalid } = useForm({ initialState })
 	const formIsTouched = Object.values(formState).some(it => !!it.value)
@@ -131,60 +135,66 @@ export const DetailedMaterialModal = ({ material, isOpen, onClose }: DetailedMat
 				<ModalHeader>{material.name}</ModalHeader>
 
 				<ModalBody>
-					<EditableTextInput
-						label=""
-						placeholder="Name"
-						defaultValue={material.name}
-						validator={input => !!input && input.length > 0}
-						valueConsumer={payload => {
-							dispatchState('name', payload)
-						}}
-						invalidLabel="Name is required"
-					/>
-					<EditableTextInput
-						label=""
-						placeholder="Description"
-						defaultValue={material.description}
-						valueConsumer={payload => {
-							dispatchState('description', payload)
-						}}
-					/>
-					<EditableTextInput
-						label="Reference Code"
-						placeholder="Reference Code"
-						defaultValue={material.referenceCode}
-						mt="2em"
-						valueConsumer={payload => {
-							dispatchState('referenceCode', payload)
-						}}
-					/>
-					<EditableTextInput
-						label="Brand"
-						placeholder="Brand"
-						defaultValue={material.brand}
-						mt="1em"
-						valueConsumer={payload => {
-							dispatchState('brand', payload)
-						}}
-					/>
-					{!!tagsError && (
-						<ErrorAlert info={{ label: 'Cannot load the tags for this material', reason: tagsError }} />
-					)}
-					{tagsLoading && (
-						<Container width="100%" mt="1em">
-							<Skeleton height="4vh" borderRadius="md" />
-						</Container>
-					)}
-					{(!material.tags || material.tags.length === 0 || !!tags) && (
-						<TagInput
-							label="Tags"
-							defaultValue={!material.tags || material.tags.length === 0 ? [] : tags}
-							forcedSize={isMobile ? 3 : 5}
-							mt="1em"
-							valueConsumer={payload => {
-								dispatchState('tags', payload)
-							}}
-						/>
+					{hasPermission(Permissions.MANAGE_MATERIALS) && (
+						<>
+							<EditableTextInput
+								label=""
+								placeholder="Name"
+								defaultValue={material.name}
+								validator={input => !!input && input.length > 0}
+								valueConsumer={payload => {
+									dispatchState('name', payload)
+								}}
+								invalidLabel="Name is required"
+							/>
+							<EditableTextInput
+								label=""
+								placeholder="Description"
+								defaultValue={material.description}
+								valueConsumer={payload => {
+									dispatchState('description', payload)
+								}}
+							/>
+							<EditableTextInput
+								label="Reference Code"
+								placeholder="Reference Code"
+								defaultValue={material.referenceCode}
+								mt="2em"
+								valueConsumer={payload => {
+									dispatchState('referenceCode', payload)
+								}}
+							/>
+							<EditableTextInput
+								label="Brand"
+								placeholder="Brand"
+								defaultValue={material.brand}
+								mt="1em"
+								valueConsumer={payload => {
+									dispatchState('brand', payload)
+								}}
+							/>
+							{!!tagsError && (
+								<ErrorAlert
+									info={{ label: 'Cannot load the tags for this material', reason: tagsError }}
+								/>
+							)}
+							{tagsLoading && (
+								<Container width="100%" mt="1em">
+									<Skeleton height="4vh" borderRadius="md" />
+								</Container>
+							)}
+							{(!material.tags || material.tags.length === 0 || !!tags) && (
+								<TagInput
+									label="Tags"
+									defaultValue={!material.tags || material.tags.length === 0 ? [] : tags}
+									forcedSize={isMobile ? 3 : 5}
+									mt="1em"
+									valueConsumer={payload => {
+										dispatchState('tags', payload)
+									}}
+								/>
+							)}
+						</>
 					)}
 					<Text>Each box contains:</Text>
 					{!!boxDefinitionError && (
@@ -266,16 +276,18 @@ export const DetailedMaterialModal = ({ material, isOpen, onClose }: DetailedMat
 														>
 															Use/Add
 														</Button>
-														<Button
-															colorScheme="red"
-															leftIcon={<Icon as={Trash} weight="bold" boxSize={6} />}
-															onClick={() => {
-																setBoxToDelete(box)
-																deleteBoxModalOpen()
-															}}
-														>
-															Delete
-														</Button>
+														{hasPermission(Permissions.MANAGE_MATERIALS) && (
+															<Button
+																colorScheme="red"
+																leftIcon={<Icon as={Trash} weight="bold" boxSize={6} />}
+																onClick={() => {
+																	setBoxToDelete(box)
+																	deleteBoxModalOpen()
+																}}
+															>
+																Delete
+															</Button>
+														)}
 													</Flex>
 												</CardFooter>
 											</Card>
@@ -287,44 +299,46 @@ export const DetailedMaterialModal = ({ material, isOpen, onClose }: DetailedMat
 					)}
 				</ModalBody>
 
-				<ModalFooter>
-					<Flex width="full" justifyContent="start">
-						<Flex>
-							<Button
-								colorScheme="blue"
-								isDisabled={isInvalid || !formIsTouched}
-								isLoading={modifyLoading}
-								onClick={() => {
-									onMaterialUpdate(formState)
-								}}
-							>
-								Update Material
-							</Button>
-							{modifySuccess && (
-								<Icon
-									as={CheckCircle}
-									weight="fill"
-									boxSize={6}
-									color="green.400"
-									mt="0.5em"
-									ml="0.5em"
-								/>
-							)}
-							{!!modifyError && (
-								<Tooltip label={extractErrorMessage(modifyError)} fontSize="md">
+				{hasPermission(Permissions.MANAGE_MATERIALS) && (
+					<ModalFooter>
+						<Flex width="full" justifyContent="start">
+							<Flex>
+								<Button
+									colorScheme="blue"
+									isDisabled={isInvalid || !formIsTouched}
+									isLoading={modifyLoading}
+									onClick={() => {
+										onMaterialUpdate(formState)
+									}}
+								>
+									Update Material
+								</Button>
+								{modifySuccess && (
 									<Icon
-										as={Warning}
+										as={CheckCircle}
 										weight="fill"
 										boxSize={6}
-										color="red.400"
+										color="green.400"
 										mt="0.5em"
 										ml="0.5em"
 									/>
-								</Tooltip>
-							)}
+								)}
+								{!!modifyError && (
+									<Tooltip label={extractErrorMessage(modifyError)} fontSize="md">
+										<Icon
+											as={Warning}
+											weight="fill"
+											boxSize={6}
+											color="red.400"
+											mt="0.5em"
+											ml="0.5em"
+										/>
+									</Tooltip>
+								)}
+							</Flex>
 						</Flex>
-					</Flex>
-				</ModalFooter>
+					</ModalFooter>
+				)}
 			</ModalContent>
 			{!!boxToDelete && (
 				<ConfirmModal

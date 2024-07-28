@@ -1,5 +1,4 @@
 import {
-	Avatar,
 	Box,
 	Divider,
 	Flex,
@@ -29,6 +28,7 @@ import { ErrorAlert } from '../../errors/ErrorAlert'
 import { User } from '../../../models/User'
 import { useGetUsersByUsernameEmailNameQuery } from '../../../services/user'
 import { X } from '@phosphor-icons/react'
+import { UserAvatar } from '../../ui/UserAvatar'
 
 interface UsersSelectorProps extends SpaceProps, LayoutProps {
 	label?: string
@@ -55,9 +55,9 @@ export function UsersSelector({
 	const setUsers = controls?.setValue ?? setValue
 	const [isTyping, setIsTyping] = useState(false)
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
-	const [inputValue, setInputValue] = useState<string | undefined>(undefined)
+	const [inputValue, setInputValue] = useState<string>('')
 	const [queryValue, setQueryValue] = useState('')
-	const { data, error, isFetching } = useGetUsersByUsernameEmailNameQuery(queryValue)
+	const { data, error, isFetching } = useGetUsersByUsernameEmailNameQuery({ query: queryValue, onlyActive: true })
 
 	const handleRemoval = useCallback(
 		(userId: string) => {
@@ -179,7 +179,7 @@ export function UsersSelector({
 					<Flex key={user._id}>
 						<IconButton
 							colorScheme="red"
-							aria-label="Exclude material"
+							aria-label="Remove user"
 							variant="outline"
 							mr="0.6em"
 							mt="0.2em"
@@ -189,7 +189,7 @@ export function UsersSelector({
 								handleRemoval(user._id)
 							}}
 						/>
-						<Avatar name={user.name ?? user.username} boxSize={10} backgroundColor="teal" />
+						<UserAvatar user={user} showWarning={false} boxSize={10} />
 						<Text fontSize="lg" ml="0.6em" mt="0.3em">
 							{!!user.name || user.surname
 								? `${user.name + ' ' ?? ''}${user.surname ?? ''}`

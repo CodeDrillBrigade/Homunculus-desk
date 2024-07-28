@@ -8,7 +8,7 @@ export interface FormControls<T> {
 	setValue: (value: T | undefined | FormValueDispatcher<T>) => void
 	validator?: (value: T | undefined) => boolean
 	valueConsumer?: (value: FormValue<T>) => void
-	resetValue: () => void
+	resetValue: (isValid?: boolean) => void
 }
 
 interface FormControlParams<T> {
@@ -47,16 +47,19 @@ export function useFormControl<T>({ defaultValue, validator, valueConsumer }: Fo
 		[validator, valueConsumer]
 	)
 
-	const resetValue = useCallback(() => {
-		const newValue = {
-			value: defaultValue,
-			isValid: true,
-		}
-		setFormValue(newValue)
-		if (!!valueConsumer) {
-			valueConsumer(newValue)
-		}
-	}, [defaultValue, valueConsumer])
+	const resetValue = useCallback(
+		(isValid?: boolean) => {
+			const newValue = {
+				value: defaultValue,
+				isValid: isValid ?? true,
+			}
+			setFormValue(newValue)
+			if (!!valueConsumer) {
+				valueConsumer(newValue)
+			}
+		},
+		[defaultValue, valueConsumer]
+	)
 
 	return { value: formValue, setValue, validator, valueConsumer, resetValue }
 }

@@ -48,11 +48,11 @@ export const PasswordResetPage = () => {
 	}, [email, login, newToken])
 
 	useEffect(() => {
-		if (!!jwtResponse) {
+		if (!!jwtResponse && !!email) {
 			dispatch(setAuthenticationState(jwtResponse))
 			localStorage.setItem(localStorageJwtKey, jwtResponse.jwt)
 			localStorage.setItem(localStorageRefreshJwtKey, jwtResponse.refreshJwt)
-			getUserByEmail(email!)
+			getUserByEmail({ email })
 		}
 	}, [dispatch, email, getUserByEmail, jwtResponse])
 
@@ -126,6 +126,7 @@ export const PasswordResetPage = () => {
 				<VStack>
 					<ChangePasswordForm
 						user={user}
+						canBeNull={false}
 						passwordConsumer={payload => {
 							dispatchState('password', payload)
 						}}

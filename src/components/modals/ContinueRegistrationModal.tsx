@@ -39,7 +39,15 @@ export const ContinueRegistrationModal = ({ isOpen, onClose, user }: ContinueReg
 							}}
 						/>
 					)}
-					<RegisterUserForm user={user} onUpdateSuccess={onUpdateSuccess} onUpdateError={onUpdateError} />
+					<RegisterUserForm
+						user={user}
+						onUpdateSuccess={onUpdateSuccess}
+						onUpdateError={onUpdateError}
+						canChangeEmail={false}
+						forceNewPassword={true}
+						forceNewUsername={true}
+						buttonLabel="Update"
+					/>
 				</ModalBody>
 			</ModalContent>
 		</Modal>

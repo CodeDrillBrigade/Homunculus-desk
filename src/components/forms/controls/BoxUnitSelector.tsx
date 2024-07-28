@@ -1,14 +1,4 @@
-import {
-	Button,
-	Checkbox,
-	FormControl,
-	FormLabel,
-	HStack,
-	Input,
-	LayoutProps,
-	SpaceProps,
-	Text,
-} from '@chakra-ui/react'
+import { Button, FormControl, FormLabel, HStack, Input, LayoutProps, SpaceProps, Text } from '@chakra-ui/react'
 import { FormValue } from '../../../models/form/FormValue'
 import { BoxUnit } from '../../../models/embed/BoxUnit'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -38,7 +28,7 @@ export const BoxUnitSelector = ({
 		unitSteps
 			.slice(0, unitSteps.length - 1)
 			.map(_ => 0)
-			.concat([1])
+			.concat([0])
 	)
 	const { value, setValue } = useFormControl<BoxUnit>({
 		defaultValue: {
@@ -47,14 +37,13 @@ export const BoxUnitSelector = ({
 				unitSteps
 					.slice(0, unitSteps.length - 1)
 					.map(_ => 0)
-					.concat([1])
+					.concat([0])
 			),
 			metric: unitSteps[unitSteps.length - 1].type,
 		},
 		validator,
 		valueConsumer,
 	})
-	const [isFullBox, setIsFullBox] = useState(false)
 
 	const dispatchNewQuantity = useCallback(
 		(qty: number[]) => {
@@ -86,31 +75,21 @@ export const BoxUnitSelector = ({
 		},
 		[dispatchNewQuantity, unitSteps]
 	)
-
-	const onCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setIsFullBox(event.target.checked)
-		const newState = unitSteps.map(_ => 0)
-		newState[0] = unitSteps[0].qty
-		setStepValues(newState)
-	}
-
 	return (
 		<FormControl {...style}>
 			<FormLabel color={value.isValid ? '' : 'red'}>{label}</FormLabel>
-			<Checkbox onChange={onCheck}>Full box?</Checkbox>
-			{!isFullBox &&
-				unitSteps.map((step, idx) => (
-					<FormControl key={idx} marginTop="0.7em">
-						<FormLabel>
-							{step.icon} {describeStep(step, unitSteps[idx + 1])}
-						</FormLabel>
-						<HStack>
-							<Button onClick={() => onDecrease(idx)}>-</Button>
-							<Input width="5em" type="number" value={stepValues[idx] ?? 0} readOnly />
-							<Button onClick={() => onIncrease(idx)}>+</Button>
-						</HStack>
-					</FormControl>
-				))}
+			{unitSteps.map((step, idx) => (
+				<FormControl key={idx} marginTop="0.7em">
+					<FormLabel>
+						{step.icon} {describeStep(step, unitSteps[idx + 1])}
+					</FormLabel>
+					<HStack>
+						<Button onClick={() => onDecrease(idx)}>-</Button>
+						<Input width="5em" type="number" value={stepValues[idx] ?? 0} readOnly />
+						<Button onClick={() => onIncrease(idx)}>+</Button>
+					</HStack>
+				</FormControl>
+			))}
 			<Text marginTop="0.7em">
 				Total: {computeTotal(unitSteps, stepValues)} {describeStep(unitSteps[unitSteps.length - 1], undefined)}
 			</Text>

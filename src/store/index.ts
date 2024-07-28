@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { authReducer } from './auth/auth-slice'
 import { authListenerMiddleware } from './auth/auth-middleware'
-import { authAPI } from '../services/auth'
+import { authApi } from '../services/auth'
 import { storageRoomApi } from '../services/storageRoom'
 import { metaTagApi } from '../services/tag'
 import { boxDefinitionApi } from '../services/boxDefinition'
@@ -12,19 +12,23 @@ import { processApi } from '../services/process'
 import { UIReducer } from './ui/ui-slice'
 import { alertApi } from '../services/alert'
 import { reportApi } from '../services/report'
+import { profilePictureApi } from '../services/profilePicture'
+import { roleApi } from '../services/role'
 
 export const store = configureStore({
 	reducer: {
 		auth: authReducer,
 		ui: UIReducer,
 		[alertApi.reducerPath]: alertApi.reducer,
-		[authAPI.reducerPath]: authAPI.reducer,
+		[profilePictureApi.reducerPath]: profilePictureApi.reducer,
+		[authApi.reducerPath]: authApi.reducer,
 		[boxApi.reducerPath]: boxApi.reducer,
 		[boxDefinitionApi.reducerPath]: boxDefinitionApi.reducer,
 		[materialApi.reducerPath]: materialApi.reducer,
 		[metaTagApi.reducerPath]: metaTagApi.reducer,
 		[processApi.reducerPath]: processApi.reducer,
 		[reportApi.reducerPath]: reportApi.reducer,
+		[roleApi.reducerPath]: roleApi.reducer,
 		[storageRoomApi.reducerPath]: storageRoomApi.reducer,
 		[userApi.reducerPath]: userApi.reducer,
 	},
@@ -32,13 +36,15 @@ export const store = configureStore({
 		getDefaultMiddleware()
 			.prepend(authListenerMiddleware.middleware)
 			.prepend(alertApi.middleware)
-			.prepend(authAPI.middleware)
+			.prepend(profilePictureApi.middleware)
+			.prepend(authApi.middleware)
 			.prepend(boxApi.middleware)
 			.prepend(boxDefinitionApi.middleware)
 			.prepend(metaTagApi.middleware)
 			.prepend(materialApi.middleware)
 			.prepend(processApi.middleware)
 			.prepend(reportApi.middleware)
+			.prepend(roleApi.middleware)
 			.prepend(storageRoomApi.middleware)
 			.prepend(userApi.middleware),
 })

@@ -17,6 +17,7 @@ import { useFormControl } from '../../hooks/form-control'
 import { TextInput } from '../forms/controls/TextInput'
 import { useCallback, useEffect, useState } from 'react'
 import { useInviteUserMutation, useLazyGetUserByEmailQuery } from '../../services/user'
+import { RoleSelector } from '../forms/controls/RoleSelector'
 
 interface InviteModalProps {
 	isOpen: boolean
@@ -30,7 +31,7 @@ export interface InviteUserFromState extends FormValues {
 
 const initialState: InviteUserFromState = {
 	email: { value: undefined, isValid: false },
-	role: { value: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', isValid: true },
+	role: { value: undefined, isValid: false },
 }
 
 export const InviteModal = ({ isOpen, onClose }: InviteModalProps) => {
@@ -49,7 +50,7 @@ export const InviteModal = ({ isOpen, onClose }: InviteModalProps) => {
 
 	useEffect(() => {
 		if (!!formState.email.value && formState.email.isValid) {
-			getUserByEmail(formState.email.value)
+			getUserByEmail({ email: formState.email.value, excludeRegistering: true })
 				.unwrap()
 				.then(
 					() => {
@@ -74,7 +75,7 @@ export const InviteModal = ({ isOpen, onClose }: InviteModalProps) => {
 				inviteUser({
 					email: state.email.value,
 					username: `new-user-${new Date().getTime()}`,
-					roles: [state.role.value],
+					role: state.role.value,
 				})
 			}
 		},
@@ -108,6 +109,13 @@ export const InviteModal = ({ isOpen, onClose }: InviteModalProps) => {
 						placeholder="User email"
 						controls={emailControls}
 						invalidLabel="You must specify a valid email address."
+					/>
+					<RoleSelector
+						label="User role"
+						validator={input => !!input}
+						valueConsumer={payload => dispatchState('role', payload)}
+						invalidLabel="You must specify a valid role"
+						mt="1em"
 					/>
 				</ModalBody>
 

@@ -66,6 +66,7 @@ export const ChangePasswordModal = ({ isOpen, onClose, user }: ChangePasswordMod
 					)}
 					<ChangePasswordForm
 						user={user}
+						canBeNull={false}
 						passwordConsumer={payload => {
 							dispatchState('password', payload)
 						}}

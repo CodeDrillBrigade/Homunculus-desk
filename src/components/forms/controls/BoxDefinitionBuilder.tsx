@@ -25,6 +25,7 @@ import { useFormControl } from '../../../hooks/form-control'
 import { FormValue } from '../../../models/form/FormValue'
 import {
 	defaultStep,
+	firstStep,
 	generateDescription,
 	stepsListToUnit,
 	unitIcons,
@@ -33,7 +34,6 @@ import {
 } from '../../../models/embed/UnitStep'
 
 const measures: SelectOption<Metric>[] = [
-	{ value: Metric.ML, name: 'ml', id: 'ml' },
 	{ value: Metric.COMPLEX, name: 'Box', id: 'Box' },
 	{ value: Metric.PIECE, name: 'Units', id: 'Units' },
 ]
@@ -98,7 +98,7 @@ export const BoxDefinitionBuilder = ({
 			})
 		},
 	})
-	const [steps, setSteps] = useState<UnitStep[]>([defaultStep])
+	const [steps, setSteps] = useState<UnitStep[]>([firstStep, defaultStep])
 	const [stepsId, setStepsId] = useState<string>(`${new Date().getTime()}`)
 
 	useEffect(() => {
@@ -179,7 +179,12 @@ export const BoxDefinitionBuilder = ({
 			nameControls.setValue(definition?.name)
 			descriptionControls.setValue(definition?.description)
 			setStepsId(definition?._id ?? `${new Date().getTime()}`)
-			setSteps(unitToStepsList(definition?.boxUnit))
+			if (!!definition?.boxUnit) {
+				setSteps(unitToStepsList(definition?.boxUnit))
+			} else {
+				setSteps([firstStep, defaultStep])
+			}
+
 			setFormValue({
 				value: definition ?? undefined,
 				isValid: !!definition && !!definition._id,
@@ -227,10 +232,8 @@ export const BoxDefinitionBuilder = ({
 				placeholder="Description (optional)"
 				marginBottom="0.6em"
 				controls={descriptionControls}
+				mb="1em"
 			/>
-			<Heading size="md" marginBottom="0.5em">
-				The box contains:
-			</Heading>
 			<Stepper
 				index={steps.length}
 				orientation="vertical"
@@ -245,33 +248,40 @@ export const BoxDefinitionBuilder = ({
 
 						<Box flexShrink="0" marginBottom="1em">
 							<StepTitle>{step.description}</StepTitle>
-							<Flex>
-								<NumberInput
-									label="Quantity"
-									min={0}
-									precision={step.type === Metric.ML ? 2 : 0}
-									defaultValue={step.qty}
-									width="40%"
-									marginRight="0.6em"
-									valueConsumer={value => {
-										if (value.isValid && value.value !== undefined) {
-											updateStepQty(stepIdx, value.value)
-										}
-									}}
-								/>
-								<SelectInput
-									label="Unit of Measure"
-									placeholder="Choose a Unit"
-									values={measures}
-									defaultValue={step.type}
-									width="30%"
-									valueConsumer={value => {
-										if (value.isValid && !!value.value) {
-											updateSteps(stepIdx, value.value.value)
-										}
-									}}
-								/>
-							</Flex>
+							{stepIdx === 0 && step.qty === 1 && step.type === Metric.COMPLEX && (
+								<Heading size="md" mt="0.5em" mb="1em">
+									1 Containing Box
+								</Heading>
+							)}
+							{(stepIdx > 0 || step.qty !== 1 || step.type !== Metric.COMPLEX) && (
+								<Flex>
+									<NumberInput
+										label="Quantity"
+										min={0}
+										precision={step.type === Metric.ML ? 2 : 0}
+										defaultValue={step.qty}
+										width="40%"
+										marginRight="0.6em"
+										valueConsumer={value => {
+											if (value.isValid && value.value !== undefined) {
+												updateStepQty(stepIdx, value.value)
+											}
+										}}
+									/>
+									<SelectInput
+										label="Unit of Measure"
+										placeholder="Choose a Unit"
+										values={measures}
+										defaultValue={step.type}
+										width="30%"
+										valueConsumer={value => {
+											if (value.isValid && !!value.value) {
+												updateSteps(stepIdx, value.value.value)
+											}
+										}}
+									/>
+								</Flex>
+							)}
 						</Box>
 						<StepSeparator />
 					</Step>

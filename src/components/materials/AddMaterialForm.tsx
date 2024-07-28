@@ -1,5 +1,6 @@
 import {
 	Alert,
+	AlertDescription,
 	AlertIcon,
 	Button,
 	Card,
@@ -13,12 +14,13 @@ import {
 	ModalOverlay,
 	useDisclosure,
 	VStack,
+	Text,
 } from '@chakra-ui/react'
 import { TextInput } from '../forms/controls/TextInput'
 import { TagInput } from '../forms/controls/TagInput'
 import { BoxDefinitionBuilder } from '../forms/controls/BoxDefinitionBuilder'
 import { useCreateBoxDefinitionMutation } from '../../services/boxDefinition'
-import { useCreateMaterialMutation } from '../../services/material'
+import { useCreateMaterialMutation, useGetMaterialsByRefCodeQuery } from '../../services/material'
 import { FormValue } from '../../models/form/FormValue'
 import { Tag } from '../../models/embed/Tag'
 import { BoxDefinition } from '../../models/embed/BoxDefinition'
@@ -31,6 +33,7 @@ import { useLazyGetAlertsByActivationMaterialQuery } from '../../services/alert'
 import { NotificationStub } from '../../models/dto/NotificationStub'
 import { useLazyGetReportsByActivationMaterialQuery } from '../../services/report'
 import { UpdateNotificationsModal } from '../modals/UpdateNotificationsModal'
+import { MaterialSummary } from '../models/MaterialSummary'
 
 interface AddMaterialFormData extends FormValues {
 	name: FormValue<string>
@@ -52,6 +55,7 @@ const initialState: AddMaterialFormData = {
 
 export const AddMaterialForm = () => {
 	const [isFormReset, setIsFormReset] = useState(true)
+	const [queryRefCode, setQueryRefCode] = useState<string | null>(null)
 	const [lastMaterialCreated, setLastMaterialCreated] = useState<string | null>(null)
 	const { isOpen, onOpen, onClose } = useDisclosure()
 	const {
@@ -59,6 +63,7 @@ export const AddMaterialForm = () => {
 		onOpen: openUpdateNotifications,
 		onClose: closeUpdateNotifications,
 	} = useDisclosure()
+
 	const [
 		createBoxDefinition,
 		{ data: createdBoxId, error: boxError, isSuccess: boxSuccess, isLoading: boxLoading, reset: resetBoxMutation },
@@ -66,6 +71,8 @@ export const AddMaterialForm = () => {
 	const [createMaterial, { error: materialError, isLoading: materialLoading }] = useCreateMaterialMutation()
 	const [getAlertsToUpdate, { data: alertsToUpdate }] = useLazyGetAlertsByActivationMaterialQuery()
 	const [getReportsToUpdate, { data: reportsToUpdate }] = useLazyGetReportsByActivationMaterialQuery()
+	const { data: withSameCode } = useGetMaterialsByRefCodeQuery(queryRefCode ?? '', { skip: !queryRefCode })
+
 	const { formState, dispatchState, isInvalid: isFormInvalid } = useForm({ initialState })
 	const nameControls = useFormControl<string>({
 		validator: (value: string | undefined) => !!value && value.trim().length <= 50,
@@ -103,6 +110,17 @@ export const AddMaterialForm = () => {
 		},
 		[dispatchState]
 	)
+
+	useEffect(() => {
+		const timeoutId = setTimeout(() => {
+			const query = formState.referenceCode.value ?? ''
+			if (query.trim().length > 0) {
+				setQueryRefCode(query.trim())
+			}
+		}, 500)
+
+		return () => clearTimeout(timeoutId)
+	}, [formState.referenceCode.value])
 
 	useEffect(() => {
 		if (!!createdBoxId && boxSuccess && !isFormInvalid) {
@@ -218,6 +236,31 @@ export const AddMaterialForm = () => {
 							controls={referenceCodeControls}
 							invalidLabel="Reference code cannot be null"
 						/>
+						{!!formState.referenceCode.value &&
+							formState.referenceCode.value.length > 0 &&
+							!!withSameCode &&
+							withSameCode.length > 0 && (
+								<Alert status="warning">
+									<AlertIcon />
+									<AlertDescription>
+										<VStack>
+											<Text>
+												There {withSameCode.length === 1 ? 'is' : 'are'} already{' '}
+												{withSameCode.length} material{withSameCode.length === 1 ? '' : 's'}{' '}
+												with the same ref code:
+											</Text>
+											{withSameCode.map(it => (
+												<MaterialSummary
+													key={it._id}
+													material={it}
+													showTabKbd={false}
+													showDivider={false}
+												/>
+											))}
+										</VStack>
+									</AlertDescription>
+								</Alert>
+							)}
 						<TextInput
 							label="Description"
 							placeholder="Material description (optional)"

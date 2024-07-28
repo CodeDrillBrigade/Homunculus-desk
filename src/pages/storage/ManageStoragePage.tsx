@@ -9,12 +9,16 @@ import { ErrorAlert } from '../../components/errors/ErrorAlert'
 import { useAppDispatch } from '../../hooks/redux'
 import { setPageTitle } from '../../store/ui/ui-slice'
 import { useEffect } from 'react'
+import { useHasPermission } from '../../hooks/permissions'
+import { Permissions } from '../../models/security/Permissions'
 
 export const ManageStoragePage = () => {
 	const dispatch = useAppDispatch()
 	useEffect(() => {
 		dispatch(setPageTitle('Storage Rooms'))
 	}, [dispatch])
+
+	const hasPermission = useHasPermission()
 	const { data, error, isFetching } = useGetStorageRoomsQuery()
 	return (
 		<VStack>
@@ -26,7 +30,7 @@ export const ManageStoragePage = () => {
 				/>
 			)}
 			{!!data && data.map(it => <StorageRoomCard key={it._id} storageRoom={it} width="90vw" />)}
-			<AddStorageButton key="add-storage-btn" />
+			{hasPermission(Permissions.MANAGE_STORAGE) && <AddStorageButton key="add-storage-btn" />}
 		</VStack>
 	)
 }

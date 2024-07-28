@@ -8,7 +8,8 @@ export interface User {
 	status?: UserStatus
 	name?: string
 	surname?: string
-	roles: string[]
+	role?: string
 	email?: string
+	profilePicture?: string
 	authenticationTokens: { [key: string]: AuthToken }
 }

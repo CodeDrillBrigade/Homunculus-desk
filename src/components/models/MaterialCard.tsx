@@ -21,6 +21,11 @@ import { useIsMobileLayout } from '../../hooks/responsive-size'
 import { DetailedMaterialModal } from './DetailedMaterialModal'
 import { AddBoxFormModal } from '../modals/AddBoxFormModal'
 import { PencilSimple, Plus, Trash } from '@phosphor-icons/react'
+import { useHasPermission } from '../../hooks/permissions'
+import { Permissions } from '../../models/security/Permissions'
+import { useDeleteBoxesWithMaterialMutation, useGetUnitsWithMaterialQuery } from '../../services/box'
+import { useGetBoxDefinitionQuery } from '../../services/boxDefinition'
+import { QuantityCounter } from './QuantityCounter'
 
 interface MaterialCardProps {
 	material: Material
@@ -29,7 +34,13 @@ interface MaterialCardProps {
 
 export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 	const isMobile = useIsMobileLayout()
+	const hasPermission = useHasPermission()
+
 	const [deleteMaterial, { error: deleteError, isLoading: deleteIsLoading }] = useDeleteMaterialMutation()
+	const [deleteBoxesByMaterial] = useDeleteBoxesWithMaterialMutation()
+	const { data: totalInBoxes } = useGetUnitsWithMaterialQuery(material._id)
+	const { data: boxDefinition } = useGetBoxDefinitionQuery(material.boxDefinition)
+
 	const { onOpen: deleteModalOpen, onClose: deleteModalClose, isOpen: deleteModalIsOpen } = useDisclosure()
 	const { isOpen: detailsOpen, onOpen: openDetails, onClose: detailsClose } = useDisclosure()
 	const { isOpen: addBoxIsOpen, onOpen: onOpenAddBox, onClose: onCloseAddBox } = useDisclosure()
@@ -48,7 +59,7 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 							<Heading size="md">{material.name}</Heading>
 							{!!material.referenceCode && <Text>RefCode: {material.referenceCode}</Text>}
 						</Box>
-						{isCompact && (
+						{isCompact && hasPermission(Permissions.MANAGE_MATERIALS) && (
 							<IconButton
 								onClick={deleteModalOpen}
 								aria-label="delete material"
@@ -74,6 +85,9 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 						onClick={!isMobile ? openDetails : undefined}
 					>
 						{!!material.description && <Text>{material.description}</Text>}
+						{!!boxDefinition && !!totalInBoxes && (
+							<QuantityCounter quantity={totalInBoxes} boxDefinition={boxDefinition} mt="0.5em" />
+						)}
 						{!!material.tags && material.tags.length > 0 && (
 							<Flex align="center" justify="start" mt="1em">
 								{material.tags.map(id => (
@@ -88,7 +102,7 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 						)}
 					</CardBody>
 				)}
-				{!isCompact && (
+				{!isCompact && hasPermission(Permissions.MANAGE_MATERIALS) && (
 					<CardFooter paddingTop="0px">
 						<Flex width="full" justifyContent="space-between">
 							<Button
@@ -118,6 +132,7 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 				error={deleteError}
 				onConfirm={() => {
 					deleteMaterial(material)
+					deleteBoxesByMaterial(material._id)
 				}}
 			/>
 			<DetailedMaterialModal material={material} isOpen={detailsOpen} onClose={detailsClose} />

@@ -18,7 +18,7 @@ import { FormValues, useForm } from '../../hooks/form'
 import { FormValue } from '../../models/form/FormValue'
 import { User } from '../../models/User'
 import { TextInput } from './controls/TextInput'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { NumberInput } from './controls/NumberInput'
 import { MaterialFilterInput } from './controls/MaterialFilterInput'
 import { NotificationFilter } from '../../models/form/NotificationFilter'
@@ -58,6 +58,7 @@ interface AddAlertFormProps {
 	state?: ReportFormInitialState
 	buttonLabel: string
 	closeButtonAction?: () => void
+	onConfirmAction?: () => void
 }
 
 export const AddReportForm = ({
@@ -69,6 +70,7 @@ export const AddReportForm = ({
 	state,
 	buttonLabel,
 	closeButtonAction,
+	onConfirmAction,
 }: AddAlertFormProps) => {
 	const [isFormReset, setIsFormReset] = useState<boolean>(false)
 	const { isOpen, onOpen, onClose } = useDisclosure()
@@ -82,6 +84,13 @@ export const AddReportForm = ({
 			recipients: { value: state?.recipients, isValid: !!state?.recipients },
 		},
 	})
+
+	const onConfirm = useCallback(() => {
+		onClose()
+		if (!!onConfirmAction) {
+			onConfirmAction()
+		}
+	}, [onClose, onConfirmAction])
 
 	const nameControls = useFormControl<string>({
 		defaultValue: state?.name,
@@ -198,7 +207,7 @@ export const AddReportForm = ({
 						controls={descriptionControls}
 					/>
 					<NumberInput
-						label="Threshold"
+						label="Threshold (in boxes)"
 						controls={thresholdControls}
 						invalidLabel="Threshold must be greater than 0."
 					/>
@@ -239,7 +248,7 @@ export const AddReportForm = ({
 					)}
 				</Flex>
 			</CardFooter>
-			<Modal isOpen={isOpen} onClose={onClose}>
+			<Modal isOpen={isOpen} onClose={onConfirm}>
 				<ModalOverlay />
 				<ModalContent>
 					<ModalBody>
@@ -250,7 +259,7 @@ export const AddReportForm = ({
 					</ModalBody>
 
 					<ModalFooter>
-						<Button colorScheme="blue" onClick={onClose}>
+						<Button colorScheme="blue" onClick={onConfirm}>
 							Close
 						</Button>
 					</ModalFooter>

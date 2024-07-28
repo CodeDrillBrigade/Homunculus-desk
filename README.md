@@ -9,15 +9,8 @@ It supports:
 -   Managing multiple rooms with multiple cabinets, with a shelf granularity.
 -   Managing different types of materials with different configuration, allowing to specify the structure of each box.
 -   Updating the current inventory, keeping a History of the usage of each material.
-
-### Roadmap
-
--   [x] First bare, working version (0.2.0)
--   [ ] Improving roles and permissions
--   [x] Improving search
--   [x] Add alerts and reports
--   [ ] Manage Users
--   [ ] Manage current Users
+-   Immediate Alerts when a material is about to finish.
+-   Scheduled Reports when a material is about to finish.
 
 ## :warning: Running Homunculus
 

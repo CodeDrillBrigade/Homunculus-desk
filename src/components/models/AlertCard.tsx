@@ -141,6 +141,7 @@ export const AlertCard = ({ alert }: AlertCardProps) => {
 								recipients: users ?? [],
 							}}
 							closeButtonAction={modifyModalClose}
+							onConfirmAction={modifyModalClose}
 						/>
 					</ModalBody>
 				</ModalContent>

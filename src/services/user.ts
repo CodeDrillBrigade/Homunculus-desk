@@ -3,7 +3,7 @@ import { AuthState } from '../store/auth/auth-slice'
 import { UserTagType } from './tags/user'
 import { User } from '../models/User'
 import { PasswordDto } from '../models/dto/PasswordDto'
-import { PERMISSIONS } from '../models/security/Permissions'
+import { UserStatus } from '../models/embed/UserStatus'
 
 export const userApi = createApi({
 	reducerPath: 'userApi',
@@ -23,11 +23,9 @@ export const userApi = createApi({
 			query: userId => `/${userId}`,
 			providesTags: user => (!!user ? [{ type: UserTagType, id: user._id }] : []),
 		}),
-		getPermissions: builder.query<PERMISSIONS[], void>({
-			query: () => '/permissions',
-		}),
-		getUserByEmail: builder.query<User, string>({
-			query: email => `/byEmail/${email}`,
+		getUserByEmail: builder.query<User, { email: string; excludeRegistering?: boolean }>({
+			query: ({ email, excludeRegistering }) =>
+				`/byEmail/${email}${!!excludeRegistering ? `&excludeRegistering=${excludeRegistering}` : ''}`,
 			providesTags: user => (!!user ? [{ type: UserTagType, id: user._id }] : []),
 		}),
 		getUserByUsername: builder.query<User, string>({
@@ -63,8 +61,16 @@ export const userApi = createApi({
 			}),
 			invalidatesTags: (result, _, user) => (!!result ? [{ type: UserTagType, id: user._id }] : []),
 		}),
-		getUsersByUsernameEmailName: builder.query<User[], string>({
-			query: query => `/byUsernameEmailName?query=${encodeURIComponent(query)}`,
+		modifyUserRole: builder.mutation<void, { userId: string; roleId: string }>({
+			query: ({ userId, roleId }) => ({
+				url: `/${encodeURIComponent(userId)}/role/${encodeURIComponent(roleId)}`,
+				method: 'PUT',
+			}),
+			invalidatesTags: (_, __, { userId }) => [{ type: UserTagType, id: userId }],
+		}),
+		getUsersByUsernameEmailName: builder.query<User[], { query: string; onlyActive: boolean }>({
+			query: ({ query, onlyActive }) =>
+				`/byUsernameEmailName?query=${encodeURIComponent(query)}&onlyActive=${onlyActive}`,
 			providesTags: users => (!!users ? users.map(user => ({ type: UserTagType, id: user._id })) : []),
 		}),
 		getUsersByIds: builder.query<User[], string[]>({
@@ -75,13 +81,27 @@ export const userApi = createApi({
 			}),
 			providesTags: users => (!!users ? users.map(user => ({ type: UserTagType, id: user._id })) : []),
 		}),
+		deleteUser: builder.mutation<void, string>({
+			query: userId => ({
+				url: `/${encodeURIComponent(userId)}`,
+				method: 'DELETE',
+			}),
+			invalidatesTags: (_, __, userId) => [{ type: UserTagType, id: userId }],
+		}),
+		setUserStatus: builder.mutation<void, { userId: string; status: UserStatus }>({
+			query: ({ userId, status }) => ({
+				url: `/${encodeURIComponent(userId)}/status/${encodeURIComponent(status)}`,
+				method: 'PUT',
+			}),
+			invalidatesTags: (_, __, { userId }) => [{ type: UserTagType, id: userId }],
+		}),
 	}),
 })
 
 export const {
 	useChangePasswordMutation,
+	useDeleteUserMutation,
 	useGetCurrentUserQuery,
-	useGetPermissionsQuery,
 	useGetUserByIdQuery,
 	useGetUsersByIdsQuery,
 	useGetUsersByUsernameEmailNameQuery,
@@ -89,4 +109,6 @@ export const {
 	useLazyGetUserByEmailQuery,
 	useLazyGetUserByUsernameQuery,
 	useModifyUserMutation,
+	useModifyUserRoleMutation,
+	useSetUserStatusMutation,
 } = userApi

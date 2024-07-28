@@ -28,13 +28,15 @@ import {
 } from '../../services/storageRoom'
 import { TextWithDescriptionFormData, TextWithDescriptionModal } from '../forms/TextWithDescriptionModal'
 import { QueryStatus } from '@reduxjs/toolkit/query'
-import { AddIcon, DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons'
+import { AddIcon, EditIcon } from '@chakra-ui/icons'
 import { borderDark, borderLight } from '../../styles/theme'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
 import React, { useCallback } from 'react'
 import { ConfirmModal } from '../modals/ConfirmModal'
 import { ChangeStorageNameModal } from '../modals/ChangeStorageNameModal'
-import { Door } from '@phosphor-icons/react'
+import { Door, DotsThreeVertical, Trash } from '@phosphor-icons/react'
+import { useHasPermission } from '../../hooks/permissions'
+import { Permissions } from '../../models/security/Permissions'
 
 interface StorageRoomCardProps extends SpaceProps, LayoutProps {
 	storageRoom: StorageRoom
@@ -42,11 +44,12 @@ interface StorageRoomCardProps extends SpaceProps, LayoutProps {
 
 export const StorageRoomCard = ({ storageRoom, ...style }: StorageRoomCardProps) => {
 	const isMobile = useIsMobileLayout()
+	const hasPermission = useHasPermission()
 	const borderColor = useColorModeValue(borderLight, borderDark)
 	const cabinets = storageRoom.cabinets ?? []
 	const cardWidth: ResponsiveValue<string> = { lg: '17vw', md: '25vw', sm: '40vw' }
 
-	const cabinetCardHeight = isMobile ? '23vh' : '20vh'
+	const cabinetCardHeight = isMobile ? '15vh' : '15vh'
 
 	const [deleteRoom, { isLoading: deleteIsLoading, error: deleteError }] = useDeleteStorageRoomMutation()
 	const [modifyRoom, { isLoading: modifyIsLoading, error: modifyError, isSuccess: modifySuccess }] =
@@ -74,17 +77,27 @@ export const StorageRoomCard = ({ storageRoom, ...style }: StorageRoomCardProps)
 						<Icon as={Door} boxSize={9} />
 						<Heading size="lg"> {storageRoom.name}</Heading>
 					</Flex>
-					<Menu isLazy={true}>
-						<MenuButton as={IconButton} aria-label="Options" icon={<HamburgerIcon />} variant="outline" />
-						<MenuList>
-							<MenuItem icon={<EditIcon />} onClick={onUpdateModalOpen}>
-								Change room name
-							</MenuItem>
-							<MenuItem icon={<DeleteIcon />} onClick={onDeleteModalOpen}>
-								Delete room
-							</MenuItem>
-						</MenuList>
-					</Menu>
+					{hasPermission(Permissions.MANAGE_STORAGE) && (
+						<Menu isLazy={true}>
+							<MenuButton
+								as={IconButton}
+								aria-label="Options"
+								icon={<Icon as={DotsThreeVertical} weight="bold" boxSize={6} />}
+								variant="outline"
+							/>
+							<MenuList>
+								<MenuItem icon={<EditIcon />} onClick={onUpdateModalOpen}>
+									Change room name
+								</MenuItem>
+								<MenuItem
+									icon={<Icon as={Trash} weight="bold" boxSize={5} />}
+									onClick={onDeleteModalOpen}
+								>
+									Delete room
+								</MenuItem>
+							</MenuList>
+						</Menu>
+					)}
 				</Flex>
 				{!!storageRoom.description && <Text>{storageRoom.description}</Text>}
 			</CardHeader>
@@ -99,7 +112,9 @@ export const StorageRoomCard = ({ storageRoom, ...style }: StorageRoomCardProps)
 							width={cardWidth}
 						/>
 					))}
-					<AddCabinetButton storageRoom={storageRoom} width={cardWidth} height={cabinetCardHeight} />
+					{hasPermission(Permissions.MANAGE_STORAGE) && (
+						<AddCabinetButton storageRoom={storageRoom} width={cardWidth} height={cabinetCardHeight} />
+					)}
 				</SimpleGrid>
 			</CardBody>
 			<ConfirmModal
@@ -159,7 +174,7 @@ const AddCabinetButton = ({
 			/>
 			<Card width={width} height={height} _hover={{ cursor: 'pointer' }} onClick={() => onOpen()}>
 				<CardBody>
-					<Center paddingTop="3.2em">
+					<Center paddingTop="1.5em">
 						<AddIcon boxSize={10} />
 					</Center>
 				</CardBody>

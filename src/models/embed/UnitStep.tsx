@@ -49,9 +49,16 @@ export const generateLabel = (type: Metric) => {
 
 export const defaultStep: UnitStep = {
 	qty: 0,
-	type: Metric.ML,
-	description: generateDescription(0, Metric.ML),
-	icon: unitIcons[Metric.ML],
+	type: Metric.PIECE,
+	description: generateDescription(0, Metric.PIECE),
+	icon: unitIcons[Metric.PIECE],
+}
+
+export const firstStep: UnitStep = {
+	qty: 1,
+	type: Metric.COMPLEX,
+	description: generateDescription(1, Metric.COMPLEX),
+	icon: unitIcons[Metric.COMPLEX],
 }
 
 export function unitToStepsList(unit: BoxUnit | undefined, steps: UnitStep[] = []): UnitStep[] {

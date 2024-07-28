@@ -6,11 +6,11 @@ import {
 	DrawerHeader,
 	DrawerOverlay,
 	Flex,
+	Icon,
+	IconButton,
+	Text,
 	useDisclosure,
 	VStack,
-	Text,
-	IconButton,
-	Icon,
 } from '@chakra-ui/react'
 import { ShelfListItem } from './ShelfListItem'
 import { AddShelfForm } from '../forms/AddShelfForm'
@@ -27,8 +27,12 @@ import { AddBoxFormModal } from '../modals/AddBoxFormModal'
 import { readableNameFromId } from '../../utils/storage-room-utils'
 import { NoBoxesWarning } from '../errors/NoBoxesWarning'
 import { Plus, X } from '@phosphor-icons/react'
+import { useHasPermission } from '../../hooks/permissions'
+import { Permissions } from '../../models/security/Permissions'
 
 export const ShelvesDisplayMobile = ({ cabinet, room }: ShelvesDisplayProps) => {
+	const hasPermission = useHasPermission()
+
 	const { isOpen, onOpen, onClose } = useDisclosure()
 	const [selectedShelf, setSelectedShelf] = useState<Shelf | undefined>(undefined)
 	const { isOpen: addBoxIsOpen, onOpen: onOpenAddBox, onClose: onCloseAddBox } = useDisclosure()
@@ -48,10 +52,13 @@ export const ShelvesDisplayMobile = ({ cabinet, room }: ShelvesDisplayProps) => 
 							setSelectedShelf(it)
 							onOpen()
 						}}
-						width="90%"
+						width={hasPermission(Permissions.MANAGE_STORAGE) ? '90%' : '94.5%'}
+						ml={hasPermission(Permissions.MANAGE_STORAGE) ? undefined : '0.5em'}
 					/>
 				))}
-				<AddShelfForm key="add-shlf-frm" cabinetId={cabinet.id!} storageRoomId={room._id} />
+				{hasPermission(Permissions.MANAGE_STORAGE) && (
+					<AddShelfForm key="add-shlf-frm" cabinetId={cabinet.id!} storageRoomId={room._id} />
+				)}
 			</VStack>
 			{!!selectedShelf && (
 				<BoxesDrawer
@@ -91,13 +98,15 @@ interface BoxesDrawerProps {
 }
 
 const BoxesDrawer = ({ shelfName, isOpen, onClose, boxes, boxesLoading, boxesError, onAddClick }: BoxesDrawerProps) => {
+	const hasPermission = useHasPermission()
+
 	return (
 		<Drawer isOpen={isOpen} placement="bottom" onClose={onClose}>
 			<DrawerOverlay />
 			<DrawerContent>
 				<DrawerHeader>
 					<Flex width="full" justifyContent="space-between">
-						{!!boxes && boxes.length > 0 && (
+						{!!boxes && boxes.length > 0 && hasPermission(Permissions.MANAGE_MATERIALS) && (
 							<IconButton
 								onClick={onAddClick}
 								aria-label="add box"

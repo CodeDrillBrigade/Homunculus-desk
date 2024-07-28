@@ -119,7 +119,7 @@ export const EditBoxModal = ({ isOpen, onClose, box }: EditBoxModalProps) => {
 									onBoxUpdate(formState)
 								}}
 							>
-								Update Material
+								Update Box
 							</Button>
 							{modifySuccess && (
 								<Icon
