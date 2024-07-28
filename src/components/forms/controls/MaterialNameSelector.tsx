@@ -51,7 +51,7 @@ export function MaterialNameSelector({
 	const innerSetValue = controls?.setValue ?? setValue
 	const [isTyping, setIsTyping] = useState(false)
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
-	const [inputValue, setInputValue] = useState<string | undefined>(controls?.value?.value)
+	const [inputValue, setInputValue] = useState<string>(controls?.value?.value ?? '')
 	const [queryValue, setQueryValue] = useState('')
 	const { data, error, isFetching } = useSearchNamesByNameBrandCodeQuery({ query: queryValue, limit: 5 })
 

@@ -59,6 +59,10 @@ export const materialApi = createApi({
 			query: ({ query, limit }) => `/byFuzzyName/${encodeURIComponent(query)}${!!limit ? `?limit=${limit}` : ''}`,
 			providesTags: materialTagProvider,
 		}),
+		getMaterialsByRefCode: builder.query<Material[], string>({
+			query: refCode => `/byRefCode/${encodeURIComponent(refCode)}`,
+			providesTags: materials => materialTagProvider(materials),
+		}),
 		searchIdsByNameBrandCode: builder.query<string[], { query: string; tags: Tag[] | null }>({
 			query: ({ query, tags }) => ({
 				url: `/idsByNameBrandCode?query=${encodeURIComponent(query)}`,
@@ -106,6 +110,7 @@ export const {
 	useDeleteMaterialMutation,
 	useGetLastCreatedQuery,
 	useGetMaterialsByIdsQuery,
+	useGetMaterialsByRefCodeQuery,
 	useGetMaterialQuery,
 	useFilterMaterialsQuery,
 	useFindMaterialsByFuzzyNameQuery,

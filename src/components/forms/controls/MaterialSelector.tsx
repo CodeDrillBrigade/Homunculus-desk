@@ -1,15 +1,12 @@
 import {
 	Alert,
 	AlertIcon,
-	Box,
-	Divider,
 	Flex,
 	FormControl,
 	FormLabel,
 	Input,
 	InputGroup,
 	InputRightElement,
-	Kbd,
 	LayoutProps,
 	Popover,
 	PopoverBody,
@@ -28,7 +25,7 @@ import { Material } from '../../../models/Material'
 import { useFindMaterialsByFuzzyNameQuery, useGetLastCreatedQuery } from '../../../services/material'
 import { generateSkeletons } from '../../ui/StackedSkeleton'
 import { ErrorAlert } from '../../errors/ErrorAlert'
-import { ElementTag } from '../../models/ElementTag'
+import { MaterialSummary } from '../../models/MaterialSummary'
 
 interface MaterialSelectorProps extends SpaceProps, LayoutProps {
 	label?: string
@@ -153,45 +150,16 @@ export function MaterialSelector({
 								materials.length > 0 &&
 								(!inputValue || inputValue.length > 0) &&
 								materials.map((it, idx) => (
-									<Box key={it._id} width="full">
-										<Flex justifyContent="flex-start" marginLeft="1em" width="full">
-											<Flex
-												_hover={{ cursor: 'pointer' }}
-												onClick={() => {
-													handleSelection(it._id)
-													popoverClose()
-												}}
-												direction="column"
-												width="100%"
-											>
-												<Flex>
-													{idx === 0 && <Kbd marginRight="1em">Tab</Kbd>}
-													<Text>
-														<b>{it.name}</b>, Brand: {it.brand}
-														{!!it.referenceCode && ` - # ${it.referenceCode}`}
-													</Text>
-												</Flex>
-												{!!it.tags && it.tags.length > 0 && (
-													<Flex
-														align="center"
-														justify="start"
-														mt="0.2em"
-														ml={idx === 0 ? '3em' : '0px'}
-													>
-														{it.tags.map(id => (
-															<ElementTag
-																key={id}
-																tagId={id}
-																marginRight="0.4em"
-																compact={!!it.tags && it.tags.length >= 5}
-															/>
-														))}
-													</Flex>
-												)}
-											</Flex>
-										</Flex>
-										<Divider mt="0.5em" ml="1em" width="98%" />
-									</Box>
+									<MaterialSummary
+										key={it._id}
+										material={it}
+										showTabKbd={idx === 0}
+										showDivider={true}
+										onClick={() => {
+											handleSelection(it._id)
+											popoverClose()
+										}}
+									/>
 								))}
 							{!!materials && materials.length === 0 && (
 								<Flex justifyContent="flex-start" marginLeft="1em" width="95%">
