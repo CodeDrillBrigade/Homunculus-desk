@@ -8,3 +8,7 @@ export function chunkArray<T>(array: T[], size: number): T[][] {
 
 export const getIdsInPage = (ids: string[] | undefined, pageIdx: number, pageSize: number) =>
 	ids?.slice(pageIdx * pageSize, (pageIdx + 1) * pageSize) ?? []
+
+export function getEntitiesInPage<T>(entities: T[] | undefined, pageIdx: number, pageSize: number): T[] {
+	return entities?.slice(pageIdx * pageSize, (pageIdx + 1) * pageSize) ?? []
+}

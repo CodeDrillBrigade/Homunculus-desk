@@ -11,6 +11,7 @@ interface RoleSelectorProps extends LayoutProps, SpaceProps {
 	label: string
 	validator?: (input?: string) => boolean
 	valueConsumer?: (value: FormValue<string>) => void
+	defaultValue?: string
 	invalidLabel?: string
 }
 
@@ -18,9 +19,16 @@ function sortById(arr: Role[]): Role[] {
 	return [...arr].sort((a, b) => a._id.localeCompare(b._id)).reverse()
 }
 
-export const RoleSelector = ({ label, validator, valueConsumer, invalidLabel, ...style }: RoleSelectorProps) => {
+export const RoleSelector = ({
+	label,
+	validator,
+	valueConsumer,
+	defaultValue,
+	invalidLabel,
+	...style
+}: RoleSelectorProps) => {
 	const { data: roles, isLoading, error } = useGetRolesQuery()
-	const { value, setValue } = useFormControl<string>({ validator, valueConsumer })
+	const { value, setValue } = useFormControl<string>({ validator, valueConsumer, defaultValue })
 
 	return (
 		<FormControl {...style}>

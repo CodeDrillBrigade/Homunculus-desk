@@ -10,7 +10,7 @@ import { UpdateUserForm } from '../../components/forms/UpdateUserForm'
 export const UpdateUserPage = () => {
 	const dispatch = useAppDispatch()
 	useEffect(() => {
-		dispatch(setPageTitle('Update User'))
+		dispatch(setPageTitle('Update Your User Details'))
 	}, [dispatch])
 
 	const { data, error, isLoading } = useGetCurrentUserQuery(undefined)

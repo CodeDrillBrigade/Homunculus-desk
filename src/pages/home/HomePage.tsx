@@ -95,9 +95,9 @@ export const HomePage = () => {
 					<MainMenuItem
 						title="Lab Management"
 						elements={Object.fromEntries(
-							([] as string[][]).concat(
-								hasPermission(Permissions.MANAGE_METADATA) ? [['Manage Tags', '/tag']] : []
-							)
+							([] as string[][])
+								.concat(hasPermission(Permissions.MANAGE_METADATA) ? [['Manage Tags', '/tag']] : [])
+								.concat(hasPermission(Permissions.ADMIN) ? [['Manage Users', '/user/search']] : [])
 						)}
 						width={menuItemWidth}
 						showLastDivider={false}

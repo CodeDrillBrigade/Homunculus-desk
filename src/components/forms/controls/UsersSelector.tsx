@@ -57,7 +57,7 @@ export function UsersSelector({
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
 	const [inputValue, setInputValue] = useState<string | undefined>(undefined)
 	const [queryValue, setQueryValue] = useState('')
-	const { data, error, isFetching } = useGetUsersByUsernameEmailNameQuery(queryValue)
+	const { data, error, isFetching } = useGetUsersByUsernameEmailNameQuery({ query: queryValue, onlyActive: true })
 
 	const handleRemoval = useCallback(
 		(userId: string) => {

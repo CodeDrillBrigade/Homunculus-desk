@@ -3,6 +3,7 @@ import { AuthState } from '../store/auth/auth-slice'
 import { UserTagType } from './tags/user'
 import { User } from '../models/User'
 import { PasswordDto } from '../models/dto/PasswordDto'
+import { UserStatus } from '../models/embed/UserStatus'
 
 export const userApi = createApi({
 	reducerPath: 'userApi',
@@ -67,8 +68,9 @@ export const userApi = createApi({
 			}),
 			invalidatesTags: (_, __, { userId }) => [{ type: UserTagType, id: userId }],
 		}),
-		getUsersByUsernameEmailName: builder.query<User[], string>({
-			query: query => `/byUsernameEmailName?query=${encodeURIComponent(query)}`,
+		getUsersByUsernameEmailName: builder.query<User[], { query: string; onlyActive: boolean }>({
+			query: ({ query, onlyActive }) =>
+				`/byUsernameEmailName?query=${encodeURIComponent(query)}&onlyActive=${onlyActive}`,
 			providesTags: users => (!!users ? users.map(user => ({ type: UserTagType, id: user._id })) : []),
 		}),
 		getUsersByIds: builder.query<User[], string[]>({
@@ -79,11 +81,26 @@ export const userApi = createApi({
 			}),
 			providesTags: users => (!!users ? users.map(user => ({ type: UserTagType, id: user._id })) : []),
 		}),
+		deleteUser: builder.mutation<void, string>({
+			query: userId => ({
+				url: `/${encodeURIComponent(userId)}`,
+				method: 'DELETE',
+			}),
+			invalidatesTags: (_, __, userId) => [{ type: UserTagType, id: userId }],
+		}),
+		setUserStatus: builder.mutation<void, { userId: string; status: UserStatus }>({
+			query: ({ userId, status }) => ({
+				url: `/${encodeURIComponent(userId)}/status/${encodeURIComponent(status)}`,
+				method: 'PUT',
+			}),
+			invalidatesTags: (_, __, { userId }) => [{ type: UserTagType, id: userId }],
+		}),
 	}),
 })
 
 export const {
 	useChangePasswordMutation,
+	useDeleteUserMutation,
 	useGetCurrentUserQuery,
 	useGetUserByIdQuery,
 	useGetUsersByIdsQuery,
@@ -93,4 +110,5 @@ export const {
 	useLazyGetUserByUsernameQuery,
 	useModifyUserMutation,
 	useModifyUserRoleMutation,
+	useSetUserStatusMutation,
 } = userApi
