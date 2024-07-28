@@ -23,6 +23,7 @@ import { AddBoxFormModal } from '../modals/AddBoxFormModal'
 import { PencilSimple, Plus, Trash } from '@phosphor-icons/react'
 import { useHasPermission } from '../../hooks/permissions'
 import { Permissions } from '../../models/security/Permissions'
+import { useDeleteBoxesWithMaterialMutation } from '../../services/box'
 
 interface MaterialCardProps {
 	material: Material
@@ -34,6 +35,7 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 	const hasPermission = useHasPermission()
 
 	const [deleteMaterial, { error: deleteError, isLoading: deleteIsLoading }] = useDeleteMaterialMutation()
+	const [deleteBoxesByMaterial] = useDeleteBoxesWithMaterialMutation()
 	const { onOpen: deleteModalOpen, onClose: deleteModalClose, isOpen: deleteModalIsOpen } = useDisclosure()
 	const { isOpen: detailsOpen, onOpen: openDetails, onClose: detailsClose } = useDisclosure()
 	const { isOpen: addBoxIsOpen, onOpen: onOpenAddBox, onClose: onCloseAddBox } = useDisclosure()
@@ -122,6 +124,7 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 				error={deleteError}
 				onConfirm={() => {
 					deleteMaterial(material)
+					deleteBoxesByMaterial(material._id)
 				}}
 			/>
 			<DetailedMaterialModal material={material} isOpen={detailsOpen} onClose={detailsClose} />

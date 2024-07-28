@@ -43,6 +43,21 @@ export const boxApi = createApi({
 			query: (materialId: string) => `/withMaterial/${encodeURIComponent(materialId)}`,
 			providesTags: (boxes, _, materialId) => boxTagWithMaterialProvider(boxes, materialId),
 		}),
+		deleteBoxesWithMaterial: builder.mutation<Box[], string>({
+			query: materialId => ({
+				url: `/withMaterial/${encodeURIComponent(materialId)}`,
+				method: 'DELETE',
+			}),
+			invalidatesTags: (deletedBoxes, _, materialId) => {
+				if (!!deletedBoxes) {
+					const tagsByMaterial = boxTagWithMaterialProvider(deletedBoxes, materialId)
+					const tagsByShelf = deletedBoxes.flatMap(it => boxTagOnShelfProvider([it], it.position))
+					return tagsByMaterial.concat(tagsByShelf)
+				} else {
+					return []
+				}
+			},
+		}),
 		deleteBox: builder.mutation<string, Box>({
 			query: box => ({
 				url: `/${box._id}`,
@@ -74,6 +89,7 @@ export const boxApi = createApi({
 export const {
 	useCreateBoxMutation,
 	useDeleteBoxMutation,
+	useDeleteBoxesWithMaterialMutation,
 	useGetBoxByPositionQuery,
 	useGetBoxWithMaterialQuery,
 	useModifyBoxMutation,
