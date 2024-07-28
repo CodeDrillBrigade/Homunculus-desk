@@ -207,7 +207,7 @@ export const AddReportForm = ({
 						controls={descriptionControls}
 					/>
 					<NumberInput
-						label="Threshold"
+						label="Threshold (in boxes)"
 						controls={thresholdControls}
 						invalidLabel="Threshold must be greater than 0."
 					/>

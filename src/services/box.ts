@@ -43,6 +43,10 @@ export const boxApi = createApi({
 			query: (materialId: string) => `/withMaterial/${encodeURIComponent(materialId)}`,
 			providesTags: (boxes, _, materialId) => boxTagWithMaterialProvider(boxes, materialId),
 		}),
+		getUnitsWithMaterial: builder.query<number, string>({
+			query: (materialId: string) => `units/withMaterial/${encodeURIComponent(materialId)}`,
+			providesTags: (_, __, materialId) => boxTagWithMaterialProvider(undefined, materialId),
+		}),
 		deleteBoxesWithMaterial: builder.mutation<Box[], string>({
 			query: materialId => ({
 				url: `/withMaterial/${encodeURIComponent(materialId)}`,
@@ -92,6 +96,7 @@ export const {
 	useDeleteBoxesWithMaterialMutation,
 	useGetBoxByPositionQuery,
 	useGetBoxWithMaterialQuery,
+	useGetUnitsWithMaterialQuery,
 	useModifyBoxMutation,
 	useUpdateQuantityMutation,
 } = boxApi

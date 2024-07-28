@@ -55,7 +55,7 @@ export function UsersSelector({
 	const setUsers = controls?.setValue ?? setValue
 	const [isTyping, setIsTyping] = useState(false)
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
-	const [inputValue, setInputValue] = useState<string | undefined>(undefined)
+	const [inputValue, setInputValue] = useState<string>('')
 	const [queryValue, setQueryValue] = useState('')
 	const { data, error, isFetching } = useGetUsersByUsernameEmailNameQuery({ query: queryValue, onlyActive: true })
 
