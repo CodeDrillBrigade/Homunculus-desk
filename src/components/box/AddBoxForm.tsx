@@ -86,7 +86,7 @@ export const AddBoxForm = ({ defaultMaterial, defaultPosition, onDispatchSuccess
 		defaultValue: 0,
 		validator: input => !!totalInBox && !!input && input >= 1,
 		valueConsumer: value => {
-			if (!!totalInBox && !!lastStep && !!value.value) {
+			if (!!totalInBox && !!lastStep && value.value !== undefined) {
 				dispatchState('quantity', {
 					value: { quantity: value.value * totalInBox, metric: lastStep.type },
 					isValid: value.isValid,

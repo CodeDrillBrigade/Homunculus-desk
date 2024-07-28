@@ -1,4 +1,4 @@
-import { Avatar, Box, Flex, Text } from '@chakra-ui/react'
+import { Box, Flex, Text } from '@chakra-ui/react'
 import { generateSkeletonAvatars } from '../ui/StackedSkeleton'
 import { ErrorAlert } from '../errors/ErrorAlert'
 import React from 'react'

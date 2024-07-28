@@ -53,7 +53,7 @@ export function MaterialSelector({
 	const innerSetValue = controls?.setValue ?? setValue
 	const [isTyping, setIsTyping] = useState(false)
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
-	const [inputValue, setInputValue] = useState<string | undefined>(controls?.value?.value?.name)
+	const [inputValue, setInputValue] = useState<string>(controls?.value?.value?.name ?? '')
 	const [queryValue, setQueryValue] = useState('')
 	const { data: defaultValues } = useGetLastCreatedQuery(5)
 	const { data, error, isFetching } = useFindMaterialsByFuzzyNameQuery(

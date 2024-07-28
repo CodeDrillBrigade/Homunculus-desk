@@ -1,5 +1,4 @@
 import {
-	Avatar,
 	Box,
 	Divider,
 	Flex,
