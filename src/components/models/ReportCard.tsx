@@ -150,6 +150,7 @@ export const ReportCard = ({ report }: ReportCardProps) => {
 								recipients: users ?? [],
 							}}
 							closeButtonAction={modifyModalClose}
+							onConfirmAction={modifyModalClose}
 						/>
 					</ModalBody>
 				</ModalContent>
