@@ -36,11 +36,11 @@ export const UpdateQuantityForm = ({ box, boxDefinition, onDispatched }: UpdateQ
 					unitSteps
 						.slice(0, unitSteps.length - 1)
 						.map(_ => 0)
-						.concat([1])
+						.concat([0])
 				),
 				metric: unitSteps[unitSteps.length - 1].type,
 			},
-			isValid: true,
+			isValid: false,
 		},
 	}
 
