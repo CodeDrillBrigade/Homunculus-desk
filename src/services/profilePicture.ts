@@ -18,7 +18,7 @@ export const profilePictureApi = createApi({
 	tagTypes: [AttachmentTagType],
 	endpoints: builder => ({
 		getProfilePicture: builder.query<ProfilePicture | null, string>({
-			queryFn: async (pictureId, queryApi, extraOptions, baseQuery) => {
+			queryFn: async (pictureId, _, __, baseQuery) => {
 				const result = await baseQuery(`/${encodeURIComponent(pictureId)}`)
 				if (!!result.error && result.error.status === 404) {
 					return { data: null }

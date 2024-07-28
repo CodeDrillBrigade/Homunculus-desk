@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { AuthState } from '../store/auth/auth-slice'
 import { AllTags, metaTagTagProvider, TagTagType } from './tags/tag'
 import { Tag } from '../models/embed/Tag'
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query'
 
 export const metaTagApi = createApi({
 	reducerPath: 'metaTag',
@@ -29,8 +30,22 @@ export const metaTagApi = createApi({
 			}),
 			providesTags: metaTagTagProvider,
 		}),
-		getTag: builder.query<Tag, string>({
-			query: (tagId: string) => `/${encodeURIComponent(tagId)}`,
+		getTag: builder.query<Tag | null, string>({
+			queryFn: async (tagId, _, __, baseQuery) => {
+				const result = await baseQuery(`/${encodeURIComponent(tagId)}`)
+				if (!!result.error && result.error.status === 404) {
+					return { data: null }
+				} else if (!!result.error) {
+					return {
+						error: {
+							status: result.error?.status,
+							data: 'An error occurred',
+						} as FetchBaseQueryError,
+					}
+				} else {
+					return { data: result.data as Tag }
+				}
+			},
 			providesTags: tag => metaTagTagProvider(!!tag ? [tag] : undefined),
 		}),
 		createTag: builder.mutation<string, Partial<Tag>>({
