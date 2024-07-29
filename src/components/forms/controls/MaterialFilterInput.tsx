@@ -11,11 +11,10 @@ import {
 	Text,
 } from '@chakra-ui/react'
 import { Filter } from '../../../models/filter/Filter'
-import { FormValue } from '../../../models/form/FormValue'
-import React, { useCallback, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TagInput } from './TagInput'
 import { Material } from '../../../models/Material'
-import { FormControls, useFormControl } from '../../../hooks/form-control'
+import { FormControls } from '../../../hooks/form-control'
 import { MultipleMaterialNamesSelector } from './MultipleMaterialNamesSelector'
 import { useFilterMaterialsQuery, useGetMaterialsByIdsQuery } from '../../../services/material'
 import { ByTagsFilter } from '../../../models/filter/ByTagsFilter'
@@ -30,10 +29,8 @@ import { ByIdFilter } from '../../../models/filter/ByIdFilter'
 
 interface MaterialFilterInputProps extends LayoutProps, SpaceProps {
 	label: string
-	validator?: (input?: NotificationFilter) => boolean
-	valueConsumer?: (value: FormValue<NotificationFilter>) => void
 	invalidLabel?: string
-	controls?: FormControls<NotificationFilter>
+	controls: FormControls<NotificationFilter>
 	defaultValue?: NotificationFilter
 }
 
@@ -115,21 +112,17 @@ function extractTags(filter: NotificationFilter | undefined): string[] {
 
 export const MaterialFilterInput = ({
 	label,
-	validator,
-	valueConsumer,
 	invalidLabel,
 	controls,
 	defaultValue,
 	...style
 }: MaterialFilterInputProps) => {
-	const { setValue } = useFormControl({ defaultValue, validator, valueConsumer })
-	const setNotificationFilter = controls?.setValue ?? setValue
-
 	const [selectedNames, setSelectedNames] = useState<string[]>(extractNames(controls?.value?.value ?? defaultValue))
 	const [selectedTags, setSelectedTags] = useState<string[]>(extractTags(controls?.value?.value ?? defaultValue))
 	const [excludedMaterials, setExcludedMaterials] = useState<string[]>(
 		extractExclusions(controls?.value?.value ?? defaultValue)
 	)
+
 	const {
 		data,
 		error: filterError,
@@ -139,47 +132,20 @@ export const MaterialFilterInput = ({
 	})
 	const { data: excluded } = useGetMaterialsByIdsQuery(excludedMaterials, { skip: excludedMaterials.length === 0 })
 
-	const updateMaterials = useCallback(
-		(names: string[]) => {
-			if (names.length > 0 || selectedTags.length > 0) {
-				setNotificationFilter({
-					includeFilter: buildFilter(names, selectedTags),
-					excludeFilter: buildExclusionFilter(excludedMaterials),
-				})
-			} else {
-				setNotificationFilter(undefined)
-			}
-		},
-		[excludedMaterials, selectedTags, setNotificationFilter]
-	)
-
-	const updateTags = useCallback(
-		(tags: string[]) => {
-			if (selectedNames.length > 0 || tags.length > 0) {
-				setNotificationFilter({
-					includeFilter: buildFilter(selectedNames, tags),
-					excludeFilter: buildExclusionFilter(excludedMaterials),
-				})
-			} else {
-				setNotificationFilter(undefined)
-			}
-		},
-		[excludedMaterials, selectedNames, setNotificationFilter]
-	)
-
-	const updateExclusions = useCallback(
-		(exclusions: string[]) => {
+	useEffect(() => {
+		const timeoutId = setTimeout(() => {
 			if (selectedNames.length > 0 || selectedTags.length > 0) {
-				setNotificationFilter({
+				controls.setValue({
 					includeFilter: buildFilter(selectedNames, selectedTags),
-					excludeFilter: buildExclusionFilter(exclusions),
+					excludeFilter: buildExclusionFilter(excludedMaterials),
 				})
 			} else {
-				setNotificationFilter(undefined)
+				controls.setValue(undefined)
 			}
-		},
-		[selectedTags, selectedNames, setNotificationFilter]
-	)
+		}, 500)
+
+		return () => clearTimeout(timeoutId)
+	}, [excludedMaterials, selectedNames, selectedTags])
 
 	const materials = !!data && (selectedNames.length > 0 || selectedTags.length > 0) ? data : []
 
@@ -192,7 +158,6 @@ export const MaterialFilterInput = ({
 				valueConsumer={data => {
 					if (!!data.value) {
 						setSelectedNames(data.value)
-						updateMaterials(data.value)
 					}
 				}}
 			/>
@@ -203,7 +168,6 @@ export const MaterialFilterInput = ({
 				valueConsumer={data => {
 					if (!!data.value) {
 						setSelectedTags(data.value.map(it => it._id))
-						updateTags(data.value.map(it => it._id))
 					}
 				}}
 				defaultIds={selectedTags}
@@ -230,9 +194,7 @@ export const MaterialFilterInput = ({
 									onButtonClick={() => {
 										setExcludedMaterials(materials => {
 											if (!materials.includes(it._id)) {
-												const newExclusions = [...materials, it._id]
-												updateExclusions(newExclusions)
-												return newExclusions
+												return [...materials, it._id]
 											} else {
 												return materials
 											}
@@ -257,9 +219,7 @@ export const MaterialFilterInput = ({
 									material={it}
 									onButtonClick={() => {
 										setExcludedMaterials(materials => {
-											const newExclusions = materials.filter(m => m !== it._id)
-											updateExclusions(newExclusions)
-											return newExclusions
+											return materials.filter(m => m !== it._id)
 										})
 									}}
 								/>
