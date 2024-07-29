@@ -90,6 +90,7 @@ export const {
 	useCreateTagMutation,
 	useDeleteTagMutation,
 	useGetTagsByIdsQuery,
+	useLazyGetTagsByIdsQuery,
 	useGetTagQuery,
 	useGetTagsQuery,
 	useModifyTagMutation,

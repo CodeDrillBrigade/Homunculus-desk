@@ -22,7 +22,7 @@ import {
 import { FormValue } from '../../../models/form/FormValue'
 import { Tag } from '../../../models/embed/Tag'
 import { generateSkeletons } from '../../ui/StackedSkeleton'
-import { useCreateTagMutation, useGetTagsByIdsQuery, useGetTagsQuery } from '../../../services/tag'
+import { useCreateTagMutation, useGetTagsQuery, useLazyGetTagsByIdsQuery } from '../../../services/tag'
 import React, { useEffect, useState } from 'react'
 import { ErrorAlert } from '../../errors/ErrorAlert'
 import { makeDarker } from '../../../utils/style-utils'
@@ -76,12 +76,25 @@ export const TagInput = ({
 	const { isOpen, onOpen: popoverOpen, onClose: popoverClose } = useDisclosure()
 	const { isOpen: modalIsOpen, onOpen: modalOpen, onClose: modalClose } = useDisclosure()
 	const { data: tags, error, isFetching } = useGetTagsQuery()
-	const { data: tagsByIds } = useGetTagsByIdsQuery(defaultIds ?? [], { skip: !defaultIds || defaultIds.length === 0 })
+	const [getTagsByIds] = useLazyGetTagsByIdsQuery()
 	const [filteredTags, setFilteredTags] = useState<Tag[]>([])
 	const [inputValue, setInputValue] = useState<string>('')
 	const [darkColors, setDarkColors] = useState<{ [key: string]: string }>({})
 	const selectedTags = controls?.value ?? value
 	const setSelectedTags = controls?.setValue ?? setValue
+
+	useEffect(() => {
+		const getTagsAsync = async () => {
+			if (!!defaultIds && defaultIds.length > 0) {
+				await getTagsByIds(defaultIds)
+					.unwrap()
+					.then(tags => {
+						setSelectedTags(tags)
+					})
+			}
+		}
+		getTagsAsync()
+	}, [])
 
 	useEffect(() => {
 		if (!!tags) {
@@ -90,12 +103,6 @@ export const TagInput = ({
 			setDarkColors(Object.fromEntries(tags.map(it => [it.color, makeDarker(it.color)])))
 		}
 	}, [tags])
-
-	useEffect(() => {
-		if (!!tagsByIds) {
-			setSelectedTags(tagsByIds)
-		}
-	}, [setSelectedTags, tagsByIds])
 
 	const filterEntities = (value: string) => {
 		const query = value.toLowerCase().trim()

@@ -6,8 +6,6 @@ type FormValueDispatcher<T> = (currentValue: T | undefined) => T
 export interface FormControls<T> {
 	value: FormValue<T>
 	setValue: (value: T | undefined | FormValueDispatcher<T>) => void
-	validator?: (value: T | undefined) => boolean
-	valueConsumer?: (value: FormValue<T>) => void
 	resetValue: (isValid?: boolean) => void
 }
 
@@ -61,5 +59,5 @@ export function useFormControl<T>({ defaultValue, validator, valueConsumer }: Fo
 		[defaultValue, valueConsumer]
 	)
 
-	return { value: formValue, setValue, validator, valueConsumer, resetValue }
+	return { value: formValue, setValue, resetValue }
 }
