@@ -2,6 +2,7 @@ import {Center, Grid, GridItem} from "@chakra-ui/react";
 import {useNavigate} from "react-router-dom";
 import "./home.css"
 import Search from "../Search";
+import CameraComponent from "../../components/ui/CameraComponent";
 
 export const HomePage = () =>
 {

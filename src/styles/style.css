@@ -1,0 +1,20 @@
+
+/* Start of style for camera module */
+
+#videoContainer {
+    max-height: 50%;
+    max-width: 50%;
+    margin: 50px auto auto;
+}
+
+text {
+    background: black;
+    color: white;
+}
+
+video {
+    max-width: 100%;
+    border-radius: 10px;
+}
+
+/* End of style for camera module */
