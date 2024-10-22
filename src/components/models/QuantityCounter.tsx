@@ -50,7 +50,7 @@ export const QuantityCounter = ({ quantity, boxDefinition, ...style }: QuantityC
 						{it.icon}
 					</Container>
 					<Text marginRight="0.5em">
-						{iconsCount[idx]} {describeStep(it, unitAsSteps[idx + 1])}
+						{iconsCount[idx]} {describeStep(unitAsSteps, idx)}
 					</Text>
 				</Flex>
 			))}

@@ -183,10 +183,7 @@ export const AddBoxForm = ({ defaultMaterial, defaultPosition, onDispatchSuccess
 								invalidLabel="Quantity is required and must be greater than 0"
 							/>
 							<Text marginTop="0.7em">
-								{`Total: ${formState.quantity.value?.quantity ?? 0} ${describeStep(
-									lastStep,
-									undefined
-								)}`}
+								{`Total: ${formState.quantity.value?.quantity ?? 0} ${describeStep([lastStep], 0)}`}
 							</Text>
 						</>
 					)}
