@@ -28,7 +28,7 @@ export const BoxDefinitionDisplay = ({ boxDefinition, ...style }: BoxDefinitionD
 						{it.icon}
 					</Container>
 					<Text marginRight="0.5em">
-						{it.qty} {describeStep(it, unitAsSteps[idx + 1])}
+						{it.qty} {describeStep(unitAsSteps, idx)}
 					</Text>
 				</Flex>
 			))}

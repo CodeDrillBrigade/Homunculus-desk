@@ -81,7 +81,7 @@ export const BoxUnitSelector = ({
 			{unitSteps.map((step, idx) => (
 				<FormControl key={idx} marginTop="0.7em">
 					<FormLabel>
-						{step.icon} {describeStep(step, unitSteps[idx + 1])}
+						{step.icon} {describeStep(unitSteps, idx)}
 					</FormLabel>
 					<HStack>
 						<Button onClick={() => onDecrease(idx)}>-</Button>
@@ -91,7 +91,7 @@ export const BoxUnitSelector = ({
 				</FormControl>
 			))}
 			<Text marginTop="0.7em">
-				Total: {computeTotal(unitSteps, stepValues)} {describeStep(unitSteps[unitSteps.length - 1], undefined)}
+				Total: {computeTotal(unitSteps, stepValues)} {describeStep([unitSteps[unitSteps.length - 1]], 0)}
 			</Text>
 			{!value.isValid && !!invalidLabel && (
 				<Text fontSize="sm" color="red">

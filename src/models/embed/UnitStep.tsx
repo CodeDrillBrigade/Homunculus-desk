@@ -37,7 +37,7 @@ export const generateDescription = (qty: number, type: Metric) => {
 export const generateLabel = (type: Metric) => {
 	switch (type) {
 		case Metric.COMPLEX:
-			return 'Box'
+			return 'Bag'
 		case Metric.ML:
 			return 'Flask'
 		case Metric.PIECE:
@@ -89,13 +89,20 @@ export function stepsListToUnit(steps: UnitStep[]): BoxUnit | undefined {
 	}
 }
 
-export function describeStep(step: UnitStep, nextStep: UnitStep | undefined): string {
+export function describeStep(steps: UnitStep[], idx: number): string {
+	const prevStep = steps[idx - 1]
+	const step = steps[idx]
+	const nextStep = steps[idx + 1]
 	if (step.type === Metric.COMPLEX && nextStep?.type === Metric.COMPLEX) {
-		return `Box of ${nextStep.qty} Box${nextStep.qty > 1 ? 'es' : ''}`
+		return `Box of ${nextStep.qty} Bag${nextStep.qty > 1 ? 's' : ''}`
 	} else if (step.type === Metric.COMPLEX && nextStep?.type === Metric.ML) {
 		return `Full ${nextStep.qty} ml Flask`
 	} else if (step.type === Metric.COMPLEX && nextStep?.type === Metric.PIECE) {
-		return `Full Box${nextStep.qty > 1 ? 'es' : ''} of ${nextStep.qty} pieces`
+		if (!prevStep) {
+			return `Full Box${nextStep.qty > 1 ? 'es' : ''} of ${nextStep.qty} pieces`
+		} else {
+			return `Full Bag${nextStep.qty > 1 ? 's' : ''} of ${nextStep.qty} pieces`
+		}
 	} else if (step.type === Metric.ML && !nextStep) {
 		return `ml`
 	} else if (step.qty === 1) {

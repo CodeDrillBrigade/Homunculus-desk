@@ -34,7 +34,7 @@ import {
 } from '../../../models/embed/UnitStep'
 
 const measures: SelectOption<Metric>[] = [
-	{ value: Metric.COMPLEX, name: 'Box', id: 'Box' },
+	{ value: Metric.COMPLEX, name: 'Bag', id: 'Box' },
 	{ value: Metric.PIECE, name: 'Units', id: 'Units' },
 ]
 
