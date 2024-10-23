@@ -1,10 +1,19 @@
-import { Button, FormControl, FormLabel, HStack, Input, LayoutProps, SpaceProps, Text } from '@chakra-ui/react'
+import {
+	Button,
+	FormControl,
+	FormLabel,
+	HStack,
+	HTMLChakraProps,
+	Input,
+	LayoutProps,
+	SpaceProps,
+	Text,
+} from '@chakra-ui/react'
 import { FormValue } from '../../../models/form/FormValue'
 import { BoxUnit } from '../../../models/embed/BoxUnit'
 import React, { useCallback, useMemo, useState } from 'react'
 import { describeStep, UnitStep, unitToStepsList } from '../../../models/embed/UnitStep'
 import { useFormControl } from '../../../hooks/form-control'
-import { HTMLChakraProps } from '@chakra-ui/system'
 import { computeTotal } from '../../../utils/box-utils'
 
 interface BoxUnitSelectorProps extends LayoutProps, SpaceProps, HTMLChakraProps<'div'> {
