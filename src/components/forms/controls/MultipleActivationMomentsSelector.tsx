@@ -1,5 +1,4 @@
 import { Flex, FormControl, FormLabel, Icon, IconButton, LayoutProps, Select, SpaceProps, Text } from '@chakra-ui/react'
-import { Tag } from '../../../models/embed/Tag'
 import { FormValue } from '../../../models/form/FormValue'
 import { FormControls, useFormControl } from '../../../hooks/form-control'
 import { ActivationMoment } from '../../../models/embed/ActivationMoment'
