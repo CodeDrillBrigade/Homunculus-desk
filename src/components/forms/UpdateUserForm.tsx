@@ -16,11 +16,9 @@ export const UpdateUserForm = ({ user }: UpdateUserFormProps) => {
 	const isMobile = useIsMobileLayout()
 	const [tokenIsValid, setTokenIsValid] = useState<boolean>(true)
 
-	const [uploadPicture, { isLoading: uploadPictureLoading, error: uploadPictureError }] =
-		useCreateProfilePictureMutation()
-	const [modifyPicture, { isLoading: modifyPictureLoading, error: modifyPictureError }] =
-		useModifyProfilePictureMutation()
-	const [modifyUser, { isLoading: modifyUserLoading, error: modifyUserError }] = useModifyUserMutation()
+	const [uploadPicture, { error: uploadPictureError }] = useCreateProfilePictureMutation()
+	const [modifyPicture, { error: modifyPictureError }] = useModifyProfilePictureMutation()
+	const [modifyUser] = useModifyUserMutation()
 
 	const typeIsValid = (type: string) => {
 		return type === 'image/png' || type === 'image/jpeg' || type === 'image/webp'

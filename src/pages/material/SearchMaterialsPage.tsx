@@ -54,10 +54,7 @@ export const SearchMaterialsPage = () => {
 		data: materialIds,
 		error: idsError,
 		isLoading: idsLoading,
-	} = useSearchIdsByNameBrandCodeQuery(
-		{ query: query ?? '', tags: !!tagFilter ? [tagFilter] : null },
-		{ skip: (!query || query.length === 0) && !tagFilter }
-	)
+	} = useSearchIdsByNameBrandCodeQuery({ query: query ?? '', tags: !!tagFilter ? [tagFilter] : null })
 	const {
 		data: materials,
 		error: materialsError,
