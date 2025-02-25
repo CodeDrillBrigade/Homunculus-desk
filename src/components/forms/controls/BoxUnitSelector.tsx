@@ -18,6 +18,7 @@ import { computeTotal } from '../../../utils/box-utils'
 
 interface BoxUnitSelectorProps extends LayoutProps, SpaceProps, HTMLChakraProps<'div'> {
 	boxUnit: BoxUnit
+	boxCount?: number
 	label: string
 	validator?: (input?: BoxUnit) => boolean
 	valueConsumer?: (value: FormValue<BoxUnit>) => void
@@ -26,13 +27,21 @@ interface BoxUnitSelectorProps extends LayoutProps, SpaceProps, HTMLChakraProps<
 
 export const BoxUnitSelector = ({
 	boxUnit,
+	boxCount,
 	label,
 	validator,
 	valueConsumer,
 	invalidLabel,
 	...style
 }: BoxUnitSelectorProps) => {
-	const unitSteps = useMemo(() => unitToStepsList(boxUnit), [boxUnit])
+	const unitSteps = useMemo(() => {
+		const steps = unitToStepsList(boxUnit)
+		if (boxCount != null) {
+			return [{ ...steps[0], qty: boxCount }, ...steps.slice(1)]
+		} else {
+			return steps
+		}
+	}, [boxUnit])
 	const [stepValues, setStepValues] = useState<number[]>(
 		unitSteps
 			.slice(0, unitSteps.length - 1)

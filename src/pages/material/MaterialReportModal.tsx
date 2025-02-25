@@ -1,4 +1,3 @@
-import { useIsMobileLayout } from '../../hooks/responsive-size'
 import {
 	Button,
 	Center,
