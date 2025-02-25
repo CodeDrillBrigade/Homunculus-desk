@@ -27,6 +27,10 @@ interface UpdateQuantityFormValues extends FormValues {
 
 export const UpdateQuantityForm = ({ box, boxDefinition, onDispatched }: UpdateQuantityFormProps) => {
 	const unitSteps = useMemo(() => unitToStepsList(boxDefinition), [boxDefinition])
+	const boxCount = useMemo(
+		() => Math.floor(box.quantity.quantity / unitSteps.reduce((p, c) => p * c.qty, 1)),
+		[box.quantity.quantity, unitSteps]
+	)
 	const initialState: UpdateQuantityFormValues = {
 		date: { value: new Date().getTime(), isValid: true },
 		quantity: {
@@ -95,6 +99,7 @@ export const UpdateQuantityForm = ({ box, boxDefinition, onDispatched }: UpdateQ
 			/>
 			<BoxUnitSelector
 				boxUnit={boxDefinition}
+				boxCount={boxCount}
 				label="Select the quantity to update"
 				validator={input => !!input && !input.boxUnit && input.quantity > 0}
 				valueConsumer={value => {
