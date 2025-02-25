@@ -5,11 +5,13 @@ import {
 	CardBody,
 	CardFooter,
 	CardHeader,
+	Container,
 	Flex,
 	Heading,
 	Icon,
 	IconButton,
 	Text,
+	Tooltip,
 	useDisclosure,
 } from '@chakra-ui/react'
 import { ElementTag } from './ElementTag'
@@ -20,7 +22,7 @@ import { ConfirmModal } from '../modals/ConfirmModal'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
 import { DetailedMaterialModal } from './DetailedMaterialModal'
 import { AddBoxFormModal } from '../modals/AddBoxFormModal'
-import { PencilSimple, Plus, Trash } from '@phosphor-icons/react'
+import { ExclamationMark, PencilSimple, Plus, Trash } from '@phosphor-icons/react'
 import { useHasPermission } from '../../hooks/permissions'
 import { Permissions } from '../../models/security/Permissions'
 import { useDeleteBoxesWithMaterialMutation, useGetUnitsWithMaterialQuery } from '../../services/box'
@@ -85,8 +87,26 @@ export const MaterialCard = ({ material, isCompact }: MaterialCardProps) => {
 						onClick={!isMobile ? openDetails : undefined}
 					>
 						{!!material.description && <Text>{material.description}</Text>}
-						{!!boxDefinition && !!totalInBoxes && (
-							<QuantityCounter quantity={totalInBoxes} boxDefinition={boxDefinition} mt="0.5em" />
+						{!!boxDefinition && totalInBoxes != null && (
+							<Flex>
+								<QuantityCounter quantity={totalInBoxes} boxDefinition={boxDefinition} mt="0.5em" />
+								{totalInBoxes === 0 && (
+									<Tooltip label="No units left for this material">
+										<Container
+											borderRadius="full"
+											backgroundColor="red"
+											width="1.7em"
+											height="1.7em"
+											paddingTop="0.15em"
+											paddingLeft="0.1em"
+											marginLeft="1em"
+											marginTop="0.5em"
+										>
+											<Icon as={ExclamationMark} boxSize={6} />
+										</Container>
+									</Tooltip>
+								)}
+							</Flex>
 						)}
 						{!!material.tags && material.tags.length > 0 && (
 							<Flex align="center" justify="start" mt="1em">
