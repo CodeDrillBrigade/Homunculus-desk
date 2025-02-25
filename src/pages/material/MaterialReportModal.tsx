@@ -23,7 +23,7 @@ export const MaterialReportModal = ({ onClose, isOpen }: MaterialReportModalProp
 	const [createReport, { isLoading }] = useInitReportCreationMutation()
 	const handleDownload = async () => {
 		const result = await createReport()
-		if ('data' in result) {
+		if ('data' in result && result.data != null) {
 			window.open(getReportDownloadUrl(result.data), '_blank')
 		}
 	}
