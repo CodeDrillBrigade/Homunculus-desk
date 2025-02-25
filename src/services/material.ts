@@ -102,18 +102,26 @@ export const materialApi = createApi({
 			}),
 			providesTags: materialTagProvider,
 		}),
+		initReportCreation: builder.mutation<string, void>({
+			query: () => ({
+				url: '/report',
+				method: 'POST',
+				responseHandler: 'text',
+			}),
+		}),
 	}),
 })
 
 export const {
 	useCreateMaterialMutation,
 	useDeleteMaterialMutation,
+	useFilterMaterialsQuery,
+	useFindMaterialsByFuzzyNameQuery,
 	useGetLastCreatedQuery,
 	useGetMaterialsByIdsQuery,
 	useGetMaterialsByRefCodeQuery,
 	useGetMaterialQuery,
-	useFilterMaterialsQuery,
-	useFindMaterialsByFuzzyNameQuery,
+	useInitReportCreationMutation,
 	useModifyMaterialMutation,
 	useSearchIdsByNameBrandCodeQuery,
 	useSearchNamesByNameBrandCodeQuery,

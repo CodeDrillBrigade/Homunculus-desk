@@ -4,9 +4,12 @@ import { setPageTitle } from '../../store/ui/ui-slice'
 import {
 	Alert,
 	AlertIcon,
+	Button,
 	Center,
 	CloseButton,
 	Container,
+	Icon,
+	IconButton,
 	Input,
 	InputGroup,
 	InputLeftAddon,
@@ -15,6 +18,7 @@ import {
 	Skeleton,
 	Spinner,
 	Stack,
+	useDisclosure,
 	VStack,
 } from '@chakra-ui/react'
 import { useGetTagsQuery } from '../../services/tag'
@@ -31,6 +35,9 @@ import { StackedSkeleton } from '../../components/ui/StackedSkeleton'
 import { MaterialCard } from '../../components/models/MaterialCard'
 import { useIsMobileLayout } from '../../hooks/responsive-size'
 import { getIdsInPage } from '../../utils/array-utils'
+import { getReportDownloadUrl } from '../../utils/url-utils'
+import { FileXls } from '@phosphor-icons/react'
+import { MaterialReportModal } from './MaterialReportModal'
 
 export const SearchMaterialsPage = () => {
 	const isMobile = useIsMobileLayout()
@@ -48,6 +55,7 @@ export const SearchMaterialsPage = () => {
 	const [rawQuery, setRawQuery] = useState<string>('')
 	const [query, setQuery] = useState<string | undefined>(undefined)
 	const [isTyping, setIsTyping] = useState<boolean>(false)
+	const { isOpen: reportModalIsOpen, onOpen: reportModalOpen, onClose: onReportModalClose } = useDisclosure()
 
 	const { data: tags, error: tagsError, isLoading: tagsLoading } = useGetTagsQuery()
 	const {
@@ -62,7 +70,6 @@ export const SearchMaterialsPage = () => {
 	} = useGetMaterialsByIdsQuery(getIdsInPage(materialIds, currentPage, pageSize), {
 		skip: !materialIds || getIdsInPage(materialIds, currentPage, pageSize).length === 0,
 	})
-
 	const prefetchNextPage = useCallback(() => {
 		const nextIds = getIdsInPage(materialIds, currentPage + 1, pageSize)
 		if (nextIds.length > 0) {
@@ -149,7 +156,7 @@ export const SearchMaterialsPage = () => {
 					<Input
 						id="material-search-bar"
 						placeholder="Search by name, brand, or reference number"
-						minWidth="75vw"
+						minWidth="65vw"
 						onChange={onChangeFilter}
 					/>
 					{isTyping && (
@@ -158,6 +165,13 @@ export const SearchMaterialsPage = () => {
 						</InputRightElement>
 					)}
 				</InputGroup>
+				<IconButton
+					colorScheme="green"
+					aria-label="Download excel report"
+					size="md"
+					icon={<Icon as={FileXls} boxSize={7} />}
+					onClick={reportModalOpen}
+				/>
 			</Stack>
 			{!!idsError && (
 				<ErrorAlert
@@ -202,6 +216,7 @@ export const SearchMaterialsPage = () => {
 					onNextEnter={prefetchNextPage}
 				/>
 			</Center>
+			<MaterialReportModal onClose={onReportModalClose} isOpen={reportModalIsOpen} />
 		</VStack>
 	)
 }
